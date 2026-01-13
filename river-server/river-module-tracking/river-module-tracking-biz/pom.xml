@@ -26,6 +26,11 @@
         </dependency>
         <dependency>
             <groupId>com.river</groupId>
+            <artifactId>river-module-affiliate-biz</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.river</groupId>
             <artifactId>river-module-system</artifactId>
             <version>${revision}</version>
         </dependency>
