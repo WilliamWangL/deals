@@ -1,0 +1,24 @@
+{
+  "Common": {
+    "searchPlaceholder": "搜索商家、优惠...",
+    "search": "搜索",
+    "categories": "分类",
+    "stores": "商家",
+    "deals": "优惠",
+    "coupons": "优惠券",
+    "blog": "博客"
+  },
+  "Home": {
+    "title": "最佳优惠 & 优惠券",
+    "heroTitle": "为您喜爱的品牌省钱",
+    "heroSubtitle": "发现每日验证的最新优惠码和折扣。",
+    "featuredDeals": "精选优惠",
+    "popularStores": "热门商家"
+  },
+  "Deal": {
+    "getDeal": "获取优惠",
+    "getCoupon": "获取优惠券",
+    "expires": "过期时间: {date}",
+    "verified": "已验证"
+  }
+}
