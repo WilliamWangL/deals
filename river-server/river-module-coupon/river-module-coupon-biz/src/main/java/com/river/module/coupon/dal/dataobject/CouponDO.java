@@ -1,0 +1,50 @@
+package com.river.module.coupon.dal.dataobject;
+
+import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@TableName("river_coupon_coupon")
+@KeySequence("river_coupon_coupon_seq")
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CouponDO extends BaseDO {
+
+    @TableId
+    private Long id;
+
+    private Long merchantId;
+
+    private Long offerId;
+
+    private String code;
+
+    private Integer discountType;
+
+    private BigDecimal discountValue;
+
+    private BigDecimal minPurchase;
+
+    private LocalDateTime startTime;
+
+    private LocalDateTime endTime;
+
+    private String terms;
+
+    private Integer source;
+
+    private Boolean verified;
+
+    private Integer hotScore;
+
+    private Integer status;
+}

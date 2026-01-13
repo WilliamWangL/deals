@@ -1,0 +1,24 @@
+{
+  "Common": {
+    "searchPlaceholder": "Search for stores, deals...",
+    "search": "Search",
+    "categories": "Categories",
+    "stores": "Stores",
+    "deals": "Deals",
+    "coupons": "Coupons",
+    "blog": "Blog"
+  },
+  "Home": {
+    "title": "Best Deals & Coupons",
+    "heroTitle": "Save Money on Your Favorite Brands",
+    "heroSubtitle": "Find the latest coupon codes and deals verified daily.",
+    "featuredDeals": "Featured Deals",
+    "popularStores": "Popular Stores"
+  },
+  "Deal": {
+    "getDeal": "Get Deal",
+    "getCoupon": "Get Coupon",
+    "expires": "Expires: {date}",
+    "verified": "Verified"
+  }
+}

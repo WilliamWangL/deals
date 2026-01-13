@@ -1,0 +1,60 @@
+package com.river.module.coupon.controller.admin.deal.vo;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Schema(description = "管理后台 - Deal Response VO")
+@Data
+public class DealRespVO {
+
+    @Schema(description = "编号", example = "1")
+    private Long id;
+
+    @Schema(description = "商家 ID", example = "1")
+    private Long merchantId;
+
+    @Schema(description = "Offer ID", example = "1")
+    private Long offerId;
+
+    @Schema(description = "标题", example = "50% Off Electronics")
+    private String title;
+
+    @Schema(description = "描述")
+    private String description;
+
+    @Schema(description = "原价", example = "199.99")
+    private BigDecimal originalPrice;
+
+    @Schema(description = "优惠价", example = "99.99")
+    private BigDecimal dealPrice;
+
+    @Schema(description = "折扣百分比", example = "50")
+    private Integer discountPercent;
+
+    @Schema(description = "开始时间")
+    private LocalDateTime startTime;
+
+    @Schema(description = "结束时间")
+    private LocalDateTime endTime;
+
+    @Schema(description = "库存限制", example = "100")
+    private Integer stockLimit;
+
+    @Schema(description = "图片 URL")
+    private String imageUrl;
+
+    @Schema(description = "热度分数", example = "100")
+    private Integer hotScore;
+
+    @Schema(description = "是否精选", example = "true")
+    private Boolean featured;
+
+    @Schema(description = "状态", example = "1")
+    private Integer status;
+
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
+}
