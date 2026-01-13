@@ -81,6 +81,70 @@ AI 助手应在以下时机主动提醒：
 - **遇到错误 2+ 次** → 提醒使用系统化调试
 - **任务完成时** → 提醒请求代码审查
 
+### ULW（一路往下）模式规范
+
+当用户要求"一路往下"或"ulw"连续执行多阶段任务时，**必须遵循**：
+
+#### 每阶段必做事项
+
+```
+每个 Phase 开始前：
+1. 创建计划文档 → docs/plans/YYYY-MM-DD-phase{N}-{module}.md
+2. 更新 TodoWrite 标记当前阶段
+3. 执行计划
+4. 验证完成（编译通过、提交成功）
+5. 更新 TodoWrite 标记完成
+```
+
+#### 计划文档格式
+
+```markdown
+# [Module] Implementation Plan
+
+> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans
+
+**Goal:** [一句话描述]
+**Architecture:** [2-3 句架构说明]
+**Tech Stack:** [技术栈]
+
+## Task 1: [任务名]
+**Files:** [文件列表]
+**Steps:** [步骤]
+**Verification:** [验证命令]
+**Commit:** [提交命令]
+
+## Task N: ...
+
+## Verification Checklist
+- [ ] 编译通过
+- [ ] 所有文件已创建
+- [ ] 已提交 Git
+```
+
+#### 禁止行为
+
+- ❌ 跳过计划文档直接执行
+- ❌ 多个阶段合并成一个计划
+- ❌ 执行后才补充计划文档
+
+#### 正确流程示例
+
+```
+用户: ulw 直到完成
+
+Phase 1:
+  → 创建 docs/plans/2026-01-13-phase1-xxx.md
+  → 执行任务
+  → 提交
+
+Phase 2:
+  → 创建 docs/plans/2026-01-13-phase2-xxx.md
+  → 执行任务
+  → 提交
+
+...
+```
+
 ### Subagent 代理
 
 本项目可使用以下专业代理（oh-my-opencode 提供）：
