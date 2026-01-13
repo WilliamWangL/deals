@@ -1,37 +1,39 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
-
-  // 根据项目需求禁用不需要的代理
-  "disabled_agents": [
-  ],
-
-  // 禁用不需要的技能
-  "disabled_skills": [
-  ],
-  
+  "google_auth": false,
   "sisyphus_agent": {
     "disabled": false,
-    "default_builder_enabled": false,
     "planner_enabled": true,
     "replace_plan": true
   },
-  // 项目级别的 agent 配置覆盖
   "agents": {
     "Sisyphus": {
-      "model": "cliproxyapi-claude/gemini-claude-opus-4-5-thinking",
-      "description": "River 广告平台主代理 - Java 17 + Spring Boot 3.5 + Vue3 专家"
+      "model": "cliproxyapi-claude/gemini-claude-opus-4-5-thinking"
+       //"model": "cliproxyapi-claude/claude-opus-4-5-20251101"
     },
-
+    "Planner-Sisyphus": {
+      "model": "cliproxyapi-claude/gemini-claude-opus-4-5-thinking"
+    },
     "oracle": {
-      "description": "架构咨询代理 - 复杂设计决策和架构评审"
+      "model": "cliproxyapi/gpt-5.2"
     },
-
-    "explore": {
-      "description": "代码探索代理 - 快速理解项目结构"
-    },
-
     "librarian": {
-      "description": "文档查询代理 - 外部库文档和最佳实践"
+      "model": "opencode/grok-code"
+    },
+    "explore": {
+      "model": "opencode/grok-code"
+    },
+    "general": {
+      "model": "cliproxyapi-claude/gemini-claude-opus-4-5-thinking"
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "google/antigravity-gemini-3-pro-high"
+    },
+    "document-writer": {
+      "model": "google/antigravity-gemini-3-pro-high"
+    },
+    "multimodal-looker": {
+      "model": "google/antigravity-gemini-3-pro-high"
     }
   }
 }
