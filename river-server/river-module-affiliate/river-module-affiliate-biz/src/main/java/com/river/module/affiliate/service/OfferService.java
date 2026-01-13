@@ -1,5 +1,7 @@
 package com.river.module.affiliate.service;
 
+import com.river.framework.common.pojo.PageResult;
+import com.river.module.affiliate.controller.admin.offer.vo.OfferPageReqVO;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
 import jakarta.validation.Valid;
 
@@ -46,6 +48,14 @@ public interface OfferService {
      * @return Offer 列表
      */
     List<OfferDO> getOfferList();
+
+    /**
+     * 获得 Offer 分页
+     *
+     * @param pageReqVO 分页查询
+     * @return Offer 分页
+     */
+    PageResult<OfferDO> getOfferPage(OfferPageReqVO pageReqVO);
 
     /**
      * 根据商家获得 Offer 列表

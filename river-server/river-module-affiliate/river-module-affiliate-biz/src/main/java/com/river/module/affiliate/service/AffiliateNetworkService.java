@@ -1,6 +1,7 @@
 package com.river.module.affiliate.service;
 
 import com.river.framework.common.pojo.PageResult;
+import com.river.module.affiliate.controller.admin.network.vo.AffiliateNetworkPageReqVO;
 import com.river.module.affiliate.dal.dataobject.AffiliateNetworkDO;
 import jakarta.validation.Valid;
 
@@ -47,6 +48,14 @@ public interface AffiliateNetworkService {
      * @return 联盟网络列表
      */
     List<AffiliateNetworkDO> getNetworkList();
+
+    /**
+     * 获得联盟网络分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 联盟网络分页
+     */
+    PageResult<AffiliateNetworkDO> getNetworkPage(AffiliateNetworkPageReqVO pageReqVO);
 
     /**
      * 校验联盟网络是否存在

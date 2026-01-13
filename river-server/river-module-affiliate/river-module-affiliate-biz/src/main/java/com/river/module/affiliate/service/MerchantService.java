@@ -1,5 +1,7 @@
 package com.river.module.affiliate.service;
 
+import com.river.framework.common.pojo.PageResult;
+import com.river.module.affiliate.controller.admin.merchant.vo.MerchantPageReqVO;
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import jakarta.validation.Valid;
 
@@ -46,6 +48,14 @@ public interface MerchantService {
      * @return 商家列表
      */
     List<MerchantDO> getMerchantList();
+
+    /**
+     * 获得商家分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 商家分页
+     */
+    PageResult<MerchantDO> getMerchantPage(MerchantPageReqVO pageReqVO);
 
     /**
      * 根据联盟网络获得商家列表

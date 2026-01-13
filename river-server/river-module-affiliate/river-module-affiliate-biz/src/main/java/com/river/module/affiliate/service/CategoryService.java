@@ -1,5 +1,6 @@
 package com.river.module.affiliate.service;
 
+import com.river.module.affiliate.controller.admin.category.vo.CategoryListReqVO;
 import com.river.module.affiliate.dal.dataobject.CategoryDO;
 import jakarta.validation.Valid;
 
@@ -46,6 +47,14 @@ public interface CategoryService {
      * @return 分类列表
      */
     List<CategoryDO> getCategoryList();
+
+    /**
+     * 获得分类列表
+     *
+     * @param listReqVO 列表查询
+     * @return 分类列表
+     */
+    List<CategoryDO> getCategoryList(CategoryListReqVO listReqVO);
 
     /**
      * 获得子分类列表

@@ -1,6 +1,8 @@
 package com.river.module.affiliate.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.river.module.affiliate.controller.admin.category.vo.CategoryListReqVO;
 import com.river.module.affiliate.dal.dataobject.CategoryDO;
 import com.river.module.affiliate.dal.mysql.CategoryMapper;
 import jakarta.annotation.Resource;
@@ -13,9 +15,6 @@ import java.util.Objects;
 import static com.river.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.river.module.affiliate.enums.ErrorCodeConstants.*;
 
-/**
- * 分类 Service 实现类
- */
 @Service
 @Validated
 public class CategoryServiceImpl implements CategoryService {
@@ -25,36 +24,26 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Long createCategory(CategoryDO category) {
-        // 校验父分类存在
         validateParentCategory(category.getParentId());
-        // 校验 slug 唯一性
         validateCategorySlugUnique(null, category.getSlug());
-        // 插入
         categoryMapper.insert(category);
         return category.getId();
     }
 
     @Override
     public void updateCategory(CategoryDO category) {
-        // 校验存在
         validateCategoryExists(category.getId());
-        // 校验父分类存在
         validateParentCategory(category.getParentId());
-        // 校验 slug 唯一性
         validateCategorySlugUnique(category.getId(), category.getSlug());
-        // 更新
         categoryMapper.updateById(category);
     }
 
     @Override
     public void deleteCategory(Long id) {
-        // 校验存在
         validateCategoryExists(id);
-        // 校验是否有子分类
         if (CollUtil.isNotEmpty(getCategoryListByParentId(id))) {
             throw exception(CATEGORY_EXISTS_CHILDREN);
         }
-        // 删除
         categoryMapper.deleteById(id);
     }
 
@@ -66,6 +55,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDO> getCategoryList() {
         return categoryMapper.selectList();
+    }
+
+    @Override
+    public List<CategoryDO> getCategoryList(CategoryListReqVO listReqVO) {
+        return categoryMapper.selectList(listReqVO);
     }
 
     @Override
@@ -90,6 +84,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void validateCategorySlugUnique(Long id, String slug) {
+        if (StrUtil.isBlank(slug)) {
+            return;
+        }
         CategoryDO category = categoryMapper.selectOne(CategoryDO::getSlug, slug);
         if (category == null) {
             return;

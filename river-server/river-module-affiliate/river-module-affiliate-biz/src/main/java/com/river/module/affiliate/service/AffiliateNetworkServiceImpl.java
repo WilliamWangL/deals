@@ -1,5 +1,7 @@
 package com.river.module.affiliate.service;
 
+import com.river.framework.common.pojo.PageResult;
+import com.river.module.affiliate.controller.admin.network.vo.AffiliateNetworkPageReqVO;
 import com.river.module.affiliate.dal.dataobject.AffiliateNetworkDO;
 import com.river.module.affiliate.dal.mysql.AffiliateNetworkMapper;
 import jakarta.annotation.Resource;
@@ -11,9 +13,6 @@ import java.util.List;
 import static com.river.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.river.module.affiliate.enums.ErrorCodeConstants.*;
 
-/**
- * 联盟网络 Service 实现类
- */
 @Service
 @Validated
 public class AffiliateNetworkServiceImpl implements AffiliateNetworkService {
@@ -23,28 +22,21 @@ public class AffiliateNetworkServiceImpl implements AffiliateNetworkService {
 
     @Override
     public Long createNetwork(AffiliateNetworkDO network) {
-        // 校验编码唯一性
         validateNetworkCodeUnique(null, network.getCode());
-        // 插入
         networkMapper.insert(network);
         return network.getId();
     }
 
     @Override
     public void updateNetwork(AffiliateNetworkDO network) {
-        // 校验存在
         validateNetworkExists(network.getId());
-        // 校验编码唯一性
         validateNetworkCodeUnique(network.getId(), network.getCode());
-        // 更新
         networkMapper.updateById(network);
     }
 
     @Override
     public void deleteNetwork(Long id) {
-        // 校验存在
         validateNetworkExists(id);
-        // 删除
         networkMapper.deleteById(id);
     }
 
@@ -56,6 +48,11 @@ public class AffiliateNetworkServiceImpl implements AffiliateNetworkService {
     @Override
     public List<AffiliateNetworkDO> getNetworkList() {
         return networkMapper.selectList();
+    }
+
+    @Override
+    public PageResult<AffiliateNetworkDO> getNetworkPage(AffiliateNetworkPageReqVO pageReqVO) {
+        return networkMapper.selectPage(pageReqVO);
     }
 
     @Override
