@@ -3,7 +3,7 @@ package com.river.module.blog.dal.dataobject;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.river.module.blog.enums.PostStatusEnum;
 import com.river.module.blog.enums.PostTypeEnum;
 import lombok.*;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostDO extends BaseDO {
+public class PostDO extends TenantBaseDO {
 
     @TableId
     private Long id;

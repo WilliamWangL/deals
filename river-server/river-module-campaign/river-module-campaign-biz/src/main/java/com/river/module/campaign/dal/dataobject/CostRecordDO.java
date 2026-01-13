@@ -3,7 +3,7 @@ package com.river.module.campaign.dal.dataobject;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CostRecordDO extends BaseDO {
+public class CostRecordDO extends TenantBaseDO {
 
     @TableId
     private Long id;

@@ -3,7 +3,7 @@ package com.river.module.campaign.dal.dataobject;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import lombok.*;
 
 @TableName("river_campaign_currency")
@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CurrencyDO extends BaseDO {
+public class CurrencyDO extends TenantBaseDO {
 
     @TableId
     private Long id;

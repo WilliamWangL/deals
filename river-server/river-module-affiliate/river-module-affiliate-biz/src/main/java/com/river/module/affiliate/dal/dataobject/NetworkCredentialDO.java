@@ -1,6 +1,6 @@
 package com.river.module.affiliate.dal.dataobject;
 
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.river.module.affiliate.enums.AuthTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NetworkCredentialDO extends BaseDO {
+public class NetworkCredentialDO extends TenantBaseDO {
 
     @TableId
     private Long id;

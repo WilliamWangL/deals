@@ -1,6 +1,6 @@
 package com.river.module.affiliate.dal.dataobject;
 
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.river.module.affiliate.enums.NetworkStatusEnum;
 import com.river.module.affiliate.enums.NetworkTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
@@ -19,7 +19,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AffiliateNetworkDO extends BaseDO {
+public class AffiliateNetworkDO extends TenantBaseDO {
 
     @TableId
     private Long id;

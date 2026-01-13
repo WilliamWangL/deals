@@ -1,6 +1,6 @@
 package com.river.module.affiliate.dal.dataobject;
 
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.river.module.affiliate.enums.CommissionTypeEnum;
 import com.river.module.affiliate.enums.OfferStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OfferDO extends BaseDO {
+public class OfferDO extends TenantBaseDO {
 
     @TableId
     private Long id;

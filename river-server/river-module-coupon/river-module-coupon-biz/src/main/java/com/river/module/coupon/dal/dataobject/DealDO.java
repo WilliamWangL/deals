@@ -1,6 +1,6 @@
 package com.river.module.coupon.dal.dataobject;
 
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DealDO extends BaseDO {
+public class DealDO extends TenantBaseDO {
 
     @TableId
     private Long id;

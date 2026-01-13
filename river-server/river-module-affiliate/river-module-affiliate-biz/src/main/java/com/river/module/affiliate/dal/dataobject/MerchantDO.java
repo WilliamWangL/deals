@@ -1,6 +1,6 @@
 package com.river.module.affiliate.dal.dataobject;
 
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MerchantDO extends BaseDO {
+public class MerchantDO extends TenantBaseDO {
 
     @TableId
     private Long id;

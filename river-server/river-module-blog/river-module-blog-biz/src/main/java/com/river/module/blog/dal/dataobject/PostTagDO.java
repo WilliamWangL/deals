@@ -3,7 +3,7 @@ package com.river.module.blog.dal.dataobject;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.river.framework.mybatis.core.dataobject.BaseDO;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import lombok.*;
 
 @TableName("river_blog_post_tag")
@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostTagDO extends BaseDO {
+public class PostTagDO extends TenantBaseDO {
 
     @TableId
     private Long id;
