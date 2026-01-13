@@ -114,7 +114,30 @@ CREATE INDEX idx_unattributed_time ON river_tracking_unattributed_conversion(cre
 COMMENT ON TABLE river_tracking_unattributed_conversion IS '未归因转化记录表';
 COMMENT ON COLUMN river_tracking_unattributed_conversion.attribution_fail_reason IS '归因失败原因';
 
+-- 归因记录表
+CREATE TABLE river_tracking_attribution (
+    id                  BIGINT PRIMARY KEY,
+    conversion_id       BIGINT NOT NULL,
+    click_id            VARCHAR(26) NOT NULL,
+    attribution_type    SMALLINT NOT NULL DEFAULT 1,
+    confidence_score    SMALLINT NOT NULL DEFAULT 100,
+    attribution_window  BIGINT,
+    creator             VARCHAR(64) DEFAULT '',
+    create_time         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updater             VARCHAR(64) DEFAULT '',
+    update_time         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted             SMALLINT NOT NULL DEFAULT 0,
+    tenant_id           BIGINT NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_attribution_conversion ON river_tracking_attribution(conversion_id);
+CREATE INDEX idx_attribution_click ON river_tracking_attribution(click_id);
+COMMENT ON TABLE river_tracking_attribution IS '归因记录表';
+COMMENT ON COLUMN river_tracking_attribution.attribution_type IS '归因类型: 1=最后点击, 2=首次点击, 3=线性归因';
+COMMENT ON COLUMN river_tracking_attribution.confidence_score IS '归因置信度(0-100)';
+COMMENT ON COLUMN river_tracking_attribution.attribution_window IS '归因窗口(毫秒)';
+
 -- 序列
+CREATE SEQUENCE IF NOT EXISTS river_tracking_attribution_seq START 1;
 CREATE SEQUENCE IF NOT EXISTS river_tracking_conversion_seq START 1;
 CREATE SEQUENCE IF NOT EXISTS river_tracking_link_seq START 1;
 CREATE SEQUENCE IF NOT EXISTS river_tracking_unattributed_conversion_seq START 1;
