@@ -1,0 +1,3 @@
+com.river.framework.mq.redis.config.RiverRedisMQProducerAutoConfiguration
+com.river.framework.mq.redis.config.RiverRedisMQConsumerAutoConfiguration
+com.river.framework.mq.rabbitmq.config.RiverRabbitMQAutoConfiguration

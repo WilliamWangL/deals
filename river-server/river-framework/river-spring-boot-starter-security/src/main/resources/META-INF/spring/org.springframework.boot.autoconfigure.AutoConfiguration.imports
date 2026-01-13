@@ -1,0 +1,3 @@
+com.river.framework.security.config.RiverSecurityAutoConfiguration
+com.river.framework.security.config.RiverWebSecurityConfigurerAdapter
+com.river.framework.operatelog.config.RiverOperateLogConfiguration

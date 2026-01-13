@@ -1,0 +1,2 @@
+com.river.framework.tracer.config.RiverTracerAutoConfiguration
+com.river.framework.tracer.config.RiverMetricsAutoConfiguration

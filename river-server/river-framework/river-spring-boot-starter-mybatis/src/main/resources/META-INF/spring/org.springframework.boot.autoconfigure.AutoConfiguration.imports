@@ -1,0 +1,3 @@
+com.river.framework.datasource.config.RiverDataSourceAutoConfiguration
+com.river.framework.mybatis.config.RiverMybatisAutoConfiguration
+com.river.framework.translate.config.RiverTranslateAutoConfiguration

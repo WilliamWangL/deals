@@ -1,0 +1,2 @@
+com.river.framework.redis.config.RiverRedisAutoConfiguration
+com.river.framework.redis.config.RiverCacheAutoConfiguration

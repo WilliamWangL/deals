@@ -1,0 +1,4 @@
+com.river.framework.idempotent.config.RiverIdempotentConfiguration
+com.river.framework.lock4j.config.RiverLock4jConfiguration
+com.river.framework.ratelimiter.config.RiverRateLimiterConfiguration
+com.river.framework.signature.config.RiverApiSignatureAutoConfiguration

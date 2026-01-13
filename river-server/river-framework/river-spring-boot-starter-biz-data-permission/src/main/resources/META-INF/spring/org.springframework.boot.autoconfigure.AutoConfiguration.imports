@@ -1,0 +1,2 @@
+com.river.framework.datapermission.config.RiverDataPermissionAutoConfiguration
+com.river.framework.datapermission.config.RiverDeptDataPermissionAutoConfiguration

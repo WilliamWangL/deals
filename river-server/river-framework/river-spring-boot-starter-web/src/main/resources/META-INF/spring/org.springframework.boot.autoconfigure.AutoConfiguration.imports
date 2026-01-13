@@ -1,0 +1,7 @@
+com.river.framework.apilog.config.RiverApiLogAutoConfiguration
+com.river.framework.jackson.config.RiverJacksonAutoConfiguration
+com.river.framework.swagger.config.RiverSwaggerAutoConfiguration
+com.river.framework.web.config.RiverWebAutoConfiguration
+com.river.framework.xss.config.RiverXssAutoConfiguration
+com.river.framework.banner.config.RiverBannerAutoConfiguration
+com.river.framework.encrypt.config.RiverApiEncryptAutoConfiguration
