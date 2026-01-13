@@ -18,6 +18,7 @@
         <module>river-module-affiliate</module>
         <module>river-module-tracking</module>
         <module>river-module-coupon</module>
+        <module>river-module-blog</module>
 <!--        <module>river-module-member</module>-->
 <!--        <module>river-module-bpm</module>-->
 <!--        <module>river-module-report</module>-->
