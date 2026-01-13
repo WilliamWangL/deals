@@ -2,9 +2,9 @@
 -- River Tracking Module - PostgreSQL Schema
 -- =============================================
 
--- 点击记录表 (ULID 主键，支持月分区)
+-- 点击记录表 (ULID 主键，按月分区)
 CREATE TABLE river_tracking_click (
-    click_id            VARCHAR(26) PRIMARY KEY,
+    click_id            VARCHAR(26) NOT NULL,
     offer_id            BIGINT NOT NULL,
     campaign_id         BIGINT,
     landing_page_id     BIGINT,
@@ -18,19 +18,48 @@ CREATE TABLE river_tracking_click (
     referer             TEXT,
     device_type         VARCHAR(50),
     country             VARCHAR(10),
-    click_time          TIMESTAMP NOT NULL,
+    click_time          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     creator             VARCHAR(64) DEFAULT '',
     create_time         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updater             VARCHAR(64) DEFAULT '',
     update_time         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted             SMALLINT NOT NULL DEFAULT 0,
-    tenant_id           BIGINT NOT NULL DEFAULT 0
-);
+    tenant_id           BIGINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (click_id, click_time)
+) PARTITION BY RANGE (click_time);
+
+-- 创建 2026 年分区
+CREATE TABLE river_tracking_click_2026_01 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+CREATE TABLE river_tracking_click_2026_02 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
+CREATE TABLE river_tracking_click_2026_03 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
+CREATE TABLE river_tracking_click_2026_04 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-04-01') TO ('2026-05-01');
+CREATE TABLE river_tracking_click_2026_05 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-05-01') TO ('2026-06-01');
+CREATE TABLE river_tracking_click_2026_06 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-06-01') TO ('2026-07-01');
+CREATE TABLE river_tracking_click_2026_07 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-07-01') TO ('2026-08-01');
+CREATE TABLE river_tracking_click_2026_08 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-08-01') TO ('2026-09-01');
+CREATE TABLE river_tracking_click_2026_09 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-09-01') TO ('2026-10-01');
+CREATE TABLE river_tracking_click_2026_10 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-10-01') TO ('2026-11-01');
+CREATE TABLE river_tracking_click_2026_11 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-11-01') TO ('2026-12-01');
+CREATE TABLE river_tracking_click_2026_12 PARTITION OF river_tracking_click
+    FOR VALUES FROM ('2026-12-01') TO ('2027-01-01');
+
+-- 索引（会自动应用到所有分区）
 CREATE INDEX idx_tracking_click_offer ON river_tracking_click(offer_id);
 CREATE INDEX idx_tracking_click_campaign ON river_tracking_click(campaign_id);
 CREATE INDEX idx_tracking_click_time ON river_tracking_click(click_time);
 CREATE INDEX idx_tracking_click_tenant_time ON river_tracking_click(tenant_id, click_time);
-COMMENT ON TABLE river_tracking_click IS '点击追踪记录表';
+COMMENT ON TABLE river_tracking_click IS '点击追踪记录表（按月分区）';
 COMMENT ON COLUMN river_tracking_click.click_id IS 'ULID 格式主键';
 COMMENT ON COLUMN river_tracking_click.sub1 IS '自定义追踪参数1';
 COMMENT ON COLUMN river_tracking_click.sub2 IS '自定义追踪参数2';
