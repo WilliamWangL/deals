@@ -18,6 +18,7 @@
   // 项目级别的 agent 配置覆盖
   "agents": {
     "Sisyphus": {
+      "model": "cliproxyapi-claude/gemini-claude-opus-4-5-thinking",
       "description": "River 广告平台主代理 - Java 17 + Spring Boot 3.5 + Vue3 专家"
     },
 
