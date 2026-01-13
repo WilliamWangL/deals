@@ -89,7 +89,7 @@ AI 助手应在以下时机主动提醒：
 |------|------|----------|
 | `explore` | 代码探索 - 快速理解项目结构 | 不熟悉模块、跨层查找模式 |
 | `librarian` | 文档查询 - 外部库文档和最佳实践 | 使用不熟悉的库、查找 API 用法 |
-| `oracle` | 架构咨询 - 复杂设计决策和架构评审 | 多系统权衡、修复失败 2+ 次、自我审查 |
+| `oracle` | 架构咨询 - 复杂设计决策和架构评审 | 架构设计、代码审查、疑难调试 |
 | `frontend-ui-ux-engineer` | 前端 UI/UX 设计与实现 | 视觉/样式相关改动（非纯逻辑） |
 | `document-writer` | 技术文档撰写 | README、API 文档、架构文档 |
 | `multimodal-looker` | 媒体分析 - PDF/图片/图表解读 | 需要分析设计稿、流程图等 |
@@ -97,9 +97,55 @@ AI 助手应在以下时机主动提醒：
 #### 使用原则
 
 1. **并行优先**：explore/librarian 作为后台任务并行启动，不阻塞主流程
-2. **Oracle 慎用**：昂贵资源，仅用于复杂架构决策或多次失败后
+2. **Oracle 善用**：用于复杂架构决策、代码审查、疑难调试
 3. **前端委派**：视觉相关改动（颜色、布局、动画）必须委派给 `frontend-ui-ux-engineer`
 4. **文档委派**：文档任务委派给 `document-writer`
+
+### 代理与技能协同
+
+代理和技能是独立系统，由 Sisyphus（主代理）负责协调配合。
+
+#### 协同架构
+
+```
+┌─────────────────────────────────────────────┐
+│  Sisyphus (主代理/协调者)                    │
+│  • 加载技能 (use_skill)                      │
+│  • 提取技能中的关键约束                       │
+│  • 编写委派 prompt（包含技能要求）            │
+│  • 验证子代理结果                            │
+└──────────────┬──────────────────────────────┘
+               │ 委派 (task 工具)
+               ▼
+┌─────────────────────────────────────────────┐
+│  子代理 (Subagents) - 执行具体任务           │
+└─────────────────────────────────────────────┘
+```
+
+#### 标准协同组合
+
+| 场景 | 主代理加载技能 | 委派代理 | 子代理应遵循 |
+|------|---------------|----------|-------------|
+| 前端 UI 开发 | `frontend-design` | `frontend-ui-ux-engineer` | 委派 prompt 包含设计原则 |
+| 文档撰写 | `doc-coauthoring` | `document-writer` | 技能内置子代理使用指导 |
+| 实现任务 | `subagent-driven-development` | `general` | `superpowers:test-driven-development` |
+| 复杂调试 | `superpowers:systematic-debugging` | `oracle` | 先按技能分析，再咨询 |
+
+#### 委派 prompt 必须包含技能要求
+
+当技能与代理配合时，主代理必须：
+1. 加载相关技能，提取关键约束（3-5 条核心规则）
+2. 在委派 prompt 的 **MUST DO** 部分写入这些约束
+3. 或者：指示子代理加载特定技能（如 `使用 superpowers:test-driven-development`）
+4. 验收时检查子代理是否遵循技能要求
+
+#### 项目特定协同规则
+
+| 子项目 | 推荐组合 | 说明 |
+|--------|----------|------|
+| river-ui-admin (Vue 3) | `frontend-design` + `frontend-ui-ux-engineer` | Element Plus 组件样式优化 |
+| river-ecommica (Next.js) | `frontend-design` + `frontend-ui-ux-engineer` | 落地页、优惠卡片设计 |
+| river-server (Java) | `superpowers:test-driven-development` + `oracle` | TDD 开发，完成后 oracle 审查 |
 
 ## 子项目规范
 
