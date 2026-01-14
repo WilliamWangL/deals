@@ -1,6 +1,6 @@
 import { Deal, Store, Coupon, BlogPost } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/app-api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:48080/app-api';
 
 const MOCK_DEALS: Deal[] = [
     {
