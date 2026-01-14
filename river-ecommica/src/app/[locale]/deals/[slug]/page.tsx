@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function DealDetailPage({ params }: Props) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const deal = await fetchDealBySlug(slug);
 
   if (!deal) {
@@ -70,7 +70,7 @@ export default async function DealDetailPage({ params }: Props) {
 
           <h1 className="text-3xl font-bold mb-2">{deal.title}</h1>
           
-          <Link href={`/stores/${deal.merchantName?.toLowerCase().replace(/\s+/g, '-')}`} className="text-blue-600 hover:underline mb-4 block">
+          <Link href={`/${locale}/stores/${deal.merchantName?.toLowerCase().replace(/\s+/g, '-')}`} className="text-blue-600 hover:underline mb-4 block">
             {deal.merchantName}
           </Link>
 

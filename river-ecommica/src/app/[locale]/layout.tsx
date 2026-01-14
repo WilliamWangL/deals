@@ -44,7 +44,7 @@ export default async function LocaleLayout({
             <main className="flex-grow">
                {children}
             </main>
-            <Footer />
+            <Footer locale={locale} />
           </div>
         </NextIntlClientProvider>
       </body>

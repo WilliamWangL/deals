@@ -28,7 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default async function StoresPage() {
+export default async function StoresPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const stores = await fetchStores();
 
   const totalStores = stores.length;
@@ -134,7 +135,7 @@ export default async function StoresPage() {
         {stores.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {stores.map(store => (
-              <StoreCard key={store.id} store={store} />
+              <StoreCard key={store.id} store={store} locale={locale} />
             ))}
           </div>
         ) : (

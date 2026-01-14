@@ -60,49 +60,60 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <section className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 text-white">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"></div>
-        <div className="container relative mx-auto px-4 py-16 md:py-24 lg:py-32">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm font-medium bg-white/10 text-white hover:bg-white/20 border-0 backdrop-blur-sm">
-              <Sparkles className="mr-2 h-4 w-4 text-yellow-300" />
-              #1 Trusted Coupon Site
-            </Badge>
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl drop-shadow-sm">
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-cyan-900 text-white pb-32 pt-20 lg:pt-32">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -left-[10%] w-[700px] h-[700px] rounded-full bg-blue-600/20 blur-[100px] mix-blend-screen animate-pulse duration-[4000ms]"></div>
+          <div className="absolute top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-teal-500/10 blur-[80px] mix-blend-screen"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] rounded-full bg-indigo-600/20 blur-[100px] mix-blend-screen"></div>
+          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10"></div>
+        </div>
+
+        <div className="container relative mx-auto px-4 text-center z-10">
+          <div className="mx-auto max-w-4xl flex flex-col items-center">
+            
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
+              <Badge variant="secondary" className="mb-8 px-4 py-1.5 text-sm font-medium bg-white/5 text-cyan-100 hover:bg-white/10 border border-white/10 backdrop-blur-md shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all">
+                <Sparkles className="mr-2 h-4 w-4 text-cyan-300" />
+                #1 Trusted Coupon Site
+              </Badge>
+            </div>
+
+            <h1 className="mb-8 text-5xl font-black tracking-tighter md:text-7xl lg:text-8xl bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-200 drop-shadow-sm animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 ease-out fill-mode-both leading-[1.1]">
               {t('heroTitle')}
             </h1>
-            <p className="mb-10 text-lg text-blue-100 md:text-2xl drop-shadow-sm">
+            
+            <p className="mb-12 text-xl text-blue-100/90 md:text-2xl max-w-2xl font-light leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 ease-out fill-mode-both">
               {t('heroSubtitle')}
             </p>
             
-            <div className="relative mx-auto max-w-xl mb-12">
+            <div className="w-full max-w-2xl mb-16 animate-in fade-in zoom-in-95 duration-700 delay-500 ease-out fill-mode-both">
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-blue-500 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-200"></div>
-                <div className="relative flex shadow-2xl rounded-lg overflow-hidden bg-white p-1">
+                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+                <div className="relative flex items-center shadow-2xl rounded-xl overflow-hidden bg-white/95 backdrop-blur-xl p-2 ring-1 ring-white/20">
+                  <Search className="ml-4 h-6 w-6 text-slate-400" />
                   <Input 
                     type="text" 
                     placeholder={tCommon('searchPlaceholder')}
-                    className="border-0 bg-transparent text-gray-900 placeholder:text-gray-400 focus-visible:ring-0 text-lg h-12 pl-4 shadow-none"
+                    className="border-0 bg-transparent text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-lg h-14 pl-4 shadow-none flex-grow"
                   />
-                  <Button size="lg" className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors rounded-md">
-                    <Search className="h-5 w-5 mr-2" />
+                  <Button size="lg" className="h-14 px-8 bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] rounded-lg text-base">
                     {tCommon('search')}
                   </Button>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base font-medium text-blue-100">
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
-                <ShieldCheck className="h-5 w-5 text-green-300" />
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base font-medium text-slate-300 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700 fill-mode-both">
+              <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-slate-900/30 border border-white/5 backdrop-blur-md hover:bg-slate-900/50 transition-colors cursor-default">
+                <ShieldCheck className="h-5 w-5 text-emerald-400" />
                 <span>100% Verified Codes</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
-                <TrendingUp className="h-5 w-5 text-yellow-300" />
+              <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-slate-900/30 border border-white/5 backdrop-blur-md hover:bg-slate-900/50 transition-colors cursor-default">
+                <TrendingUp className="h-5 w-5 text-amber-400" />
                 <span>Updated Daily</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
-                <Store className="h-5 w-5 text-pink-300" />
+              <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-slate-900/30 border border-white/5 backdrop-blur-md hover:bg-slate-900/50 transition-colors cursor-default">
+                <Store className="h-5 w-5 text-pink-400" />
                 <span>10,000+ Stores</span>
               </div>
             </div>
@@ -118,7 +129,7 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
               return (
                 <Link 
                   key={category.id} 
-                  href={`/deals?category=${category.slug}`}
+                  href={`/${locale}/category/${category.slug}`}
                   className="flex flex-shrink-0 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-blue-500 hover:text-blue-600 hover:shadow-md transition-all duration-200 whitespace-nowrap"
                 >
                   <Icon className="h-4 w-4" />
@@ -139,7 +150,7 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">{t('featuredDeals')}</h2>
           </div>
           <Link 
-            href="/deals" 
+            href={`/${locale}/deals`} 
             className="group flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
             {tCommon('viewAll')}
@@ -173,7 +184,7 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
               <h2 className="text-3xl font-bold tracking-tight text-gray-900">{t('popularStores')}</h2>
             </div>
             <Link 
-              href="/stores" 
+              href={`/${locale}/stores`} 
               className="group flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
             >
               {tCommon('viewAll')}
@@ -184,7 +195,7 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
              {popularStores.map(store => (
                <div key={store.id} className="transition-transform duration-300 hover:scale-105">
-                 <StoreCard store={store} />
+                 <StoreCard store={store} locale={locale} />
                </div>
              ))}
           </div>
