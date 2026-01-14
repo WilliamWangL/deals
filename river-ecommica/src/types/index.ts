@@ -6,12 +6,14 @@ export interface Deal {
   originalPrice: number;
   dealPrice: number;
   discountPercent: number;
+  merchantId: number;
   merchantName: string;
   merchantLogo: string;
   imageUrl: string;
   startTime: string;
   endTime: string;
   featured: boolean;
+  trackingLinkId?: string;
 }
 
 export interface Store {
@@ -24,18 +26,22 @@ export interface Store {
   rating: number;
   dealCount: number;
   couponCount: number;
+  regions?: string[];
 }
 
 export interface Coupon {
   id: number;
   code: string;
   description: string;
-  discountType: 'percent' | 'fixed' | 'free_shipping';
+  discountType: number;
   discountValue: number;
+  minPurchase?: number;
+  merchantId: number;
   merchantName: string;
   merchantLogo: string;
   endTime: string;
   verified: boolean;
+  trackingLinkId?: string;
 }
 
 export interface BlogPost {

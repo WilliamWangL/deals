@@ -27,7 +27,7 @@ export default async function HomePage() {
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6">{t('featuredDeals')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-           {deals.data.length > 0 ? deals.data.map(deal => (
+           {deals.length > 0 ? deals.map(deal => (
              <DealCard key={deal.id} deal={deal} />
            )) : (
              <p className="col-span-4 text-center text-gray-500">No deals found (Mock Data)</p>
@@ -38,7 +38,7 @@ export default async function HomePage() {
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6">{t('popularStores')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-           {stores.data.length > 0 ? stores.data.map(store => (
+           {stores.length > 0 ? stores.map(store => (
              <StoreCard key={store.id} store={store} />
            )) : (
              <p className="col-span-6 text-center text-gray-500">No stores found (Mock Data)</p>
