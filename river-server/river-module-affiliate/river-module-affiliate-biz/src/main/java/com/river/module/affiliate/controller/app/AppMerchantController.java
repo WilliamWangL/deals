@@ -5,6 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.affiliate.controller.app.vo.AppMerchantRespVO;
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.affiliate.service.MerchantService;
+import com.river.module.coupon.api.statistics.CouponStatisticsApi;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +27,9 @@ public class AppMerchantController {
 
     @Resource
     private MerchantService merchantService;
+
+    @Resource
+    private CouponStatisticsApi couponStatisticsApi;
 
     @GetMapping("/list")
     @Operation(summary = "获取商家列表")
@@ -49,6 +53,9 @@ public class AppMerchantController {
         if (merchant == null) {
             return null;
         }
+        Long dealCount = couponStatisticsApi.getDealCountByMerchantId(merchant.getId());
+        Long couponCount = couponStatisticsApi.getCouponCountByMerchantId(merchant.getId());
+
         AppMerchantRespVO vo = new AppMerchantRespVO();
         vo.setId(merchant.getId());
         vo.setName(merchant.getName());
@@ -58,8 +65,8 @@ public class AppMerchantController {
         vo.setDescription(merchant.getDescription());
         vo.setRating(merchant.getRating());
         vo.setRegions(parseRegions(merchant.getRegions()));
-        vo.setDealCount(0);
-        vo.setCouponCount(0);
+        vo.setDealCount(dealCount != null ? dealCount.intValue() : 0);
+        vo.setCouponCount(couponCount != null ? couponCount.intValue() : 0);
         return vo;
     }
 
