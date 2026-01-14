@@ -1,6 +1,8 @@
 package com.river.module.affiliate.service.network.admitad;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.river.module.affiliate.dal.dataobject.NetworkCredentialDO;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -9,33 +11,27 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
 public class AdmitadClient {
 
-    @Resource
-    private AdmitadProperties properties;
-
+    private static final String BASE_URL = "https://api.admitad.com";
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
     private String accessToken;
     private LocalDateTime tokenExpiry;
+    private Long currentNetworkId;
 
-    public List<AdmitadCampaign> getCampaigns(int offset, int limit) {
-        if (!properties.getEnabled()) {
-            log.warn("Admitad integration is disabled");
-            return List.of();
-        }
+    public List<AdmitadCampaign> getCampaigns(NetworkCredentialDO credential, int offset, int limit) {
+        ensureValidToken(credential);
 
-        ensureValidToken();
-
-        String url = String.format("%s/advcampaigns/?offset=%d&limit=%d", 
-            properties.getBaseUrl(), offset, limit);
+        String url = String.format("%s/advcampaigns/?offset=%d&limit=%d", BASE_URL, offset, limit);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -55,39 +51,55 @@ public class AdmitadClient {
         return List.of();
     }
 
-    private void ensureValidToken() {
-        if (accessToken != null && tokenExpiry != null && LocalDateTime.now().isBefore(tokenExpiry)) {
+    private void ensureValidToken(NetworkCredentialDO credential) {
+        if (accessToken != null && tokenExpiry != null 
+            && LocalDateTime.now().isBefore(tokenExpiry)
+            && credential.getNetworkId().equals(currentNetworkId)) {
             return;
         }
-
-        refreshToken();
+        refreshToken(credential);
     }
 
-    private void refreshToken() {
-        String url = properties.getBaseUrl() + "/token/";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        String auth = Base64.getEncoder().encodeToString(
-            (properties.getClientId() + ":" + properties.getClientSecret()).getBytes());
-        headers.set("Authorization", "Basic " + auth);
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "client_credentials");
-        body.add("scope", properties.getScope());
-
+    private void refreshToken(NetworkCredentialDO credential) {
         try {
+            Map<String, String> creds = parseCredentials(credential.getCredentials());
+            String clientId = creds.get("clientId");
+            String clientSecret = creds.get("clientSecret");
+            String scope = creds.getOrDefault("scope", "advcampaigns");
+
+            String url = BASE_URL + "/token/";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            String auth = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes());
+            headers.set("Authorization", "Basic " + auth);
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("grant_type", "client_credentials");
+            body.add("scope", scope);
+
             ResponseEntity<TokenResponse> response = restTemplate.exchange(
                 url, HttpMethod.POST, new HttpEntity<>(body, headers), TokenResponse.class);
 
             if (response.getBody() != null) {
                 accessToken = response.getBody().getAccessToken();
                 tokenExpiry = LocalDateTime.now().plusSeconds(response.getBody().getExpiresIn() - 300);
-                log.info("Admitad token refreshed, expires at {}", tokenExpiry);
+                currentNetworkId = credential.getNetworkId();
+                log.info("Admitad token refreshed for network {}, expires at {}", 
+                    credential.getNetworkId(), tokenExpiry);
             }
         } catch (Exception e) {
             log.error("Failed to refresh Admitad token: {}", e.getMessage());
             throw new RuntimeException("Failed to authenticate with Admitad", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> parseCredentials(String credentialsJson) {
+        try {
+            return objectMapper.readValue(credentialsJson, Map.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse Admitad credentials", e);
         }
     }
 

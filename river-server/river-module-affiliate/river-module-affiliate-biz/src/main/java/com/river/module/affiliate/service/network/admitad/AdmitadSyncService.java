@@ -1,11 +1,11 @@
 package com.river.module.affiliate.service.network.admitad;
 
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
+import com.river.module.affiliate.dal.dataobject.NetworkCredentialDO;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
 import com.river.module.affiliate.dal.mysql.MerchantMapper;
 import com.river.module.affiliate.dal.mysql.OfferMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +17,8 @@ import java.util.stream.Collectors;
 @Service
 public class AdmitadSyncService {
 
-    private static final String NETWORK_CODE = "admitad";
-    private static final Long NETWORK_ID = 1L;
-
     @Resource
     private AdmitadClient admitadClient;
-
-    @Resource
-    private AdmitadProperties properties;
 
     @Resource
     private MerchantMapper merchantMapper;
@@ -32,31 +26,21 @@ public class AdmitadSyncService {
     @Resource
     private OfferMapper offerMapper;
 
-    @Scheduled(cron = "0 0 4 * * ?")
-    public void scheduledSync() {
-        if (!properties.getEnabled()) {
-            log.debug("Admitad sync is disabled");
-            return;
-        }
-        log.info("Starting scheduled Admitad sync");
-        syncCampaigns();
-    }
-
     @Transactional
-    public void syncCampaigns() {
+    public void syncCampaigns(NetworkCredentialDO credential) {
         int offset = 0;
         int limit = 100;
         int totalSynced = 0;
 
         while (true) {
-            List<AdmitadCampaign> campaigns = admitadClient.getCampaigns(offset, limit);
+            List<AdmitadCampaign> campaigns = admitadClient.getCampaigns(credential, offset, limit);
             if (campaigns.isEmpty()) {
                 break;
             }
 
             for (AdmitadCampaign campaign : campaigns) {
                 try {
-                    syncCampaign(campaign);
+                    syncCampaign(credential.getNetworkId(), campaign);
                     totalSynced++;
                 } catch (Exception e) {
                     log.error("Failed to sync campaign {}: {}", campaign.getId(), e.getMessage());
@@ -69,12 +53,13 @@ public class AdmitadSyncService {
             }
         }
 
-        log.info("Admitad sync completed, synced {} campaigns", totalSynced);
+        log.info("Admitad sync completed for network {}, synced {} campaigns", 
+            credential.getNetworkId(), totalSynced);
     }
 
-    private void syncCampaign(AdmitadCampaign campaign) {
+    private void syncCampaign(Long networkId, AdmitadCampaign campaign) {
         MerchantDO existingMerchant = merchantMapper.selectByNetworkAndExternalId(
-            NETWORK_ID, String.valueOf(campaign.getId()));
+            networkId, String.valueOf(campaign.getId()));
 
         MerchantDO merchant;
         if (existingMerchant != null) {
@@ -82,7 +67,7 @@ public class AdmitadSyncService {
             updateMerchant(merchant, campaign);
             merchantMapper.updateById(merchant);
         } else {
-            merchant = createMerchant(campaign);
+            merchant = createMerchant(networkId, campaign);
             merchantMapper.insert(merchant);
         }
 
@@ -93,9 +78,9 @@ public class AdmitadSyncService {
         }
     }
 
-    private MerchantDO createMerchant(AdmitadCampaign campaign) {
+    private MerchantDO createMerchant(Long networkId, AdmitadCampaign campaign) {
         MerchantDO merchant = new MerchantDO();
-        merchant.setNetworkId(NETWORK_ID);
+        merchant.setNetworkId(networkId);
         merchant.setExternalId(String.valueOf(campaign.getId()));
         updateMerchant(merchant, campaign);
         return merchant;

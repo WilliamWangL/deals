@@ -50,5 +50,10 @@
             <artifactId>river-spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Job -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-job</artifactId>
+        </dependency>
     </dependencies>
 </project>

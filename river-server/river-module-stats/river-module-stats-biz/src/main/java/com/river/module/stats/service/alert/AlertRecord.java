@@ -9,9 +9,9 @@ public class AlertRecord {
 
     private Long id;
     
-    private AlertService.AlertType type;
+    private AlertType type;
     
-    private AlertService.AlertLevel level;
+    private AlertLevel level;
     
     private String message;
     
@@ -22,5 +22,20 @@ public class AlertRecord {
     private LocalDateTime createdAt;
     
     private LocalDateTime resolvedAt;
+
+    public enum AlertType {
+        ROI_DROP,
+        UNATTRIBUTED_CONVERSION,
+        HIGH_FREQUENCY_CLICK,
+        POSTBACK_FAILURE,
+        CONVERSION_DROP,
+        SYSTEM_ERROR
+    }
+
+    public enum AlertLevel {
+        CRITICAL,
+        WARNING,
+        INFO
+    }
 
 }
