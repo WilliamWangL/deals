@@ -71,6 +71,28 @@ const remainingRouter: AppRouteRecordRaw[] = [
     ]
   },
   {
+    path: '/river',
+    component: Layout,
+    redirect: '/river/dashboard',
+    name: 'River',
+    meta: {
+      title: 'River',
+      icon: 'ep:data-analysis'
+    },
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/river/dashboard/index.vue'),
+        name: 'RiverDashboard',
+        meta: {
+          title: '数据看板',
+          icon: 'ep:data-line',
+          noCache: false
+        }
+      }
+    ]
+  },
+  {
     path: '/user',
     component: Layout,
     name: 'UserInfo',
