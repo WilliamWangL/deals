@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4">
+  <div v-loading="loading" class="p-4">
     <!-- Stats Cards -->
     <el-row :gutter="16" class="mb-4">
       <el-col :span="6">
@@ -88,20 +88,27 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Pointer, ShoppingCart, Money, TrendCharts } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
+import {
+  getDashboardSummary,
+  getDashboardTrend,
+  DashboardTrendVO
+} from '@/api/river/stats'
 
 const chartRef = ref<HTMLElement>()
 let chart: echarts.ECharts | null = null
 let resizeHandler: (() => void) | null = null
 
+const loading = ref(false)
+
 const stats = ref({
-  todayClicks: 1234,
-  clicksChange: 12.5,
-  todayConversions: 45,
-  conversionRate: 3.65,
-  todayRevenue: 567.89,
-  epc: 0.46,
-  todayCost: 234.56,
-  roi: 142.1
+  todayClicks: 0,
+  clicksChange: 0,
+  todayConversions: 0,
+  conversionRate: 0,
+  todayRevenue: 0,
+  epc: 0,
+  todayCost: 0,
+  roi: 0
 })
 
 const topOffers = ref([
@@ -112,35 +119,75 @@ const topOffers = ref([
   { name: 'Target Home', clicks: 145, revenue: 45.67 }
 ])
 
+const trendData = ref<DashboardTrendVO[]>([])
+
+const fetchDashboardData = async () => {
+  loading.value = true
+  try {
+    const [summaryRes, trendRes] = await Promise.all([
+      getDashboardSummary(),
+      getDashboardTrend({})
+    ])
+
+    // Map summary data to stats
+    stats.value = {
+      todayClicks: summaryRes.totalClicks,
+      clicksChange: 0,
+      todayConversions: summaryRes.totalConversions,
+      conversionRate: summaryRes.avgCr,
+      todayRevenue: summaryRes.totalRevenue,
+      epc: summaryRes.avgEpc,
+      todayCost: summaryRes.totalCost,
+      roi: summaryRes.avgRoi
+    }
+
+    // Store trend data for chart
+    trendData.value = trendRes
+  } finally {
+    loading.value = false
+  }
+}
+
 const initChart = () => {
   if (!chartRef.value) return
   chart = echarts.init(chartRef.value)
-  
+  updateChart()
+  resizeHandler = () => chart?.resize()
+  window.addEventListener('resize', resizeHandler)
+}
+
+const updateChart = () => {
+  if (!chart) return
+
+  const dates = trendData.value.map((item) => item.date)
+  const clicks = trendData.value.map((item) => item.clicks)
+  const conversions = trendData.value.map((item) => item.conversions)
+  const revenue = trendData.value.map((item) => item.revenue)
+
   const option = {
     tooltip: { trigger: 'axis' },
     legend: { data: ['点击', '转化', '收入($)'] },
     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
     xAxis: {
       type: 'category',
-      data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+      data: dates.length > 0 ? dates : ['暂无数据']
     },
     yAxis: [
       { type: 'value', name: '数量' },
       { type: 'value', name: '收入($)', position: 'right' }
     ],
     series: [
-      { name: '点击', type: 'bar', data: [1200, 1350, 1100, 1400, 1600, 1800, 1234] },
-      { name: '转化', type: 'bar', data: [35, 42, 38, 48, 55, 62, 45] },
-      { name: '收入($)', type: 'line', yAxisIndex: 1, data: [450, 520, 380, 560, 680, 720, 567] }
+      { name: '点击', type: 'bar', data: clicks },
+      { name: '转化', type: 'bar', data: conversions },
+      { name: '收入($)', type: 'line', yAxisIndex: 1, data: revenue }
     ]
   }
-  
+
   chart.setOption(option)
-  resizeHandler = () => chart?.resize()
-  window.addEventListener('resize', resizeHandler)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchDashboardData()
   initChart()
 })
 
