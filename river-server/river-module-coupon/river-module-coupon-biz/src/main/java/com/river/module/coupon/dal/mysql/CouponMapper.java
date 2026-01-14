@@ -22,4 +22,9 @@ public interface CouponMapper extends BaseMapperX<CouponDO> {
                 .orderByDesc(CouponDO::getId));
     }
 
+    default Long selectCountByMerchantId(Long merchantId) {
+        return selectCount(new LambdaQueryWrapperX<CouponDO>()
+                .eq(CouponDO::getMerchantId, merchantId));
+    }
+
 }

@@ -24,4 +24,9 @@ public interface DealMapper extends BaseMapperX<DealDO> {
         return selectOne(DealDO::getSlug, slug);
     }
 
+    default Long selectCountByMerchantId(Long merchantId) {
+        return selectCount(new LambdaQueryWrapperX<DealDO>()
+                .eq(DealDO::getMerchantId, merchantId));
+    }
+
 }
