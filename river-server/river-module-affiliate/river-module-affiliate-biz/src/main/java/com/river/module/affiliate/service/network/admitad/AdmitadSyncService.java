@@ -26,7 +26,6 @@ public class AdmitadSyncService {
     @Resource
     private OfferMapper offerMapper;
 
-    @Transactional
     public void syncCampaigns(NetworkCredentialDO credential) {
         int offset = 0;
         int limit = 100;
@@ -40,7 +39,7 @@ public class AdmitadSyncService {
 
             for (AdmitadCampaign campaign : campaigns) {
                 try {
-                    syncCampaign(credential.getNetworkId(), campaign);
+                    syncSingleCampaign(credential.getNetworkId(), campaign);
                     totalSynced++;
                 } catch (Exception e) {
                     log.error("Failed to sync campaign {}: {}", campaign.getId(), e.getMessage());
@@ -57,7 +56,8 @@ public class AdmitadSyncService {
             credential.getNetworkId(), totalSynced);
     }
 
-    private void syncCampaign(Long networkId, AdmitadCampaign campaign) {
+    @Transactional
+    public void syncSingleCampaign(Long networkId, AdmitadCampaign campaign) {
         MerchantDO existingMerchant = merchantMapper.selectByNetworkAndExternalId(
             networkId, String.valueOf(campaign.getId()));
 

@@ -8,6 +8,13 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * 每日告警检查任务
+ * 
+ * TODO: 实现实际告警逻辑
+ * - checkCampaignROI: 检查 Campaign ROI，低于阈值触发告警
+ * - checkConversionTrend: 对比昨日转化数据，下降明显时告警
+ */
 @Slf4j
 @Component("alertDailyCheckJob")
 public class AlertDailyCheckJob implements JobHandler {
@@ -19,19 +26,22 @@ public class AlertDailyCheckJob implements JobHandler {
     public String execute(String param) throws Exception {
         log.info("[Alert] Starting daily alert check for {}", LocalDate.now().minusDays(1));
         
-        checkCampaignROI();
-        checkConversionTrend();
+        int alertCount = 0;
+        alertCount += checkCampaignROI();
+        alertCount += checkConversionTrend();
         
-        log.info("[Alert] Daily alert check completed");
-        return "OK";
+        log.info("[Alert] Daily alert check completed, {} alerts triggered", alertCount);
+        return String.format("Checked, %d alerts", alertCount);
     }
 
-    private void checkCampaignROI() {
-        log.debug("[Alert] Checking campaign ROI...");
+    private int checkCampaignROI() {
+        log.debug("[Alert] TODO: Implement campaign ROI check");
+        return 0;
     }
 
-    private void checkConversionTrend() {
-        log.debug("[Alert] Checking conversion trend...");
+    private int checkConversionTrend() {
+        log.debug("[Alert] TODO: Implement conversion trend check");
+        return 0;
     }
 
 }

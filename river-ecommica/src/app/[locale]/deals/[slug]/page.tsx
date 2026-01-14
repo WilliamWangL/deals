@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { fetchDealBySlug } from '@/lib/api';
+import Image from 'next/image';
+import { fetchDeals, fetchDealBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { JsonLd, generateDealJsonLd } from '@/components/seo/JsonLd';
@@ -9,6 +10,18 @@ import { JsonLd, generateDealJsonLd } from '@/components/seo/JsonLd';
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
 };
+
+export async function generateStaticParams() {
+  const deals = await fetchDeals();
+  const locales = ['en', 'zh'];
+  
+  return locales.flatMap(locale =>
+    deals.map(deal => ({
+      locale,
+      slug: deal.slug,
+    }))
+  );
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -42,8 +55,8 @@ export default async function DealDetailPage({ params }: Props) {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         {deal.imageUrl && (
-          <div className="h-64 bg-gray-100">
-            <img src={deal.imageUrl} alt={deal.title} className="w-full h-full object-cover" />
+          <div className="h-64 bg-gray-100 relative">
+            <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover" />
           </div>
         )}
         

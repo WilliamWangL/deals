@@ -89,12 +89,30 @@ AI 助手应在以下时机主动提醒：
 
 ```
 每个 Phase 开始前：
-1. 创建计划文档 → docs/plans/YYYY-MM-DD-phase{N}-{module}.md
-2. 更新 TodoWrite 标记当前阶段
-3. 执行计划
-4. 验证完成（编译通过、提交成功）
-5. 更新 TodoWrite 标记完成
+1. 加载相关 superpowers skill（流程规范）
+2. 创建计划文档 → docs/plans/YYYY-MM-DD-phase{N}-{module}.md
+3. 更新 TodoWrite 标记当前阶段
+4. 按 subagent-driven-development 流程执行（调研→实现→审查→修复→提交）
+5. 验证完成（编译通过、提交成功）
+6. 更新 TodoWrite 标记完成
 ```
+
+#### ULW 模式下的代理使用规范
+
+每个 Phase 执行时，必须遵循统一的代理分工：
+
+| 阶段 | 使用代理 | 说明 |
+|------|---------|------|
+| 调研 | explore, librarian, oracle, multimodal | 只读，收集信息 |
+| 实现 | general（后端）/ frontend-ui-ux-engineer（前端 UI） | 遵循 TDD |
+| 审查 | oracle | 规格审查 + 质量审查 |
+| 修复 | general / frontend-ui-ux-engineer | 根据 oracle 建议修复 |
+| 文档 | document-writer | 撰写技术文档 |
+
+**禁止**：
+- ❌ 让 oracle 直接修改代码（oracle 是只读代理）
+- ❌ 跳过审查环节
+- ❌ 使用 superpowers 的 code-reviewer 代理（已统一用 oracle）
 
 #### 计划文档格式
 
@@ -145,71 +163,126 @@ Phase 2:
 ...
 ```
 
-### Subagent 代理
+### Subagent 代理（统一使用 oh-my-opencode）
 
-本项目可使用以下专业代理（oh-my-opencode 提供）：
+本项目统一使用 oh-my-opencode 提供的子代理，不使用 superpowers 定义的代理角色。
 
-| 代理 | 用途 | 触发时机 |
-|------|------|----------|
-| `explore` | 代码探索 - 快速理解项目结构 | 不熟悉模块、跨层查找模式 |
-| `librarian` | 文档查询 - 外部库文档和最佳实践 | 使用不熟悉的库、查找 API 用法 |
-| `oracle` | 架构咨询 - 复杂设计决策和架构评审 | 架构设计、代码审查、疑难调试 |
-| `frontend-ui-ux-engineer` | 前端 UI/UX 设计与实现 | 视觉/样式相关改动（非纯逻辑） |
-| `document-writer` | 技术文档撰写 | README、API 文档、架构文档 |
-| `multimodal-looker` | 媒体分析 - PDF/图片/图表解读 | 需要分析设计稿、流程图等 |
+#### 代理分类
+
+| 代理 | 权限 | 用途 | 触发时机 |
+|------|------|------|----------|
+| `explore` | 只读 | 代码探索 - 快速理解项目结构 | 不熟悉模块、跨层查找模式 |
+| `librarian` | 只读 | 文档查询 - 外部库文档和最佳实践 | 使用不熟悉的库、查找 API 用法 |
+| `oracle` | 只读 | 架构咨询 + 规格审查 + 质量审查 | 架构设计、代码审查、疑难调试 |
+| `multimodal-looker` | 只读 | 媒体分析 - PDF/图片/图表解读 | 需要分析设计稿、流程图等 |
+| `general` | **可写** | **后端/通用编码**（主实现者） | Java、Python、脚本等后端任务 |
+| `frontend-ui-ux-engineer` | **可写** | **前端 UI/UX 实现** | 视觉/样式相关改动 |
+| `document-writer` | **可写** | 技术文档撰写 | README、API 文档、架构文档 |
+
+#### 角色映射（superpowers → oh-my-opencode）
+
+| superpowers 角色 | 映射到 oh-my-opencode 代理 |
+|-----------------|---------------------------|
+| implementer (后端) | `general` |
+| implementer (前端 UI) | `frontend-ui-ux-engineer` |
+| spec-reviewer | `oracle` |
+| code-quality-reviewer | `oracle` |
+| code-reviewer | `oracle` |
 
 #### 使用原则
 
 1. **并行优先**：explore/librarian 作为后台任务并行启动，不阻塞主流程
-2. **Oracle 善用**：用于复杂架构决策、代码审查、疑难调试
-3. **前端委派**：视觉相关改动（颜色、布局、动画）必须委派给 `frontend-ui-ux-engineer`
-4. **文档委派**：文档任务委派给 `document-writer`
+2. **实现分工**：后端用 `general`，前端 UI 用 `frontend-ui-ux-engineer`
+3. **审查统一**：规格审查和质量审查都用 `oracle`
+4. **oracle 只读**：oracle 只给建议，修复由 general/frontend 执行
+5. **文档委派**：文档任务委派给 `document-writer`
+
+#### 审查-修复循环
+
+oracle 是只读代理，发现问题后由实现代理修复：
+
+```
+oracle 审查 → 发现问题 → general/frontend 修复 → oracle 再审查 → 通过
+```
 
 ### 代理与技能协同
 
-代理和技能是独立系统，由 Sisyphus（主代理）负责协调配合。
+Sisyphus（主代理）负责加载 superpowers skills（流程规范）并派发 oh-my-opencode 代理（执行者）。
 
 #### 协同架构
 
 ```
-┌─────────────────────────────────────────────┐
-│  Sisyphus (主代理/协调者)                    │
-│  • 加载技能 (use_skill)                      │
-│  • 提取技能中的关键约束                       │
-│  • 编写委派 prompt（包含技能要求）            │
-│  • 验证子代理结果                            │
-└──────────────┬──────────────────────────────┘
-               │ 委派 (task 工具)
-               ▼
-┌─────────────────────────────────────────────┐
-│  子代理 (Subagents) - 执行具体任务           │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      Sisyphus（主协调者）                        │
+│                                                                 │
+│  职责：理解需求 → 加载 Skill → 派发代理 → 验证结果               │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          ▼                   ▼                   ▼
+   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+   │ Superpowers │     │ oh-my-opencode │   │   用户      │
+   │   Skills    │     │   Subagents    │   │  AGENTS.md  │
+   │  (流程规范)  │     │   (执行者)     │   │  (项目规范)  │
+   └─────────────┘     └─────────────┘     └─────────────┘
+```
+
+#### 执行计划详细流程（subagent-driven-development）
+
+```
+对每个任务：
+│
+├─ 【调研】（只读代理）
+│   ├─ explore      → 探索相关代码
+│   ├─ librarian    → 查询外部文档/库用法
+│   ├─ oracle       → 架构咨询（复杂时）
+│   └─ multimodal   → 分析设计稿（有图时）
+│
+├─ 【实现】（可写代理 + TDD）
+│   ├─ 后端/通用代码 → general
+│   │   └─ 遵循 superpowers:test-driven-development
+│   │   └─ 先写测试 → 看失败 → 实现 → 通过
+│   │
+│   └─ 前端 UI/样式 → frontend-ui-ux-engineer
+│       └─ 遵循 frontend-design skill
+│
+├─ 【规格审查】
+│   └─ oracle 审查是否符合需求规格
+│       ├─ 通过 → 继续
+│       └─ 不通过 → general/frontend 修复 → 再审查
+│
+├─ 【质量审查】
+│   └─ oracle 审查代码质量
+│       ├─ 通过 → 继续
+│       └─ 不通过 → general/frontend 修复 → 再审查
+│
+├─ 【文档】（如需要）
+│   └─ document-writer → 撰写/更新文档
+│
+└─ 【提交】
+    └─ 验证通过 → git commit → 标记任务完成
 ```
 
 #### 标准协同组合
 
-| 场景 | 主代理加载技能 | 委派代理 | 子代理应遵循 |
-|------|---------------|----------|-------------|
-| 前端 UI 开发 | `frontend-design` | `frontend-ui-ux-engineer` | 委派 prompt 包含设计原则 |
-| 文档撰写 | `doc-coauthoring` | `document-writer` | 技能内置子代理使用指导 |
-| 实现任务 | `subagent-driven-development` | `general` | `superpowers:test-driven-development` |
-| 复杂调试 | `superpowers:systematic-debugging` | `oracle` | 先按技能分析，再咨询 |
-
-#### 委派 prompt 必须包含技能要求
-
-当技能与代理配合时，主代理必须：
-1. 加载相关技能，提取关键约束（3-5 条核心规则）
-2. 在委派 prompt 的 **MUST DO** 部分写入这些约束
-3. 或者：指示子代理加载特定技能（如 `使用 superpowers:test-driven-development`）
-4. 验收时检查子代理是否遵循技能要求
+| 阶段 | Superpowers Skill | oh-my-opencode 代理 |
+|------|-------------------|---------------------|
+| 头脑风暴 | `superpowers:brainstorming` | explore, librarian, oracle |
+| 编写计划 | `superpowers:writing-plans` | oracle (咨询) |
+| 后端实现 | `superpowers:test-driven-development` | `general` |
+| 前端 UI 实现 | `frontend-design` | `frontend-ui-ux-engineer` |
+| 规格审查 | `superpowers:requesting-code-review` | `oracle` |
+| 质量审查 | `superpowers:requesting-code-review` | `oracle` |
+| 调试修复 | `superpowers:systematic-debugging` | `oracle` (分析) + `general` (修复) |
+| 文档撰写 | `doc-coauthoring` | `document-writer` |
 
 #### 项目特定协同规则
 
-| 子项目 | 推荐组合 | 说明 |
-|--------|----------|------|
-| river-ui-admin (Vue 3) | `frontend-design` + `frontend-ui-ux-engineer` | Element Plus 组件样式优化 |
-| river-ecommica (Next.js) | `frontend-design` + `frontend-ui-ux-engineer` | 落地页、优惠卡片设计 |
-| river-server (Java) | `superpowers:test-driven-development` + `oracle` | TDD 开发，完成后 oracle 审查 |
+| 子项目 | 实现代理 | 配合 Skill |
+|--------|----------|-----------|
+| river-server (Java) | `general` | `superpowers:test-driven-development` |
+| river-ui-admin (Vue 3) | `general`（逻辑）/ `frontend-ui-ux-engineer`（UI） | `frontend-design` |
+| river-ecommica (Next.js) | `general`（逻辑）/ `frontend-ui-ux-engineer`（UI） | `frontend-design` |
 
 ## 子项目规范
 

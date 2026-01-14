@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -24,24 +25,23 @@ public class AdmitadClient {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private String accessToken;
-    private LocalDateTime tokenExpiry;
-    private Long currentNetworkId;
+    private final ConcurrentHashMap<Long, TokenCache> tokenCacheMap = new ConcurrentHashMap<>();
 
     public List<AdmitadCampaign> getCampaigns(NetworkCredentialDO credential, int offset, int limit) {
-        ensureValidToken(credential);
+        String token = getValidToken(credential);
 
         String url = String.format("%s/advcampaigns/?offset=%d&limit=%d", BASE_URL, offset, limit);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+        headers.setBearerAuth(token);
 
         try {
             ResponseEntity<CampaignResponse> response = restTemplate.exchange(
                 url, HttpMethod.GET, new HttpEntity<>(headers), CampaignResponse.class);
 
             if (response.getBody() != null) {
-                log.info("Fetched {} campaigns from Admitad", response.getBody().getResults().size());
+                log.info("Fetched {} campaigns from Admitad for credential {}", 
+                    response.getBody().getResults().size(), credential.getId());
                 return response.getBody().getResults();
             }
         } catch (Exception e) {
@@ -51,16 +51,19 @@ public class AdmitadClient {
         return List.of();
     }
 
-    private void ensureValidToken(NetworkCredentialDO credential) {
-        if (accessToken != null && tokenExpiry != null 
-            && LocalDateTime.now().isBefore(tokenExpiry)
-            && credential.getNetworkId().equals(currentNetworkId)) {
-            return;
+    private synchronized String getValidToken(NetworkCredentialDO credential) {
+        Long credentialId = credential.getId();
+        TokenCache cache = tokenCacheMap.get(credentialId);
+        
+        if (cache != null && cache.isValid()) {
+            return cache.accessToken;
         }
-        refreshToken(credential);
+        
+        String newToken = refreshToken(credential);
+        return newToken;
     }
 
-    private void refreshToken(NetworkCredentialDO credential) {
+    private String refreshToken(NetworkCredentialDO credential) {
         try {
             Map<String, String> creds = parseCredentials(credential.getCredentials());
             String clientId = creds.get("clientId");
@@ -82,14 +85,19 @@ public class AdmitadClient {
                 url, HttpMethod.POST, new HttpEntity<>(body, headers), TokenResponse.class);
 
             if (response.getBody() != null) {
-                accessToken = response.getBody().getAccessToken();
-                tokenExpiry = LocalDateTime.now().plusSeconds(response.getBody().getExpiresIn() - 300);
-                currentNetworkId = credential.getNetworkId();
-                log.info("Admitad token refreshed for network {}, expires at {}", 
-                    credential.getNetworkId(), tokenExpiry);
+                String accessToken = response.getBody().getAccessToken();
+                LocalDateTime expiry = LocalDateTime.now().plusSeconds(response.getBody().getExpiresIn() - 300);
+                
+                tokenCacheMap.put(credential.getId(), new TokenCache(accessToken, expiry));
+                
+                log.info("Admitad token refreshed for credential {}, expires at {}", 
+                    credential.getId(), expiry);
+                return accessToken;
             }
+            throw new RuntimeException("Empty token response from Admitad");
         } catch (Exception e) {
-            log.error("Failed to refresh Admitad token: {}", e.getMessage());
+            log.error("Failed to refresh Admitad token for credential {}: {}", 
+                credential.getId(), e.getMessage());
             throw new RuntimeException("Failed to authenticate with Admitad", e);
         }
     }
@@ -100,6 +108,21 @@ public class AdmitadClient {
             return objectMapper.readValue(credentialsJson, Map.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse Admitad credentials", e);
+        }
+    }
+
+    @Data
+    private static class TokenCache {
+        private final String accessToken;
+        private final LocalDateTime expiry;
+        
+        TokenCache(String accessToken, LocalDateTime expiry) {
+            this.accessToken = accessToken;
+            this.expiry = expiry;
+        }
+        
+        boolean isValid() {
+            return expiry != null && LocalDateTime.now().isBefore(expiry);
         }
     }
 

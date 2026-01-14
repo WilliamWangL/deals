@@ -1,12 +1,25 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchPostBySlug } from '@/lib/api';
+import Image from 'next/image';
+import { fetchPosts, fetchPostBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { JsonLd, generateBlogPostJsonLd } from '@/components/seo/JsonLd';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
 };
+
+export async function generateStaticParams() {
+  const posts = await fetchPosts();
+  const locales = ['en', 'zh'];
+  
+  return locales.flatMap(locale =>
+    posts.map(post => ({
+      locale,
+      slug: post.slug,
+    }))
+  );
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -46,8 +59,8 @@ export default async function BlogPostPage({ params }: Props) {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
       <article>
         {post.coverImage && (
-          <div className="h-64 md:h-96 bg-gray-100 rounded-lg overflow-hidden mb-8">
-            <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+          <div className="h-64 md:h-96 bg-gray-100 rounded-lg overflow-hidden mb-8 relative">
+            <Image src={post.coverImage} alt={post.title} fill className="object-cover" />
           </div>
         )}
 
@@ -61,7 +74,7 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
           <div className="flex items-center gap-2">
             {post.authorAvatar && (
-              <img src={post.authorAvatar} alt={post.authorName} className="w-8 h-8 rounded-full" />
+              <Image src={post.authorAvatar} alt={post.authorName} width={32} height={32} className="rounded-full" />
             )}
             <span>{post.authorName}</span>
           </div>

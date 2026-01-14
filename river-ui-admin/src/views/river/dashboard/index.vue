@@ -85,11 +85,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Pointer, ShoppingCart, Money, TrendCharts } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
 const chartRef = ref<HTMLElement>()
+let chart: echarts.ECharts | null = null
+let resizeHandler: (() => void) | null = null
 
 const stats = ref({
   todayClicks: 1234,
@@ -112,7 +114,7 @@ const topOffers = ref([
 
 const initChart = () => {
   if (!chartRef.value) return
-  const chart = echarts.init(chartRef.value)
+  chart = echarts.init(chartRef.value)
   
   const option = {
     tooltip: { trigger: 'axis' },
@@ -134,11 +136,22 @@ const initChart = () => {
   }
   
   chart.setOption(option)
-  window.addEventListener('resize', () => chart.resize())
+  resizeHandler = () => chart?.resize()
+  window.addEventListener('resize', resizeHandler)
 }
 
 onMounted(() => {
   initChart()
+})
+
+onUnmounted(() => {
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler)
+  }
+  if (chart) {
+    chart.dispose()
+    chart = null
+  }
 })
 </script>
 

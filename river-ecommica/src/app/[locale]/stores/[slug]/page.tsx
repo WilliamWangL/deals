@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchStoreBySlug, fetchDeals } from '@/lib/api';
+import Image from 'next/image';
+import { fetchStores, fetchStoreBySlug, fetchDeals } from '@/lib/api';
 import DealCard from '@/components/deal/DealCard';
 import { Badge } from '@/components/ui/badge';
 import { JsonLd, generateStoreJsonLd } from '@/components/seo/JsonLd';
@@ -8,6 +9,18 @@ import { JsonLd, generateStoreJsonLd } from '@/components/seo/JsonLd';
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
 };
+
+export async function generateStaticParams() {
+  const stores = await fetchStores();
+  const locales = ['en', 'zh'];
+  
+  return locales.flatMap(locale =>
+    stores.map(store => ({
+      locale,
+      slug: store.slug,
+    }))
+  );
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -38,9 +51,9 @@ export default async function StoreDetailPage({ params }: Props) {
       <JsonLd data={generateStoreJsonLd(store)} />
       <main className="container mx-auto px-4 py-8">
       <section className="mb-8 flex items-start gap-6">
-        <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center relative">
           {store.logoUrl ? (
-            <img src={store.logoUrl} alt={store.name} className="w-20 h-20 object-contain" />
+            <Image src={store.logoUrl} alt={store.name} fill className="object-contain p-2" />
           ) : (
             <span className="text-2xl font-bold text-gray-400">{store.name.charAt(0)}</span>
           )}
