@@ -9,6 +9,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,6 +95,29 @@ public class CategoryServiceImpl implements CategoryService {
         if (id == null || !category.getId().equals(id)) {
             throw exception(CATEGORY_SLUG_DUPLICATE);
         }
+    }
+
+    @Override
+    public List<CategoryDO> getCategoryTree() {
+        return categoryMapper.selectList();
+    }
+
+    @Override
+    public CategoryDO getCategoryBySlug(String slug) {
+        return categoryMapper.selectOne(CategoryDO::getSlug, slug);
+    }
+
+    @Override
+    public List<CategoryDO> getCategoryAncestors(Long categoryId) {
+        List<CategoryDO> ancestors = new ArrayList<>();
+        CategoryDO current = categoryMapper.selectById(categoryId);
+        while (current != null && current.getParentId() != 0) {
+            current = categoryMapper.selectById(current.getParentId());
+            if (current != null) {
+                ancestors.add(0, current);
+            }
+        }
+        return ancestors;
     }
 
 }

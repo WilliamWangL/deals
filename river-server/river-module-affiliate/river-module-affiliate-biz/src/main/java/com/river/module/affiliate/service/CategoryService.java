@@ -71,4 +71,27 @@ public interface CategoryService {
      */
     void validateCategoryExists(Long id);
 
+    /**
+     * 获取分类树
+     *
+     * @return 分类树列表
+     */
+    List<CategoryDO> getCategoryTree();
+
+    /**
+     * 根据 slug 获取分类
+     *
+     * @param slug 分类标识
+     * @return 分类
+     */
+    CategoryDO getCategoryBySlug(String slug);
+
+    /**
+     * 获取分类的祖先链路（面包屑）
+     *
+     * @param categoryId 分类编号
+     * @return 祖先分类列表（从根到当前）
+     */
+    List<CategoryDO> getCategoryAncestors(Long categoryId);
+
 }
