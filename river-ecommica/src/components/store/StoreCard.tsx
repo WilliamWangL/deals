@@ -22,3 +22,5 @@ export function StoreCard({ store }: { store: Store }) {
     </Link>
   )
 }
+
+export default StoreCard;

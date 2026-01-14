@@ -6,7 +6,10 @@
     "stores": "商家",
     "deals": "优惠",
     "coupons": "优惠券",
-    "blog": "博客"
+    "blog": "博客",
+    "viewAll": "查看全部",
+    "copyCode": "复制代码",
+    "copied": "已复制!"
   },
   "Home": {
     "title": "最佳优惠 & 优惠券",
@@ -19,6 +22,42 @@
     "getDeal": "获取优惠",
     "getCoupon": "获取优惠券",
     "expires": "过期时间: {date}",
-    "verified": "已验证"
+    "verified": "已验证",
+    "off": "{percent}% 折扣",
+    "originalPrice": "原价: ¥{price}",
+    "dealPrice": "现价: ¥{price}"
+  },
+  "stores": {
+    "meta": {
+      "title": "所有商家 - 最佳优惠",
+      "description": "浏览我们的商家列表，找到最佳优惠"
+    },
+    "title": "所有商家",
+    "subtitle": "浏览我们的商家列表，找到最佳优惠",
+    "deals": "{count} 个优惠",
+    "coupons": "{count} 个优惠券",
+    "visitStore": "访问商家"
+  },
+  "deals": {
+    "meta": {
+      "title": "所有优惠 - 最佳折扣",
+      "description": "找到顶级品牌的最佳优惠和折扣"
+    },
+    "title": "所有优惠",
+    "subtitle": "找到顶级品牌的最佳优惠和折扣",
+    "featured": "精选",
+    "endsIn": "{days} 天后结束"
+  },
+  "coupons": {
+    "meta": {
+      "title": "优惠券代码 - 使用促销码省钱",
+      "description": "为您喜爱的商家找到已验证的优惠券代码"
+    },
+    "title": "优惠券代码",
+    "subtitle": "找到已验证的优惠券代码和促销码",
+    "percentOff": "{value}% 折扣",
+    "fixedOff": "减 ¥{value}",
+    "freeShipping": "免邮",
+    "minPurchase": "满 ¥{amount}"
   }
 }

@@ -10,6 +10,7 @@ interface DealCardProps {
   deal: Deal;
 }
 
+export default DealCard;
 export function DealCard({ deal }: DealCardProps) {
   const t = useTranslations('Deal');
   

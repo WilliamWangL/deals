@@ -6,7 +6,10 @@
     "stores": "Stores",
     "deals": "Deals",
     "coupons": "Coupons",
-    "blog": "Blog"
+    "blog": "Blog",
+    "viewAll": "View All",
+    "copyCode": "Copy Code",
+    "copied": "Copied!"
   },
   "Home": {
     "title": "Best Deals & Coupons",
@@ -19,6 +22,42 @@
     "getDeal": "Get Deal",
     "getCoupon": "Get Coupon",
     "expires": "Expires: {date}",
-    "verified": "Verified"
+    "verified": "Verified",
+    "off": "{percent}% Off",
+    "originalPrice": "Original: ${price}",
+    "dealPrice": "Now: ${price}"
+  },
+  "stores": {
+    "meta": {
+      "title": "All Stores - Best Deals & Coupons",
+      "description": "Browse our collection of stores and find the best deals and coupons"
+    },
+    "title": "All Stores",
+    "subtitle": "Browse our collection of stores and find the best deals",
+    "deals": "{count} deals",
+    "coupons": "{count} coupons",
+    "visitStore": "Visit Store"
+  },
+  "deals": {
+    "meta": {
+      "title": "All Deals - Best Discounts & Offers",
+      "description": "Find the best deals and discounts from top brands"
+    },
+    "title": "All Deals",
+    "subtitle": "Find the best deals and discounts from top brands",
+    "featured": "Featured",
+    "endsIn": "Ends in {days} days"
+  },
+  "coupons": {
+    "meta": {
+      "title": "Coupon Codes - Save with Promo Codes",
+      "description": "Find verified coupon codes and promo codes for your favorite stores"
+    },
+    "title": "Coupon Codes",
+    "subtitle": "Find verified coupon codes and promo codes",
+    "percentOff": "{value}% Off",
+    "fixedOff": "${value} Off",
+    "freeShipping": "Free Shipping",
+    "minPurchase": "Min. ${amount}"
   }
 }
