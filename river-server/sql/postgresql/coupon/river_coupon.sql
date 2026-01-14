@@ -38,6 +38,7 @@ CREATE TABLE river_coupon_deal (
     merchant_id     BIGINT NOT NULL,
     offer_id        BIGINT,
     title           VARCHAR(300) NOT NULL,
+    slug            VARCHAR(300),
     description     TEXT,
     original_price  DECIMAL(10,2),
     deal_price      DECIMAL(10,2),
@@ -59,6 +60,7 @@ CREATE TABLE river_coupon_deal (
 CREATE INDEX idx_deal_merchant ON river_coupon_deal(merchant_id);
 CREATE INDEX idx_deal_offer ON river_coupon_deal(offer_id);
 CREATE INDEX idx_deal_status ON river_coupon_deal(status);
+CREATE UNIQUE INDEX uk_deal_slug ON river_coupon_deal(slug, tenant_id) WHERE deleted = 0 AND slug IS NOT NULL;
 CREATE INDEX idx_deal_featured ON river_coupon_deal(featured) WHERE featured = TRUE;
 CREATE INDEX idx_deal_end_time ON river_coupon_deal(end_time);
 COMMENT ON TABLE river_coupon_deal IS 'Deal/优惠活动表';

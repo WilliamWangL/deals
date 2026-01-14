@@ -1,7 +1,8 @@
 # River 广告平台系统设计
 
 > 创建日期：2026-01-13  
-> 状态：已确认，待实施  
+> 状态：✅ 已完成归档（后端模块 Phase 1-4,6 完成，Phase 5 前台待开发）  
+> 归档日期：2026-01-14  
 > 审核：Oracle (7/10)
 
 ## 1. 项目概述
@@ -441,41 +442,41 @@ CREATE TABLE river_tracking_click_2026_01
 
 ## 9. 实施计划
 
-### Phase 1: 基础模块（2-3 周）
+### Phase 1: 基础模块（2-3 周）✅
 
-- [ ] affiliate 模块：Network, Merchant, Offer, Category 基础 CRUD
-- [ ] Admitad API 对接
-- [ ] 手动上传 Offer 功能
+- [x] affiliate 模块：Network, Merchant, Offer, Category 基础 CRUD
+- [ ] Admitad API 对接（预留接口，待实际对接）
+- [x] 手动上传 Offer 功能
 
-### Phase 2: 追踪核心（2 周）
+### Phase 2: 追踪核心（2 周）✅
 
-- [ ] tracking 模块：Click, Conversion, TrackingLink
-- [ ] 重定向接口 /api/go/{id}
-- [ ] Postback 接收接口 /api/postback/{network}
-- [ ] click_id 归因链路
+- [x] tracking 模块：Click, Conversion, TrackingLink
+- [x] 重定向接口 /api/go/{id}
+- [x] Postback 接收接口 /api/postback/{network}
+- [x] click_id 归因链路
 
-### Phase 3: 优惠与内容（2 周）
+### Phase 3: 优惠与内容（2 周）✅
 
-- [ ] coupon 模块：Coupon, Deal
-- [ ] blog 模块：Post, Author, Tag
+- [x] coupon 模块：Coupon, Deal
+- [x] blog 模块：Post, Author, Tag
 
-### Phase 4: 套利管理（1-2 周）
+### Phase 4: 套利管理（1-2 周）✅
 
-- [ ] campaign 模块：Campaign, CostRecord, LandingPage
-- [ ] ROI 计算与展示
+- [x] campaign 模块：Campaign, CostRecord, LandingPage
+- [x] ROI 计算与展示
 
-### Phase 5: 前台站点（2-3 周）
+### Phase 5: 前台站点（2-3 周）⏳
 
-- [ ] river-ecommica 基础框架
+- [x] river-ecommica 基础框架（Next.js 15 脚手架已创建）
 - [ ] 商家、Deal、优惠券页面
 - [ ] 博客页面
 - [ ] SEO 优化
 
-### Phase 6: 统计与优化（1-2 周）
+### Phase 6: 统计与优化（1-2 周）✅
 
-- [ ] stats 模块：DailyStats, 聚合任务
-- [ ] 仪表盘
-- [ ] 告警配置
+- [x] stats 模块：DailyStats, 聚合任务
+- [ ] 仪表盘（待前台开发）
+- [ ] 告警配置（待运维配置）
 
 ## 10. 附录
 

@@ -20,4 +20,8 @@ public interface DealMapper extends BaseMapperX<DealDO> {
                 .orderByDesc(DealDO::getId));
     }
 
+    default DealDO selectBySlug(String slug) {
+        return selectOne(DealDO::getSlug, slug);
+    }
+
 }

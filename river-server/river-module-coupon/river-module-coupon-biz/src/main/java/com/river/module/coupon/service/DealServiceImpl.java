@@ -60,4 +60,9 @@ public class DealServiceImpl implements DealService {
         }
     }
 
+    @Override
+    public DealDO getDealBySlug(String slug) {
+        return dealMapper.selectBySlug(slug);
+    }
+
 }

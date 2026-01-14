@@ -68,6 +68,7 @@ CREATE TABLE river_affiliate_merchant (
     network_id      BIGINT NOT NULL,
     external_id     VARCHAR(100),
     name            VARCHAR(200) NOT NULL,
+    slug            VARCHAR(200),
     domain          VARCHAR(200),
     logo_url        VARCHAR(500),
     description     TEXT,
@@ -84,6 +85,7 @@ CREATE TABLE river_affiliate_merchant (
 );
 CREATE INDEX idx_merchant_network ON river_affiliate_merchant(network_id);
 CREATE INDEX idx_merchant_status ON river_affiliate_merchant(status);
+CREATE UNIQUE INDEX uk_merchant_slug ON river_affiliate_merchant(slug, tenant_id) WHERE deleted = 0 AND slug IS NOT NULL;
 CREATE UNIQUE INDEX uk_merchant_external ON river_affiliate_merchant(network_id, external_id, tenant_id) WHERE deleted = 0 AND external_id IS NOT NULL;
 COMMENT ON TABLE river_affiliate_merchant IS '商家/广告主表';
 

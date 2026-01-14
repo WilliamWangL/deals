@@ -33,6 +33,9 @@ public class MerchantDO extends TenantBaseDO {
     /** 商家名称 */
     private String name;
 
+    /** URL友好标识 */
+    private String slug;
+
     /** 商家域名 */
     private String domain;
 

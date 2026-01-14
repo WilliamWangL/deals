@@ -72,4 +72,12 @@ public interface MerchantService {
      */
     void validateMerchantExists(Long id);
 
+    /**
+     * 根据 slug 获得商家
+     *
+     * @param slug URL友好标识
+     * @return 商家
+     */
+    MerchantDO getMerchantBySlug(String slug);
+
 }

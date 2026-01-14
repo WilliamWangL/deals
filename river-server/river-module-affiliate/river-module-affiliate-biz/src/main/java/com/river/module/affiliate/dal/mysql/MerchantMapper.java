@@ -19,4 +19,8 @@ public interface MerchantMapper extends BaseMapperX<MerchantDO> {
                 .orderByDesc(MerchantDO::getId));
     }
 
+    default MerchantDO selectBySlug(String slug) {
+        return selectOne(MerchantDO::getSlug, slug);
+    }
+
 }

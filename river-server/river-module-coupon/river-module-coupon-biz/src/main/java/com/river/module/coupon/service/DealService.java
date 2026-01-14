@@ -22,4 +22,6 @@ public interface DealService {
 
     void validateDealExists(Long id);
 
+    DealDO getDealBySlug(String slug);
+
 }

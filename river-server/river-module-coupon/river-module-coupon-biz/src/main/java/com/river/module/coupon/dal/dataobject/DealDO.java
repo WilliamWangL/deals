@@ -28,6 +28,8 @@ public class DealDO extends TenantBaseDO {
 
     private String title;
 
+    private String slug;
+
     private String description;
 
     private BigDecimal originalPrice;

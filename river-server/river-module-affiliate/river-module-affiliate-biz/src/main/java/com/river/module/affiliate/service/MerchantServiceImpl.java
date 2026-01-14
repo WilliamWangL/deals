@@ -70,4 +70,9 @@ public class MerchantServiceImpl implements MerchantService {
         }
     }
 
+    @Override
+    public MerchantDO getMerchantBySlug(String slug) {
+        return merchantMapper.selectBySlug(slug);
+    }
+
 }
