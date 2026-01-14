@@ -59,5 +59,13 @@
     "fixedOff": "减 ¥{value}",
     "freeShipping": "免邮",
     "minPurchase": "满 ¥{amount}"
+  },
+  "blog": {
+    "meta": {
+      "title": "博客 - 攻略与优惠资讯",
+      "description": "阅读最新的省钱攻略和优惠资讯"
+    },
+    "title": "博客",
+    "subtitle": "攻略、指南和最新优惠资讯"
   }
 }

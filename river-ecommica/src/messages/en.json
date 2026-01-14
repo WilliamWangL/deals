@@ -59,5 +59,13 @@
     "fixedOff": "${value} Off",
     "freeShipping": "Free Shipping",
     "minPurchase": "Min. ${amount}"
+  },
+  "blog": {
+    "meta": {
+      "title": "Blog - Tips, Guides & Deals News",
+      "description": "Read our latest tips, guides, and news about the best deals and savings"
+    },
+    "title": "Blog",
+    "subtitle": "Tips, guides, and the latest deals news"
   }
 }

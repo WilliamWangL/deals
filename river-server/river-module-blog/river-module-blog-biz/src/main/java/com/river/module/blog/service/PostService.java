@@ -24,4 +24,6 @@ public interface PostService {
     List<PostDO> getPostListByAuthorId(Long authorId);
 
     void validatePostExists(Long id);
+
+    PostDO getPostBySlug(String slug);
 }

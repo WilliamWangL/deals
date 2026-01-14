@@ -75,6 +75,11 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    @Override
+    public PostDO getPostBySlug(String slug) {
+        return postMapper.selectBySlug(slug);
+    }
+
     private void validateSlugUnique(Long id, String slug) {
         PostDO existing = postMapper.selectBySlug(slug);
         if (existing != null && !existing.getId().equals(id)) {

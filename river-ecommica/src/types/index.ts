@@ -49,10 +49,16 @@ export interface BlogPost {
   title: string;
   slug: string;
   excerpt: string;
+  content?: string;
   coverImage: string;
   authorName: string;
+  authorAvatar?: string;
   publishedAt: string;
   type: 'deal' | 'review' | 'tutorial' | 'news';
+  viewCount?: number;
+  featured?: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface Category {
