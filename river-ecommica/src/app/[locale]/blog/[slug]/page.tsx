@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { fetchPostBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
+import { JsonLd, generateBlogPostJsonLd } from '@/components/seo/JsonLd';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -40,7 +41,9 @@ export default async function BlogPostPage({ params }: Props) {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-4xl">
+    <>
+      <JsonLd data={generateBlogPostJsonLd(post)} />
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
       <article>
         {post.coverImage && (
           <div className="h-64 md:h-96 bg-gray-100 rounded-lg overflow-hidden mb-8">
@@ -81,5 +84,6 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </article>
     </main>
+    </>
   );
 }

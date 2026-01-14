@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { fetchStoreBySlug, fetchDeals } from '@/lib/api';
 import DealCard from '@/components/deal/DealCard';
 import { Badge } from '@/components/ui/badge';
+import { JsonLd, generateStoreJsonLd } from '@/components/seo/JsonLd';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -33,7 +34,9 @@ export default async function StoreDetailPage({ params }: Props) {
   const deals = await fetchDeals({ merchantId: store.id });
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <>
+      <JsonLd data={generateStoreJsonLd(store)} />
+      <main className="container mx-auto px-4 py-8">
       <section className="mb-8 flex items-start gap-6">
         <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
           {store.logoUrl ? (
@@ -64,5 +67,6 @@ export default async function StoreDetailPage({ params }: Props) {
         </div>
       </section>
     </main>
+    </>
   );
 }

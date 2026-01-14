@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { fetchDealBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { JsonLd, generateDealJsonLd } from '@/components/seo/JsonLd';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -36,7 +37,9 @@ export default async function DealDetailPage({ params }: Props) {
     : '#';
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-4xl">
+    <>
+      <JsonLd data={generateDealJsonLd(deal)} />
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         {deal.imageUrl && (
           <div className="h-64 bg-gray-100">
@@ -85,5 +88,6 @@ export default async function DealDetailPage({ params }: Props) {
         </div>
       </div>
     </main>
+    </>
   );
 }
