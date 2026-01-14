@@ -1,5 +1,6 @@
 package com.river.module.tracking.service;
 
+import com.river.framework.common.exception.ServiceException;
 import com.river.framework.test.core.ut.BaseMockitoUnitTest;
 import com.river.module.affiliate.service.OfferService;
 import com.river.module.tracking.dal.dataobject.ClickDO;
@@ -87,7 +88,7 @@ class ClickServiceImplTest extends BaseMockitoUnitTest {
         when(clickMapper.selectByClickId(eq(clickId))).thenReturn(null);
 
         // When & Then
-        assertThrows(Exception.class, () -> clickService.validateClickExists(clickId));
+        assertThrows(ServiceException.class, () -> clickService.validateClickExists(clickId));
         verify(clickMapper).selectByClickId(eq(clickId));
     }
 

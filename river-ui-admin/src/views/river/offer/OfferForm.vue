@@ -53,7 +53,7 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formLoading = ref(false)
 const formType = ref('')
-const formData = ref({
+const formData = ref<Partial<OfferApi.OfferVO>>({
   id: undefined,
   merchantId: undefined,
   name: '',
@@ -65,6 +65,14 @@ const formData = ref({
 const formRules = reactive({
   merchantId: [{ required: true, message: '商家ID不能为空', trigger: 'blur' }],
   name: [{ required: true, message: '优惠名称不能为空', trigger: 'blur' }],
+  trackingUrl: [
+    { required: true, message: '请输入追踪链接', trigger: 'blur' },
+    {
+      pattern: /^https?:\/\/.+/,
+      message: '请输入有效的URL（以http://或https://开头）',
+      trigger: 'blur'
+    }
+  ],
   status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
 })
 const formRef = ref()
@@ -92,7 +100,7 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as OfferApi.OfferVO
+    const data = formData.value as OfferApi.OfferVO
     if (formType.value === 'create') {
       await OfferApi.createOffer(data)
       message.success(t('common.createSuccess'))

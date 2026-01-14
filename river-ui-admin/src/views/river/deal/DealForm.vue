@@ -53,7 +53,7 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formLoading = ref(false)
 const formType = ref('')
-const formData = ref({
+const formData = ref<Partial<DealApi.DealVO>>({
   id: undefined,
   merchantId: undefined,
   title: '',
@@ -92,7 +92,7 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as DealApi.DealVO
+    const data = formData.value as DealApi.DealVO
     if (formType.value === 'create') {
       await DealApi.createDeal(data)
       message.success(t('common.createSuccess'))

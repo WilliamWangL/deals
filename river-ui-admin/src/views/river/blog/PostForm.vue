@@ -58,7 +58,7 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formLoading = ref(false)
 const formType = ref('')
-const formData = ref({
+const formData = ref<Partial<PostApi.PostVO>>({
   id: undefined,
   title: '',
   slug: '',
@@ -98,7 +98,7 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as PostApi.PostVO
+    const data = formData.value as PostApi.PostVO
     if (formType.value === 'create') {
       await PostApi.createPost(data)
       message.success(t('common.createSuccess'))

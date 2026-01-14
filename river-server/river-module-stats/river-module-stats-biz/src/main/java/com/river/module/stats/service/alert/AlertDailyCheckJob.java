@@ -1,11 +1,14 @@
 package com.river.module.stats.service.alert;
 
 import com.river.framework.quartz.core.handler.JobHandler;
+import com.river.framework.tenant.core.context.TenantContextHolder;
 import com.river.framework.tenant.core.job.TenantJob;
 import com.river.module.stats.controller.admin.campaign.vo.CampaignRoiRespVO;
 import com.river.module.stats.controller.admin.dashboard.vo.DashboardSummaryRespVO;
 import com.river.module.stats.service.DailyStatsService;
+import com.river.module.system.dal.dataobject.tenant.TenantDO;
 import com.river.module.system.service.notify.NotifySendService;
+import com.river.module.system.service.tenant.TenantService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -42,6 +45,9 @@ public class AlertDailyCheckJob implements JobHandler {
 
     @Resource
     private NotifySendService notifySendService;
+
+    @Resource
+    private TenantService tenantService;
 
     @Override
     @TenantJob
@@ -157,8 +163,14 @@ public class AlertDailyCheckJob implements JobHandler {
         params.put("details", alert.getDetails());
 
         try {
-            // 发送给管理员 (userId=1)
-            notifySendService.sendSingleNotifyToAdmin(1L, "alert-notification", params);
+            // 获取当前租户的联系人（管理员）
+            Long tenantId = TenantContextHolder.getTenantId();
+            TenantDO tenant = tenantService.getTenant(tenantId);
+            Long adminUserId = tenant != null && tenant.getContactUserId() != null
+                    ? tenant.getContactUserId()
+                    : 1L; // 兜底使用系统管理员
+
+            notifySendService.sendSingleNotifyToAdmin(adminUserId, "alert-notification", params);
             log.warn("[Alert] {} - {}: {}", alert.getLevel(), alert.getType(), alert.getMessage());
         } catch (Exception e) {
             // 通知发送失败不影响告警检查流程

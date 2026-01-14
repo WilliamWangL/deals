@@ -53,7 +53,7 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formLoading = ref(false)
 const formType = ref('')
-const formData = ref({
+const formData = ref<Partial<CouponApi.CouponVO>>({
   id: undefined,
   merchantId: undefined,
   code: '',
@@ -92,7 +92,7 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as CouponApi.CouponVO
+    const data = formData.value as CouponApi.CouponVO
     if (formType.value === 'create') {
       await CouponApi.createCoupon(data)
       message.success(t('common.createSuccess'))

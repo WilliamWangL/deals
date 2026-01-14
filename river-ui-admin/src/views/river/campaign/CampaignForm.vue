@@ -63,7 +63,7 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formLoading = ref(false)
 const formType = ref('')
-const formData = ref({
+const formData = ref<Partial<CampaignApi.CampaignVO>>({
   id: undefined,
   name: '',
   type: 0,
@@ -102,7 +102,7 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as CampaignApi.CampaignVO
+    const data = formData.value as CampaignApi.CampaignVO
     if (formType.value === 'create') {
       await CampaignApi.createCampaign(data)
       message.success(t('common.createSuccess'))

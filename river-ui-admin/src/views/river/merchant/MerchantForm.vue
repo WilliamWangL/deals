@@ -53,7 +53,7 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formLoading = ref(false)
 const formType = ref('')
-const formData = ref({
+const formData = ref<Partial<MerchantApi.MerchantVO>>({
   id: undefined,
   name: '',
   slug: '',
@@ -64,7 +64,23 @@ const formData = ref({
 })
 const formRules = reactive({
   name: [{ required: true, message: '商家名称不能为空', trigger: 'blur' }],
-  slug: [{ required: true, message: 'Slug 不能为空', trigger: 'blur' }],
+  slug: [
+    { required: true, message: '请输入URL标识', trigger: 'blur' },
+    {
+      pattern: /^[a-z0-9-]+$/,
+      message: 'URL标识只能包含小写字母、数字和连字符',
+      trigger: 'blur'
+    },
+    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+  ],
+  domain: [
+    { required: true, message: '请输入域名', trigger: 'blur' },
+    {
+      pattern: /^[a-zA-Z0-9][a-zA-Z0-9-]*\.[a-zA-Z]{2,}$/,
+      message: '请输入有效域名格式（如 example.com）',
+      trigger: 'blur'
+    }
+  ],
   status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
 })
 const formRef = ref()
@@ -92,7 +108,7 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as MerchantApi.MerchantVO
+    const data = formData.value as MerchantApi.MerchantVO
     if (formType.value === 'create') {
       await MerchantApi.createMerchant(data)
       message.success(t('common.createSuccess'))
