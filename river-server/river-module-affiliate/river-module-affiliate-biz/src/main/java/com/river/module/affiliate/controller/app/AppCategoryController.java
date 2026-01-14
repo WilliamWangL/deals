@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,7 +54,7 @@ public class AppCategoryController {
     @GetMapping("/get-by-slug")
     @Operation(summary = "根据 slug 获取分类详情")
     @Parameter(name = "slug", description = "分类标识", required = true, example = "electronics")
-    public CommonResult<AppCategoryRespVO> getCategoryBySlug(@RequestParam String slug) {
+    public CommonResult<AppCategoryRespVO> getCategoryBySlug(@RequestParam @NotBlank String slug) {
         CategoryDO category = categoryService.getCategoryBySlug(slug);
         if (category == null) {
             return success(null);

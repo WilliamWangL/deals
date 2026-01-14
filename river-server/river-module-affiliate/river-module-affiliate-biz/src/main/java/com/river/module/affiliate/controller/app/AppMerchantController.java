@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.river.framework.common.pojo.CommonResult.success;
 
@@ -78,7 +79,29 @@ public class AppMerchantController {
     }
 
     private List<AppMerchantRespVO> convertToAppVOList(List<MerchantDO> list) {
-        return list.stream().map(this::convertToAppVO).toList();
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Long> merchantIds = list.stream().map(MerchantDO::getId).toList();
+        Map<Long, Long> dealCounts = couponStatisticsApi.getDealCountsByMerchantIds(merchantIds);
+        Map<Long, Long> couponCounts = couponStatisticsApi.getCouponCountsByMerchantIds(merchantIds);
+
+        return list.stream().map(merchant -> {
+            AppMerchantRespVO vo = new AppMerchantRespVO();
+            vo.setId(merchant.getId());
+            vo.setName(merchant.getName());
+            vo.setSlug(merchant.getSlug());
+            vo.setDomain(merchant.getDomain());
+            vo.setLogoUrl(merchant.getLogoUrl());
+            vo.setDescription(merchant.getDescription());
+            vo.setRating(merchant.getRating());
+            vo.setRegions(parseRegions(merchant.getRegions()));
+            Long dealCount = dealCounts.getOrDefault(merchant.getId(), 0L);
+            Long couponCount = couponCounts.getOrDefault(merchant.getId(), 0L);
+            vo.setDealCount(dealCount.intValue());
+            vo.setCouponCount(couponCount.intValue());
+            return vo;
+        }).toList();
     }
 
 }

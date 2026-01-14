@@ -111,7 +111,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDO> getCategoryAncestors(Long categoryId) {
         List<CategoryDO> ancestors = new ArrayList<>();
         CategoryDO current = categoryMapper.selectById(categoryId);
-        while (current != null && current.getParentId() != 0) {
+        while (current != null && !Objects.equals(current.getParentId(), 0L)) {
             current = categoryMapper.selectById(current.getParentId());
             if (current != null) {
                 ancestors.add(0, current);
