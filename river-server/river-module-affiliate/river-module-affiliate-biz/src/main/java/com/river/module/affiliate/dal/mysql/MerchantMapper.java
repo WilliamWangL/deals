@@ -23,4 +23,10 @@ public interface MerchantMapper extends BaseMapperX<MerchantDO> {
         return selectOne(MerchantDO::getSlug, slug);
     }
 
+    default MerchantDO selectByNetworkAndExternalId(Long networkId, String externalId) {
+        return selectOne(new LambdaQueryWrapperX<MerchantDO>()
+                .eq(MerchantDO::getNetworkId, networkId)
+                .eq(MerchantDO::getExternalId, externalId));
+    }
+
 }

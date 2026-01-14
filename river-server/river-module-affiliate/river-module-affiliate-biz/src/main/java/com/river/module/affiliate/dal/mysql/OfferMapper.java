@@ -21,4 +21,10 @@ public interface OfferMapper extends BaseMapperX<OfferDO> {
                 .orderByDesc(OfferDO::getId));
     }
 
+    default OfferDO selectByMerchantAndExternalId(Long merchantId, String externalId) {
+        return selectOne(new LambdaQueryWrapperX<OfferDO>()
+                .eq(OfferDO::getMerchantId, merchantId)
+                .eq(OfferDO::getExternalId, externalId));
+    }
+
 }
