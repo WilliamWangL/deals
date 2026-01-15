@@ -1,5 +1,6 @@
-package com.river.module.coupon.api.statistics;
+package com.river.module.coupon.service;
 
+import com.river.module.coupon.api.statistics.CouponStatisticsApi;
 import com.river.module.coupon.dal.mysql.CouponMapper;
 import com.river.module.coupon.dal.mysql.DealMapper;
 import jakarta.annotation.Resource;

@@ -48,20 +48,21 @@ spring:
       datasource:
         master:
           driver-class-name: org.postgresql.Driver
-          url: jdbc:postgresql://db.iebevsofotovxvtuqieo.supabase.co:5432/postgres?sslmode=require&prepareThreshold=0
+          url: jdbc:postgresql://localhost:5432/river?prepareThreshold=0
           username: postgres
-          password: Qq@154855716
+          password: 123456
         slave:
           lazy: true
           driver-class-name: org.postgresql.Driver
-          url: jdbc:postgresql://db.iebevsofotovxvtuqieo.supabase.co:5432/postgres?sslmode=require&prepareThreshold=0
+          url: jdbc:postgresql://localhost:5432/river?prepareThreshold=0
           username: postgres
-          password: Qq@154855716
+          password: 123456
 
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   data:
     redis:
-      url: rediss://:2HF74K8yG9lCOLwf05z1c3sk6ESdXnau@sjc1.clusters.zeabur.com:26600
+      host: localhost
+      port: 6379
 --- #################### 定时任务相关配置 ####################
 
 # Quartz 配置项，对应 QuartzProperties 配置类
