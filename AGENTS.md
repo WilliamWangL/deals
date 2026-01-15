@@ -12,7 +12,7 @@ River 广告平台是一个广告联盟管理系统，包含：
 ## 通用规范
 
 ### 数据库
-- **类型**：PostgreSQL 17 (Supabase)
+- **类型**：PostgreSQL 17
 - **表前缀**：新模块使用 `river_`，框架使用 `system_`/`infra_`
 - **多租户**：所有业务表必须包含 `tenant_id` 字段
 - **软删除**：使用 `deleted` 字段，禁止硬删除
@@ -39,15 +39,20 @@ CREATE TABLE river_example (
 
 ## 重要注意事项
 
-1. **禁止使用 `as any` 或 `@ts-ignore`**（TypeScript）
-2. **始终使用 Jakarta 校验** 验证输入（Java）
-3. **使用 MapStruct** 进行对象转换，禁止手动映射（Java）
-4. **遵循现有模式** - 创建新代码前先查看类似模块
-5. **未明确要求不得 commit**
+1. **遵循现有模式** - 创建新代码前先查看类似模块
+2. **未明确要求不得 commit**
 
 ## Superpowers 工作流
 
 本项目使用 [Superpowers](https://github.com/obra/superpowers) 规范化开发流程。
+
+<EXTREMELY-IMPORTANT>
+如果你认为有哪怕 1% 的可能性某个 skill 适用于当前任务，你**必须**调用该 skill。
+
+这不是可选的，这不是建议，这是强制性的工作流。
+
+**在执行任何响应或操作之前，先检查是否有适用的 skill。**
+</EXTREMELY-IMPORTANT>
 
 ### 开发阶段与 Skills
 
@@ -68,8 +73,22 @@ CREATE TABLE river_example (
 # 查看所有可用 skills
 使用 find_skills 工具
 
-# 加载特定 skill
+# 主 Agent 自己加载 skill（用于理解流程规范）
 使用 use_skill 工具，skill_name: "superpowers:brainstorming"
+
+# 委派给 subagent 并注入 skill（推荐方式）
+使用 task 工具：
+  category: "general"  # 后端实现使用 Category
+  skills: ["superpowers:test-driven-development"]
+  prompt: "实现功能..."
+  run_in_background: false  # 必填！false=同步委派，true=后台并行
+
+# 或使用 subagent_type 指定特定代理
+使用 task 工具：
+  subagent_type: "oracle"  # 指定 Agent
+  skills: ["superpowers:requesting-code-review"]
+  prompt: "审查代码..."
+  run_in_background: false
 ```
 
 ### 阶段提醒
@@ -104,9 +123,9 @@ AI 助手应在以下时机主动提醒：
 | 阶段 | 使用代理 | 说明 |
 |------|---------|------|
 | 调研 | explore, librarian, oracle, multimodal | 只读，收集信息 |
-| 实现 | general（后端）/ frontend-ui-ux-engineer（前端 UI） | 遵循 TDD |
+| 实现 | category: "general"（后端）/ frontend-ui-ux-engineer（前端 UI） | 遵循 TDD |
 | 审查 | oracle | 规格审查 + 质量审查 |
-| 修复 | general / frontend-ui-ux-engineer | 根据 oracle 建议修复 |
+| 修复 | category: "general" / frontend-ui-ux-engineer | 根据 oracle 建议修复 |
 | 文档 | document-writer | 撰写技术文档 |
 
 **禁止**：
@@ -167,7 +186,28 @@ Phase 2:
 
 本项目统一使用 oh-my-opencode 提供的子代理，不使用 superpowers 定义的代理角色。
 
-#### 代理分类
+#### 两种委派方式
+
+oh-my-opencode 的 `sisyphus_task` 工具支持两种互斥的委派方式：
+
+| 参数 | 说明 | 适用场景 |
+|------|------|----------|
+| `category` | 预设分类，自动选择模型 | 通用任务，按任务类型分类 |
+| `subagent_type` | 直接指定代理 | 需要特定代理能力时 |
+
+#### Category 分类（使用 Sisyphus-Junior 执行）
+
+| Category | 模型 | 用途 |
+|----------|------|------|
+| `general` | claude-opus-4-5-thinking | **通用任务**（后端实现推荐） |
+| `ultrabrain` | gpt-5.2-codex | 严格架构设计、复杂业务逻辑 |
+| `visual-engineering` | gemini-3-pro-high | 前端、UI/UX、动画 |
+| `artistry` | gemini-3-pro-high (高温度) | 高度创意任务 |
+| `quick` | gemini-3-flash | 小任务、低成本（需详细 prompt） |
+| `most-capable` | claude-opus-4-5-thinking | 需要最强能力的复杂任务 |
+| `writing` | gemini-3-flash | 文档、散文、技术写作 |
+
+#### Agent 代理（直接使用指定代理）
 
 | 代理 | 权限 | 用途 | 触发时机 |
 |------|------|------|----------|
@@ -175,15 +215,18 @@ Phase 2:
 | `librarian` | 只读 | 文档查询 - 外部库文档和最佳实践 | 使用不熟悉的库、查找 API 用法 |
 | `oracle` | 只读 | 架构咨询 + 规格审查 + 质量审查 | 架构设计、代码审查、疑难调试 |
 | `multimodal-looker` | 只读 | 媒体分析 - PDF/图片/图表解读 | 需要分析设计稿、流程图等 |
-| `general` | **可写** | **后端/通用编码**（主实现者） | Java、Python、脚本等后端任务 |
+| `Metis (Plan Consultant)` | 只读 | 计划咨询 - 帮助制定实施计划 | 复杂任务规划、拆解大任务 |
+| `Momus (Plan Reviewer)` | 只读 | 计划审查 - 审核计划完整性 | 验证计划是否可行、完整 |
 | `frontend-ui-ux-engineer` | **可写** | **前端 UI/UX 实现** | 视觉/样式相关改动 |
 | `document-writer` | **可写** | 技术文档撰写 | README、API 文档、架构文档 |
+
+> **注意**：后端实现任务推荐使用 `category: "general"` 或 `category: "ultrabrain"`（复杂业务逻辑时）。
 
 #### 角色映射（superpowers → oh-my-opencode）
 
 | superpowers 角色 | 映射到 oh-my-opencode 代理 |
 |-----------------|---------------------------|
-| implementer (后端) | `general` |
+| implementer (后端) | `category: "general"` |
 | implementer (前端 UI) | `frontend-ui-ux-engineer` |
 | spec-reviewer | `oracle` |
 | code-quality-reviewer | `oracle` |
@@ -192,7 +235,7 @@ Phase 2:
 #### 使用原则
 
 1. **并行优先**：explore/librarian 作为后台任务并行启动，不阻塞主流程
-2. **实现分工**：后端用 `general`，前端 UI 用 `frontend-ui-ux-engineer`
+2. **实现分工**：后端用 `category: "general"`，前端 UI 用 `frontend-ui-ux-engineer`
 3. **审查统一**：规格审查和质量审查都用 `oracle`
 4. **oracle 只读**：oracle 只给建议，修复由 general/frontend 执行
 5. **文档委派**：文档任务委派给 `document-writer`
@@ -207,7 +250,31 @@ oracle 审查 → 发现问题 → general/frontend 修复 → oracle 再审查 
 
 ### 代理与技能协同
 
-Sisyphus（主代理）负责加载 superpowers skills（流程规范）并派发 oh-my-opencode 代理（执行者）。
+Sisyphus（主代理）通过 `task` 工具的 `skills` 参数将技能**预注入**到 subagent 的 system prompt，subagent 不主动加载 skill。
+
+#### Skill 传递机制
+
+```typescript
+// Sisyphus 委派任务时，技能通过 skills 参数注入
+task({
+  category: "general",  // 使用 Category（后端实现）
+  skills: ["superpowers:test-driven-development"],  // ← 技能在此注入到 subagent
+  prompt: "为 river_campaign 表实现 CRUD",
+  run_in_background: false  // 必填
+})
+
+// 或者使用 subagent_type 指定特定代理
+task({
+  subagent_type: "oracle",  // 使用 Agent（架构咨询）
+  skills: ["superpowers:requesting-code-review"],
+  prompt: "审查这段代码...",
+  run_in_background: false
+})
+
+// Subagent 收到的 system prompt 已包含：
+// 1. superpowers:test-driven-development 的完整内容
+// 2. 如有嵌入 MCP，可通过 skill_mcp 调用
+```
 
 #### 协同架构
 
@@ -239,7 +306,7 @@ Sisyphus（主代理）负责加载 superpowers skills（流程规范）并派�
 │   └─ multimodal   → 分析设计稿（有图时）
 │
 ├─ 【实现】（可写代理 + TDD）
-│   ├─ 后端/通用代码 → general
+│   ├─ 后端/通用代码 → category: "general"
 │   │   └─ 遵循 superpowers:test-driven-development
 │   │   └─ 先写测试 → 看失败 → 实现 → 通过
 │   │
@@ -269,7 +336,7 @@ Sisyphus（主代理）负责加载 superpowers skills（流程规范）并派�
 |------|-------------------|---------------------|
 | 头脑风暴 | `superpowers:brainstorming` | explore, librarian, oracle |
 | 编写计划 | `superpowers:writing-plans` | oracle (咨询) |
-| 后端实现 | `superpowers:test-driven-development` | `general` |
+| 后端实现 | `superpowers:test-driven-development` | `category: "general"` |
 | 前端 UI 实现 | `frontend-design` | `frontend-ui-ux-engineer` |
 | 规格审查 | `superpowers:requesting-code-review` | `oracle` |
 | 质量审查 | `superpowers:requesting-code-review` | `oracle` |
@@ -280,9 +347,19 @@ Sisyphus（主代理）负责加载 superpowers skills（流程规范）并派�
 
 | 子项目 | 实现代理 | 配合 Skill |
 |--------|----------|-----------|
-| river-server (Java) | `general` | `superpowers:test-driven-development` |
-| river-ui-admin (Vue 3) | `general`（逻辑）/ `frontend-ui-ux-engineer`（UI） | `frontend-design` |
-| river-ecommica (Next.js) | `general`（逻辑）/ `frontend-ui-ux-engineer`（UI） | `frontend-design` |
+| river-server (Java) | `category: "general"` | `superpowers:test-driven-development` |
+| river-ui-admin (Vue 3) | `category: "general"`（逻辑）/ `frontend-ui-ux-engineer`（UI） | `frontend-design` |
+| river-ecommica (Next.js) | `category: "general"`（逻辑）/ `frontend-ui-ux-engineer`（UI） | `frontend-design` |
+
+#### 委派时的 Skill 注入示例
+
+| 任务类型 | category / subagent_type | skills 参数 |
+|----------|--------------------------|-------------|
+| 后端实现 | `category: "general"` | `["superpowers:test-driven-development"]` |
+| 前端 UI | `subagent_type: "frontend-ui-ux-engineer"` | `["frontend-design"]` |
+| 代码审查 | `subagent_type: "oracle"` | `["superpowers:requesting-code-review"]` |
+| 调试分析 | `subagent_type: "oracle"` | `["superpowers:systematic-debugging"]` |
+| CRUD 生成 | `category: "general"` | `["river-crud"]` |
 
 ## 子项目规范
 

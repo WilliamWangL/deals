@@ -33,20 +33,34 @@
         </dependency>
         <dependency>
             <groupId>com.river</groupId>
-            <artifactId>river-module-affiliate-biz</artifactId>
+            <artifactId>river-module-tracking</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.river</groupId>
-            <artifactId>river-module-tracking-biz</artifactId>
+            <artifactId>river-module-stats</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.river</groupId>
-            <artifactId>river-module-stats-biz</artifactId>
+            <artifactId>river-module-coupon</artifactId>
             <version>${revision}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-campaign</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-blog</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-affiliate</artifactId>
+            <version>${revision}</version>
+        </dependency>
         <!-- 会员中心。默认注释，保证编译速度 -->
 <!--        <dependency>-->
 <!--            <groupId>com.river</groupId>-->
