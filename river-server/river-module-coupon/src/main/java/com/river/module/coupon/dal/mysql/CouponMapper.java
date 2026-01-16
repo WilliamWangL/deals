@@ -27,4 +27,14 @@ public interface CouponMapper extends BaseMapperX<CouponDO> {
                 .eq(CouponDO::getMerchantId, merchantId));
     }
 
+    /**
+     * 根据联盟网络ID和外部ID查询优惠券
+     * 用于同步时判重
+     */
+    default CouponDO selectByNetworkAndExternalId(Long networkId, String externalId) {
+        return selectOne(new LambdaQueryWrapperX<CouponDO>()
+                .eq(CouponDO::getNetworkId, networkId)
+                .eq(CouponDO::getExternalId, externalId));
+    }
+
 }

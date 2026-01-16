@@ -26,6 +26,12 @@ public class DealDO extends TenantBaseDO {
 
     private Long offerId;
 
+    /** 联盟网络 ID */
+    private Long networkId;
+
+    /** 联盟原始 ID */
+    private String externalId;
+
     private String title;
 
     private String slug;
@@ -45,6 +51,18 @@ public class DealDO extends TenantBaseDO {
     private Integer stockLimit;
 
     private String imageUrl;
+
+    /** 适用地区（ISO 代码，逗号分隔） */
+    private String regions;
+
+    /** 分类 ID（逗号分隔） */
+    private String categoryIds;
+
+    /** 跳转链接 */
+    private String gotoUrl;
+
+    /** 是否独家 */
+    private Boolean exclusive;
 
     private Integer hotScore;
 

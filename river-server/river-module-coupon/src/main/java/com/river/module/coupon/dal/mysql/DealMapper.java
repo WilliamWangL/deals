@@ -29,4 +29,14 @@ public interface DealMapper extends BaseMapperX<DealDO> {
                 .eq(DealDO::getMerchantId, merchantId));
     }
 
+    /**
+     * 根据联盟网络ID和外部ID查询 Deal
+     * 用于同步时判重
+     */
+    default DealDO selectByNetworkAndExternalId(Long networkId, String externalId) {
+        return selectOne(new LambdaQueryWrapperX<DealDO>()
+                .eq(DealDO::getNetworkId, networkId)
+                .eq(DealDO::getExternalId, externalId));
+    }
+
 }

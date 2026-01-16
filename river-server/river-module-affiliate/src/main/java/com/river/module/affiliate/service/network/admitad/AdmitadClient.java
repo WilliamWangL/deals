@@ -12,7 +12,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,12 +39,47 @@ public class AdmitadClient {
                 url, HttpMethod.GET, new HttpEntity<>(headers), CampaignResponse.class);
 
             if (response.getBody() != null) {
-                log.info("Fetched {} campaigns from Admitad for credential {}", 
+                log.info("Fetched {} campaigns from Admitad for credential {}",
                     response.getBody().getResults().size(), credential.getId());
                 return response.getBody().getResults();
             }
         } catch (Exception e) {
             log.error("Failed to fetch campaigns from Admitad: {}", e.getMessage());
+        }
+
+        return List.of();
+    }
+
+    /**
+     * 获取优惠券列表
+     * Admitad API: GET /coupons/website/{websiteId}/
+     *
+     * @param credential 凭证
+     * @param websiteId  网站 ID（从 credentials 中获取）
+     * @param offset     偏移量
+     * @param limit      每页数量
+     * @return 优惠券列表
+     */
+    public List<AdmitadCoupon> getCoupons(NetworkCredentialDO credential, Long websiteId, int offset, int limit) {
+        String token = getValidToken(credential);
+
+        String url = String.format("%s/coupons/website/%d/?offset=%d&limit=%d",
+            BASE_URL, websiteId, offset, limit);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        try {
+            ResponseEntity<CouponResponse> response = restTemplate.exchange(
+                url, HttpMethod.GET, new HttpEntity<>(headers), CouponResponse.class);
+
+            if (response.getBody() != null) {
+                log.info("Fetched {} coupons from Admitad for website {}",
+                    response.getBody().getResults().size(), websiteId);
+                return response.getBody().getResults();
+            }
+        } catch (Exception e) {
+            log.error("Failed to fetch coupons from Admitad: {}", e.getMessage());
         }
 
         return List.of();
@@ -74,11 +108,11 @@ public class AdmitadClient {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            String auth = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes());
-            headers.set("Authorization", "Basic " + auth);
 
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("grant_type", "client_credentials");
+            body.add("client_id", clientId);
+            body.add("client_secret", clientSecret);
             body.add("scope", scope);
 
             ResponseEntity<TokenResponse> response = restTemplate.exchange(
@@ -139,6 +173,20 @@ public class AdmitadClient {
     @Data
     public static class CampaignResponse {
         private List<AdmitadCampaign> results;
+        @JsonProperty("_meta")
+        private Meta meta;
+
+        @Data
+        public static class Meta {
+            private int offset;
+            private int limit;
+            private int count;
+        }
+    }
+
+    @Data
+    public static class CouponResponse {
+        private List<AdmitadCoupon> results;
         @JsonProperty("_meta")
         private Meta meta;
 
