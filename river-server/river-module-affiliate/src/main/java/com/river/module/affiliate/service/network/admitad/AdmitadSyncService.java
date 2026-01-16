@@ -1,16 +1,28 @@
 package com.river.module.affiliate.service.network.admitad;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.river.module.affiliate.dal.dataobject.CategoryMappingDO;
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.affiliate.dal.dataobject.NetworkCredentialDO;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
+import com.river.module.affiliate.dal.mysql.CategoryMappingMapper;
 import com.river.module.affiliate.dal.mysql.MerchantMapper;
 import com.river.module.affiliate.dal.mysql.OfferMapper;
+import com.river.module.coupon.dal.dataobject.CouponDO;
+import com.river.module.coupon.dal.dataobject.DealDO;
+import com.river.module.coupon.dal.mysql.CouponMapper;
+import com.river.module.coupon.dal.mysql.DealMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,6 +37,18 @@ public class AdmitadSyncService {
 
     @Resource
     private OfferMapper offerMapper;
+
+    @Resource
+    private CategoryMappingMapper categoryMappingMapper;
+
+    @Resource
+    private CouponMapper couponMapper;
+
+    @Resource
+    private DealMapper dealMapper;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void syncCampaigns(NetworkCredentialDO credential) {
         int offset = 0;
@@ -73,7 +97,7 @@ public class AdmitadSyncService {
 
         if (campaign.getActions() != null) {
             for (AdmitadCampaign.Action action : campaign.getActions()) {
-                syncOffer(merchant.getId(), campaign, action);
+                syncOffer(networkId, merchant.getId(), campaign, action);
             }
         }
     }
@@ -88,22 +112,28 @@ public class AdmitadSyncService {
 
     private void updateMerchant(MerchantDO merchant, AdmitadCampaign campaign) {
         merchant.setName(campaign.getName());
-        merchant.setSlug(generateSlug(campaign.getName()));
+        merchant.setSlug(generateSlug(campaign.getName(), campaign.getId()));
         merchant.setDomain(extractDomain(campaign.getSiteUrl()));
         merchant.setLogoUrl(campaign.getLogoUrl());
         merchant.setDescription(campaign.getDescription());
         merchant.setRating(campaign.getRating());
         merchant.setStatus(mapStatus(campaign.getStatus()));
-        
+
         if (campaign.getRegions() != null) {
             String regions = campaign.getRegions().stream()
                 .map(AdmitadCampaign.Region::getRegion)
                 .collect(Collectors.joining(","));
             merchant.setRegions(regions);
         }
+
+        // 映射分类
+        if (campaign.getCategories() != null && !campaign.getCategories().isEmpty()) {
+            String categoryIds = mapCategories(merchant.getNetworkId(), campaign.getCategories());
+            merchant.setCategoryIds(categoryIds);
+        }
     }
 
-    private void syncOffer(Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
+    private void syncOffer(Long networkId, Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
         String externalId = campaign.getId() + "_" + action.getId();
         OfferDO existingOffer = offerMapper.selectByMerchantAndExternalId(merchantId, externalId);
 
@@ -111,13 +141,14 @@ public class AdmitadSyncService {
             updateOffer(existingOffer, campaign, action);
             offerMapper.updateById(existingOffer);
         } else {
-            OfferDO offer = createOffer(merchantId, campaign, action);
+            OfferDO offer = createOffer(networkId, merchantId, campaign, action);
             offerMapper.insert(offer);
         }
     }
 
-    private OfferDO createOffer(Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
+    private OfferDO createOffer(Long networkId, Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
         OfferDO offer = new OfferDO();
+        offer.setNetworkId(networkId);
         offer.setMerchantId(merchantId);
         offer.setExternalId(campaign.getId() + "_" + action.getId());
         updateOffer(offer, campaign, action);
@@ -130,20 +161,36 @@ public class AdmitadSyncService {
         offer.setCommissionType(mapCommissionType(action.getType()));
         offer.setCommissionValue(action.getPayment());
         offer.setStatus(mapStatus(campaign.getStatus()));
-        
+
         String trackingUrl = String.format(
             "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
             campaign.getId());
         offer.setTrackingUrlTemplate(trackingUrl);
+
+        // 设置 Offer 的分类（继承自 Campaign）
+        if (campaign.getCategories() != null && !campaign.getCategories().isEmpty()) {
+            String categoryIds = mapCategories(offer.getNetworkId(), campaign.getCategories());
+            offer.setCategoryIds(categoryIds);
+        }
+
+        // 设置 Offer 的地区
+        if (campaign.getRegions() != null && !campaign.getRegions().isEmpty()) {
+            String regions = campaign.getRegions().stream()
+                .map(AdmitadCampaign.Region::getRegion)
+                .collect(Collectors.joining(","));
+            offer.setRegions(regions);
+        }
     }
 
-    private String generateSlug(String name) {
-        if (name == null) return null;
-        return name.toLowerCase()
+    private String generateSlug(String name, Long campaignId) {
+        if (name == null) return String.valueOf(campaignId);
+        String baseSlug = name.toLowerCase()
             .replaceAll("[^a-z0-9\\s-]", "")
             .replaceAll("\\s+", "-")
             .replaceAll("-+", "-")
             .replaceAll("^-|-$", "");
+        // 添加 campaign ID 后缀确保唯一性
+        return baseSlug.isEmpty() ? String.valueOf(campaignId) : baseSlug + "-" + campaignId;
     }
 
     private String extractDomain(String url) {
@@ -163,6 +210,325 @@ public class AdmitadSyncService {
             case "click" -> 3;
             default -> 1;
         };
+    }
+
+    /**
+     * 映射联盟分类到本地分类
+     * 如果映射不存在，自动创建映射记录（待手动绑定本地分类）
+     *
+     * @param networkId  联盟网络 ID
+     * @param categories 联盟分类列表
+     * @return 逗号分隔的本地分类 ID（仅返回已映射的分类）
+     */
+    private String mapCategories(Long networkId, List<AdmitadCampaign.Category> categories) {
+        List<Long> mappedCategoryIds = new ArrayList<>();
+
+        for (AdmitadCampaign.Category category : categories) {
+            String externalId = String.valueOf(category.getId());
+
+            // 查找现有映射
+            CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
+
+            if (mapping == null) {
+                // 创建新的映射记录（待手动绑定本地分类）
+                mapping = new CategoryMappingDO();
+                mapping.setNetworkId(networkId);
+                mapping.setExternalId(externalId);
+                mapping.setExternalName(category.getName());
+                mapping.setAutoCreated(true);
+                categoryMappingMapper.insert(mapping);
+                log.debug("Created category mapping: network={}, externalId={}, name={}",
+                    networkId, externalId, category.getName());
+            }
+
+            // 只有已绑定本地分类的映射才加入结果
+            if (mapping.getCategoryId() != null) {
+                mappedCategoryIds.add(mapping.getCategoryId());
+            }
+        }
+
+        return mappedCategoryIds.isEmpty() ? null :
+            mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+    }
+
+    /**
+     * 同步优惠券数据
+     * 根据 species 字段分流到 Coupon 或 Deal 表
+     */
+    public void syncCoupons(NetworkCredentialDO credential) {
+        Long websiteId = extractWebsiteId(credential);
+        if (websiteId == null) {
+            log.error("No websiteId found in credential {}", credential.getId());
+            return;
+        }
+
+        int offset = 0;
+        int limit = 100;
+        int couponCount = 0;
+        int dealCount = 0;
+
+        while (true) {
+            List<AdmitadCoupon> coupons = admitadClient.getCoupons(credential, websiteId, offset, limit);
+            if (coupons.isEmpty()) {
+                break;
+            }
+
+            for (AdmitadCoupon coupon : coupons) {
+                try {
+                    if ("promocode".equalsIgnoreCase(coupon.getSpecies())) {
+                        syncSingleCoupon(credential.getNetworkId(), coupon);
+                        couponCount++;
+                    } else {
+                        syncSingleDeal(credential.getNetworkId(), coupon);
+                        dealCount++;
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to sync coupon {}: {}", coupon.getId(), e.getMessage());
+                }
+            }
+
+            offset += limit;
+            if (coupons.size() < limit) {
+                break;
+            }
+        }
+
+        log.info("Admitad coupon sync completed for network {}: {} coupons, {} deals",
+            credential.getNetworkId(), couponCount, dealCount);
+    }
+
+    @Transactional
+    public void syncSingleCoupon(Long networkId, AdmitadCoupon admitadCoupon) {
+        String externalId = String.valueOf(admitadCoupon.getId());
+        CouponDO existingCoupon = couponMapper.selectByNetworkAndExternalId(networkId, externalId);
+
+        // 查找关联的 Merchant
+        Long merchantId = null;
+        if (admitadCoupon.getCampaign() != null) {
+            MerchantDO merchant = merchantMapper.selectByNetworkAndExternalId(
+                networkId, String.valueOf(admitadCoupon.getCampaign().getId()));
+            if (merchant != null) {
+                merchantId = merchant.getId();
+            }
+        }
+
+        if (existingCoupon != null) {
+            updateCoupon(existingCoupon, networkId, merchantId, admitadCoupon);
+            couponMapper.updateById(existingCoupon);
+        } else {
+            CouponDO coupon = createCoupon(networkId, merchantId, admitadCoupon);
+            couponMapper.insert(coupon);
+        }
+    }
+
+    private CouponDO createCoupon(Long networkId, Long merchantId, AdmitadCoupon admitadCoupon) {
+        CouponDO coupon = new CouponDO();
+        coupon.setNetworkId(networkId);
+        coupon.setExternalId(String.valueOf(admitadCoupon.getId()));
+        updateCoupon(coupon, networkId, merchantId, admitadCoupon);
+        return coupon;
+    }
+
+    private void updateCoupon(CouponDO coupon, Long networkId, Long merchantId, AdmitadCoupon admitadCoupon) {
+        coupon.setMerchantId(merchantId);
+        coupon.setTitle(admitadCoupon.getName() != null ? admitadCoupon.getName() : admitadCoupon.getShortName());
+        coupon.setCode(admitadCoupon.getPromocode());
+        coupon.setTerms(admitadCoupon.getDescription());
+        coupon.setImageUrl(admitadCoupon.getImage());
+        coupon.setGotoUrl(admitadCoupon.getGotoLink());
+        coupon.setExclusive(admitadCoupon.getExclusive());
+        coupon.setVerified(admitadCoupon.getVerification());
+        coupon.setCouponType(mapCouponType(admitadCoupon.getSpecies()));
+        coupon.setStatus(1); // 默认启用
+
+        // 解析折扣
+        if (admitadCoupon.getDiscount() != null) {
+            parseDiscount(coupon, admitadCoupon.getDiscount());
+        }
+
+        // 解析日期
+        if (admitadCoupon.getDateStart() != null) {
+            coupon.setStartTime(parseDateTime(admitadCoupon.getDateStart()));
+        }
+        if (admitadCoupon.getDateEnd() != null) {
+            coupon.setEndTime(parseDateTime(admitadCoupon.getDateEnd()));
+        }
+
+        // 设置地区
+        if (admitadCoupon.getRegions() != null && !admitadCoupon.getRegions().isEmpty()) {
+            coupon.setRegions(String.join(",", admitadCoupon.getRegions()));
+        }
+
+        // 映射分类
+        if (admitadCoupon.getCategories() != null && !admitadCoupon.getCategories().isEmpty()) {
+            String categoryIds = mapCouponCategories(networkId, admitadCoupon.getCategories());
+            coupon.setCategoryIds(categoryIds);
+        }
+    }
+
+    @Transactional
+    public void syncSingleDeal(Long networkId, AdmitadCoupon admitadCoupon) {
+        String externalId = String.valueOf(admitadCoupon.getId());
+        DealDO existingDeal = dealMapper.selectByNetworkAndExternalId(networkId, externalId);
+
+        // 查找关联的 Merchant
+        Long merchantId = null;
+        if (admitadCoupon.getCampaign() != null) {
+            MerchantDO merchant = merchantMapper.selectByNetworkAndExternalId(
+                networkId, String.valueOf(admitadCoupon.getCampaign().getId()));
+            if (merchant != null) {
+                merchantId = merchant.getId();
+            }
+        }
+
+        if (existingDeal != null) {
+            updateDeal(existingDeal, networkId, merchantId, admitadCoupon);
+            dealMapper.updateById(existingDeal);
+        } else {
+            DealDO deal = createDeal(networkId, merchantId, admitadCoupon);
+            dealMapper.insert(deal);
+        }
+    }
+
+    private DealDO createDeal(Long networkId, Long merchantId, AdmitadCoupon admitadCoupon) {
+        DealDO deal = new DealDO();
+        deal.setNetworkId(networkId);
+        deal.setExternalId(String.valueOf(admitadCoupon.getId()));
+        updateDeal(deal, networkId, merchantId, admitadCoupon);
+        return deal;
+    }
+
+    private void updateDeal(DealDO deal, Long networkId, Long merchantId, AdmitadCoupon admitadCoupon) {
+        deal.setMerchantId(merchantId);
+        deal.setTitle(admitadCoupon.getName() != null ? admitadCoupon.getName() : admitadCoupon.getShortName());
+        deal.setDescription(admitadCoupon.getDescription());
+        deal.setImageUrl(admitadCoupon.getImage());
+        deal.setGotoUrl(admitadCoupon.getGotoLink());
+        deal.setExclusive(admitadCoupon.getExclusive());
+        deal.setStatus(1); // 默认启用
+
+        // 解析折扣百分比
+        if (admitadCoupon.getDiscount() != null) {
+            deal.setDiscountPercent(parseDiscountPercent(admitadCoupon.getDiscount()));
+        }
+
+        // 解析日期
+        if (admitadCoupon.getDateStart() != null) {
+            deal.setStartTime(parseDateTime(admitadCoupon.getDateStart()));
+        }
+        if (admitadCoupon.getDateEnd() != null) {
+            deal.setEndTime(parseDateTime(admitadCoupon.getDateEnd()));
+        }
+
+        // 设置地区
+        if (admitadCoupon.getRegions() != null && !admitadCoupon.getRegions().isEmpty()) {
+            deal.setRegions(String.join(",", admitadCoupon.getRegions()));
+        }
+
+        // 映射分类
+        if (admitadCoupon.getCategories() != null && !admitadCoupon.getCategories().isEmpty()) {
+            String categoryIds = mapCouponCategories(networkId, admitadCoupon.getCategories());
+            deal.setCategoryIds(categoryIds);
+        }
+    }
+
+    private Long extractWebsiteId(NetworkCredentialDO credential) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> creds = objectMapper.readValue(credential.getCredentials(), Map.class);
+            Object websiteId = creds.get("websiteId");
+            if (websiteId instanceof Number) {
+                return ((Number) websiteId).longValue();
+            } else if (websiteId instanceof String) {
+                return Long.parseLong((String) websiteId);
+            }
+        } catch (Exception e) {
+            log.error("Failed to extract websiteId from credential {}: {}", credential.getId(), e.getMessage());
+        }
+        return null;
+    }
+
+    private Integer mapCouponType(String species) {
+        if (species == null) return 1;
+        return switch (species.toLowerCase()) {
+            case "promocode" -> 1;
+            case "sale" -> 2;
+            default -> 3; // deal
+        };
+    }
+
+    private void parseDiscount(CouponDO coupon, String discount) {
+        if (discount == null || discount.isEmpty()) return;
+
+        // 尝试解析 "20%" 格式
+        if (discount.endsWith("%")) {
+            try {
+                String value = discount.replace("%", "").trim();
+                coupon.setDiscountValue(new BigDecimal(value));
+                coupon.setDiscountType(1); // 百分比
+                return;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // 尝试解析 "$10" 或 "10 USD" 格式
+        String numericPart = discount.replaceAll("[^0-9.]", "");
+        if (!numericPart.isEmpty()) {
+            try {
+                coupon.setDiscountValue(new BigDecimal(numericPart));
+                coupon.setDiscountType(2); // 固定金额
+            } catch (NumberFormatException ignored) {}
+        }
+    }
+
+    private Integer parseDiscountPercent(String discount) {
+        if (discount == null || discount.isEmpty()) return null;
+
+        if (discount.endsWith("%")) {
+            try {
+                String value = discount.replace("%", "").trim();
+                return Integer.parseInt(value);
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
+    }
+
+    private LocalDateTime parseDateTime(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return null;
+        try {
+            return LocalDateTime.parse(dateStr, DATE_FORMATTER);
+        } catch (Exception e) {
+            log.debug("Failed to parse date: {}", dateStr);
+            return null;
+        }
+    }
+
+    /**
+     * 映射 Coupon 分类（AdmitadCoupon.Category 类型）
+     */
+    private String mapCouponCategories(Long networkId, List<AdmitadCoupon.Category> categories) {
+        List<Long> mappedCategoryIds = new ArrayList<>();
+
+        for (AdmitadCoupon.Category category : categories) {
+            String externalId = String.valueOf(category.getId());
+
+            CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
+
+            if (mapping == null) {
+                mapping = new CategoryMappingDO();
+                mapping.setNetworkId(networkId);
+                mapping.setExternalId(externalId);
+                mapping.setExternalName(category.getName());
+                mapping.setAutoCreated(true);
+                categoryMappingMapper.insert(mapping);
+            }
+
+            if (mapping.getCategoryId() != null) {
+                mappedCategoryIds.add(mapping.getCategoryId());
+            }
+        }
+
+        return mappedCategoryIds.isEmpty() ? null :
+            mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
 }

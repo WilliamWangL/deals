@@ -18,7 +18,7 @@ public class AdmitadCampaign {
 
     private String description;
 
-    @JsonProperty("logo")
+    @JsonProperty("image")
     private String logoUrl;
 
     private String status;
