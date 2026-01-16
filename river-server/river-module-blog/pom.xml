@@ -9,12 +9,50 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>river-module-blog</artifactId>
-    <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>blog 模块 - 博客内容管理</description>
+    <packaging>jar</packaging>
 
-    <modules>
-        <module>river-module-blog-api</module>
-        <module>river-module-blog-biz</module>
-    </modules>
+    <name>${project.artifactId}</name>
+    <description>
+        blog 模块 - 博客内容管理
+        包括：文章、标签、作者等
+    </description>
+
+    <dependencies>
+        <!-- 依赖 affiliate 模块 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-affiliate</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 业务组件 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-biz-tenant</artifactId>
+        </dependency>
+
+        <!-- Web 相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- DB 相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-mybatis</artifactId>
+        </dependency>
+
+        <!-- Test 测试相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 </project>

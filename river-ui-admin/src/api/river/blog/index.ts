@@ -1,38 +1,108 @@
 import request from '@/config/axios'
 
-export interface PostVO {
-  id: number | undefined
-  title: string
+// ==================== 作者 ====================
+
+export interface AuthorVO {
+  id: number
+  name: string
   slug: string
-  content: string
-  type: number
+  avatarUrl: string
+  bio: string
   status: number
-  publishedAt: Date
-  creator: string
   createTime: Date
 }
 
-// 查询文章分页列表
-export const getPostPage = (params: PageParam) => {
-  return request.get({ url: '/blog/post/page', params })
+export const AuthorApi = {
+  getAuthorPage: async (params: any) => {
+    return await request.get({ url: `/blog/author/page`, params })
+  },
+  getAuthorList: async () => {
+    return await request.get({ url: `/blog/author/list` })
+  },
+  getAuthor: async (id: number) => {
+    return await request.get({ url: `/blog/author/get?id=` + id })
+  },
+  createAuthor: async (data: AuthorVO) => {
+    return await request.post({ url: `/blog/author/create`, data })
+  },
+  updateAuthor: async (data: AuthorVO) => {
+    return await request.put({ url: `/blog/author/update`, data })
+  },
+  deleteAuthor: async (id: number) => {
+    return await request.delete({ url: `/blog/author/delete?id=` + id })
+  }
 }
 
-// 查询文章详情
-export const getPost = (id: number) => {
-  return request.get({ url: '/blog/post/get?id=' + id })
+// ==================== 标签 ====================
+
+export interface TagVO {
+  id: number
+  name: string
+  slug: string
+  postCount: number
+  status: number
+  createTime: Date
 }
 
-// 新增文章
-export const createPost = (data: PostVO) => {
-  return request.post({ url: '/blog/post/create', data })
+export const TagApi = {
+  getTagPage: async (params: any) => {
+    return await request.get({ url: `/blog/tag/page`, params })
+  },
+  getTagList: async () => {
+    return await request.get({ url: `/blog/tag/list` })
+  },
+  getTag: async (id: number) => {
+    return await request.get({ url: `/blog/tag/get?id=` + id })
+  },
+  createTag: async (data: TagVO) => {
+    return await request.post({ url: `/blog/tag/create`, data })
+  },
+  updateTag: async (data: TagVO) => {
+    return await request.put({ url: `/blog/tag/update`, data })
+  },
+  deleteTag: async (id: number) => {
+    return await request.delete({ url: `/blog/tag/delete?id=` + id })
+  }
 }
 
-// 修改文章
-export const updatePost = (data: PostVO) => {
-  return request.put({ url: '/blog/post/update', data })
+// ==================== 文章 ====================
+
+export interface PostVO {
+  id: number
+  authorId: number
+  title: string
+  slug: string
+  content: string
+  excerpt: string
+  coverImage: string
+  type: number
+  status: number
+  publishedAt: Date
+  metaTitle: string
+  metaDescription: string
+  canonicalUrl: string
+  viewCount: number
+  featured: boolean
+  createTime: Date
 }
 
-// 删除文章
-export const deletePost = (id: number) => {
-  return request.delete({ url: '/blog/post/delete?id=' + id })
+export const PostApi = {
+  getPostPage: async (params: any) => {
+    return await request.get({ url: `/blog/post/page`, params })
+  },
+  getPost: async (id: number) => {
+    return await request.get({ url: `/blog/post/get?id=` + id })
+  },
+  createPost: async (data: PostVO) => {
+    return await request.post({ url: `/blog/post/create`, data })
+  },
+  updatePost: async (data: PostVO) => {
+    return await request.put({ url: `/blog/post/update`, data })
+  },
+  deletePost: async (id: number) => {
+    return await request.delete({ url: `/blog/post/delete?id=` + id })
+  },
+  exportPost: async (params) => {
+    return await request.download({ url: `/blog/post/export-excel`, params })
+  }
 }

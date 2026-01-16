@@ -9,12 +9,56 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>river-module-tracking</artifactId>
-    <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>tracking 模块 - 追踪与转化管理</description>
+    <packaging>jar</packaging>
 
-    <modules>
-        <module>river-module-tracking-api</module>
-        <module>river-module-tracking-biz</module>
-    </modules>
+    <name>${project.artifactId}</name>
+    <description>
+        tracking 模块 - 追踪与转化管理
+        包括：点击记录、转化记录、追踪链接、归因记录等
+    </description>
+
+    <dependencies>
+        <!-- 依赖 affiliate 模块 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-affiliate</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 业务组件 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-biz-tenant</artifactId>
+        </dependency>
+
+        <!-- Web 相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- DB 相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-mybatis</artifactId>
+        </dependency>
+
+        <!-- Test 测试相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 工具类相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-excel</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

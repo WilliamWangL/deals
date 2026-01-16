@@ -9,12 +9,49 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>river-module-coupon</artifactId>
-    <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>coupon 模块 - 优惠券管理</description>
+    <packaging>jar</packaging>
 
-    <modules>
-        <module>river-module-coupon-api</module>
-        <module>river-module-coupon-biz</module>
-    </modules>
+    <name>${project.artifactId}</name>
+    <description>
+        coupon 模块 - 优惠券管理
+        包括：优惠券、优惠码、优惠券使用记录等
+    </description>
+
+    <dependencies>
+        <!-- 业务组件 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-biz-tenant</artifactId>
+        </dependency>
+
+        <!-- Web 相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- DB 相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-mybatis</artifactId>
+        </dependency>
+
+        <!-- Test 测试相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 工具类相关 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-excel</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
