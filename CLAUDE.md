@@ -4,29 +4,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-River 广告平台是一个广告联盟管理系统 monorepo，包含：
+River 广告平台是一个广告联盟管理系统 monorepo，包含三个子项目：
 
-- **river-server**: Java 17 + Spring Boot 3.5 + PostgreSQL 17 后端 API
-- **river-ui-admin**: Vue 3 + Element Plus + TypeScript 管理后台
-- **river-ecommica**: Next.js 16 优惠聚合站点 (deals.ecommica.com)
+| 项目 | 技术栈 | 说明 |
+|------|--------|------|
+| **river-server** | Java 17 + Spring Boot 3.5 + PostgreSQL 17 | 后端 API 服务 |
+| **river-ui-admin** | Vue 3 + Element Plus + TypeScript + Vite 5 | 管理后台 |
+| **river-ecommica** | Next.js 16 + React 19 + Tailwind CSS 4 | 优惠聚合站点 (deals.ecommica.com) |
+
+**MCP 服务器**：项目配置了 PostgreSQL MCP 服务器 (`@anthropic/mcp-postgres`)，可直接使用 `mcp__postgres__query` 工具查询数据库。
 
 ## 常用命令
 
 ### 后端 (river-server)
 
 ```bash
+# 进入后端目录
+cd river-server
+
 # 编译整个项目
-cd river-server && mvn clean compile
+mvn clean compile
 
 # 运行单个模块测试
-cd river-server/river-module-{module}/river-module-{module}-biz
-mvn test -Dtest=TestClassName
+cd river-module-{module}/river-module-{module}-biz && mvn test -Dtest=TestClassName
 
 # 运行服务器（默认端口 48080）
-cd river-server/river-server && mvn spring-boot:run
+cd river-server && mvn spring-boot:run
 
 # 跳过测试打包
-cd river-server && mvn clean package -DskipTests
+mvn clean package -DskipTests
 ```
 
 ### 管理后台 (river-ui-admin)
@@ -47,13 +53,10 @@ pnpm ts:check
 # 构建
 pnpm build:local  # 本地环境
 pnpm build:dev    # 开发环境
-pnpm build:test   # 测试环境
 pnpm build:prod   # 生产环境
 
-# 代码检查和格式化
+# 代码检查
 pnpm lint:eslint
-pnpm lint:format
-pnpm lint:style
 ```
 
 ### Next.js 站点 (river-ecommica)
@@ -61,19 +64,15 @@ pnpm lint:style
 ```bash
 cd river-ecommica
 
-# 本地开发
-pnpm dev
-
-# 构建
-pnpm build
-
-# 生产运行
-pnpm start
+pnpm dev      # 本地开发
+pnpm build    # 构建
+pnpm start    # 生产运行
+pnpm lint     # 代码检查
 ```
 
 ## 项目架构
 
-### 后端架构
+### 后端架构 (river-server)
 
 三层架构，基于模块化设计：
 
@@ -81,20 +80,21 @@ pnpm start
 river-server/
 ├── river-framework/           # 技术组件（基础框架）
 │   ├── river-common/          # 公共工具类
-│   ├── river-spring-boot-starter-mybatis/   # MyBatis Plus 扩展
-│   ├── river-spring-boot-starter-redis/     # Redis/Redisson 封装
-│   ├── river-spring-boot-starter-web/       # Web MVC 全局异常、日志
-│   ├── river-spring-boot-starter-security/  # 安全认证
-│   ├── river-spring-boot-starter-biz-tenant/     # 多租户
+│   ├── river-spring-boot-starter-mybatis/     # MyBatis Plus 扩展
+│   ├── river-spring-boot-starter-redis/       # Redis/Redisson 封装
+│   ├── river-spring-boot-starter-web/         # Web MVC 全局异常、日志
+│   ├── river-spring-boot-starter-security/    # 安全认证
+│   ├── river-spring-boot-starter-biz-tenant/  # 多租户
+│   ├── river-spring-boot-starter-job/         # 定时任务
 │   └── ...
 ├── river-server/              # 主启动模块
-├── river-module-system/       # 系统模块（用户、角色、权限等）
+├── river-module-system/       # 系统模块（用户、角色、权限、字典等）
 ├── river-module-infra/        # 基础设施模块（文件、任务、配置等）
-├── river-module-affiliate/    # 联盟营销模块
-├── river-module-tracking/     # 跟踪追踪模块
+├── river-module-affiliate/    # 联盟营销模块（商家、Offer、分类）
+├── river-module-tracking/     # 跟踪追踪模块（点击、转化）
 ├── river-module-coupon/       # 优惠券模块
 ├── river-module-blog/         # 博客模块
-├── river-module-campaign/     # 营销活动模块
+├── river-module-campaign/     # 营销活动模块（流量源、成本记录）
 └── river-module-stats/        # 统计模块
 ```
 
@@ -132,12 +132,15 @@ river-module-affiliate/
 ```
 src/
 ├── api/              # API 调用模块（按业务模块组织）
-│   └── river/        # River 业务模块 API
-│       ├── affiliate/
-│       ├── campaign/
-│       ├── coupon/
-│       ├── blog/
-│       └── stats/
+│   ├── river/        # River 业务模块 API
+│   │   ├── affiliate/  # 联盟营销（商家、Offer、分类）
+│   │   ├── campaign/   # 营销活动
+│   │   ├── coupon/     # 优惠券
+│   │   ├── blog/       # 博客
+│   │   ├── stats/      # 统计
+│   │   └── tracking/   # 跟踪
+│   ├── system/       # 系统模块 API
+│   └── infra/        # 基础设施 API
 ├── views/            # 页面组件
 │   └── river/        # River 业务模块页面
 ├── components/       # 公共组件
@@ -151,19 +154,23 @@ src/
 
 ```
 src/
-├── app/              # App Router
-├── components/       # React 组件
-├── lib/              # 工具库
-├── i18n/             # 国际化
+├── app/              # App Router（文件系统路由）
+│   └── [locale]/     # 国际化路由
+├── components/       # React 组件（ui、layout、deal、coupon）
+├── lib/              # 工具库（api、tracking、utils）
+├── i18n/             # 国际化配置
 ├── messages/         # 翻译文件
-└── config/           # 配置
+├── config/           # 配置
+├── types/            # TypeScript 类型
+└── middleware.ts     # 中间件（语言检测、路由）
 ```
 
 ## 数据库
 
 - **类型**: PostgreSQL 17
 - **连接**: `localhost:5432/river`
-- **默认表结构约定**:
+- **MCP 查询**: 使用 `mcp__postgres__query` 工具执行 SQL
+- **表结构约定**:
 
 ```sql
 CREATE TABLE river_example (
@@ -184,38 +191,35 @@ CREATE TABLE river_example (
 
 本项目已安装 [Superpowers](https://github.com/obra/superpowers) 插件来规范化开发流程。
 
-### 可用 Slash 命令
-
-```bash
-/superpowers:brainstorm    # 交互式设计细化 - 用于新功能开始前
-/superpowers:write-plan    # 创建实施计划
-/superpowers:execute-plan  # 批量执行计划任务
-```
-
-### Superpowers 工作流
+### 推荐工作流
 
 1. **brainstorming** - 编写代码前激活，通过问题细化需求
-2. **writing-plans** - 设计批准后，将工作拆分为 2-5 分钟的小任务
+2. **writing-plans** - 设计批准后，将工作拆分为小任务
 3. **test-driven-development** - RED-GREEN-REFACTOR：先写测试→看失败→写最小代码→通过
 4. **systematic-debugging** - 4 阶段根因分析，禁止盲目尝试
 5. **requesting-code-review** - 任务完成后审查代码
 
-### 使用 Skill 工具
+### 可用命令
 
-Claude Code 会自动检测并加载相关 skill。你也可以显式调用：
+```bash
+/superpowers:brainstorming    # 交互式设计细化
+/superpowers:writing-plans    # 创建实施计划
+```
 
-```
-使用 Skill 工具加载 superpowers:test-driven-development
-```
+### 设计文档
+
+实施计划存放于 `docs/plans/` 目录，格式：`YYYY-MM-DD-{feature-name}.md`
 
 ## 重要注意事项
 
 1. **遵循现有模式** - 创建新代码前先查看类似模块
 2. **未明确要求不得 commit** - 不要主动创建 Git 提交
-3. **Superpowers 已安装** - 通过 Claude Code 插件系统安装，使用 Skill 工具加载
+3. **禁止硬删除** - 始终使用软删除
+4. **多租户** - 业务表必须包含 `tenant_id` 字段
+5. **字典数据** - 枚举类型优先使用系统字典 API (`/system/dict-data/type/{dictType}`)
 
 ## 模块间依赖
 
-- API 模块（`*-api`）可被其他模块引用
+- API 模块（`*-api`）可被其他模块引用，包含 VO、枚举、Feign 接口
 - BIZ 模块（`*-biz`）包含具体实现，通过 Spring 自动装配发现
 - 前端 API 路径与后端 Controller 路径保持一致
