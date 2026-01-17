@@ -30,7 +30,17 @@ public enum DimensionTypeEnum {
     /**
      * 落地页
      */
-    LANDING_PAGE(4, "落地页");
+    LANDING_PAGE(4, "落地页"),
+
+    /**
+     * 商家
+     */
+    MERCHANT(5, "商家"),
+
+    /**
+     * 分类
+     */
+    CATEGORY(6, "分类");
 
     /**
      * 类型
@@ -41,5 +51,14 @@ public enum DimensionTypeEnum {
      * 名称
      */
     private final String name;
+
+    public static DimensionTypeEnum getByType(Integer type) {
+        for (DimensionTypeEnum value : values()) {
+            if (value.getType().equals(type)) {
+                return value;
+            }
+        }
+        return null;
+    }
 
 }
