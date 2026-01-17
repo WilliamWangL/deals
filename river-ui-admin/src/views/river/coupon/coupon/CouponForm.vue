@@ -30,9 +30,12 @@
         <el-col :span="12">
           <el-form-item label="折扣类型" prop="discountType">
             <el-select v-model="formData.discountType" placeholder="请选择折扣类型" class="!w-full">
-              <el-option label="百分比折扣" :value="1" />
-              <el-option label="固定金额" :value="2" />
-              <el-option label="免邮" :value="3" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.COUPON_DISCOUNT_TYPE)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -59,8 +62,12 @@
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
             <el-select v-model="formData.status" placeholder="请选择状态" class="!w-full">
-              <el-option label="启用" :value="1" />
-              <el-option label="禁用" :value="0" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -93,9 +100,12 @@
         <el-col :span="12">
           <el-form-item label="来源" prop="source">
             <el-select v-model="formData.source" placeholder="请选择来源" class="!w-full">
-              <el-option label="联盟同步" :value="1" />
-              <el-option label="手动录入" :value="2" />
-              <el-option label="用户提交" :value="3" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.COUPON_SOURCE)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -127,6 +137,7 @@
 
 <script setup lang="ts">
 import { CouponApi, CouponVO } from '@/api/river/coupon'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 优惠券 表单 */
 defineOptions({ name: 'CouponForm' })
@@ -235,7 +246,7 @@ const resetForm = () => {
     source: 2,
     verified: false,
     hotScore: 0,
-    status: 1
+    status: 0
   }
   formRef.value?.resetFields()
 }

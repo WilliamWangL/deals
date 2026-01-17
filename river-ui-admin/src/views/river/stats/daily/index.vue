@@ -15,12 +15,12 @@
           clearable
           class="!w-180px"
         >
-          <el-option label="Offer" :value="1" />
-          <el-option label="Campaign" :value="2" />
-          <el-option label="Traffic Source" :value="3" />
-          <el-option label="Merchant" :value="4" />
-          <el-option label="Category" :value="5" />
-          <el-option label="Author" :value="6" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.DIMENSION_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="日期" prop="date">
@@ -182,6 +182,7 @@
 
 <script setup lang="ts">
 import { DailyStatsApi, DailyStatsVO } from '@/api/river/stats'
+import { DICT_TYPE, getIntDictOptions, getDictLabel } from '@/utils/dict'
 
 defineOptions({ name: 'StatsDaily' })
 
@@ -206,18 +207,8 @@ const queryParams = reactive({
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中
 
-/** 维度类型名称映射 */
-const dimensionTypeNames: Record<number, string> = {
-  1: 'Offer',
-  2: 'Campaign',
-  3: 'Traffic Source',
-  4: 'Merchant',
-  5: 'Category',
-  6: 'Author'
-}
-
 const getDimensionTypeName = (type: number) => {
-  return dimensionTypeNames[type] || '-'
+  return getDictLabel(DICT_TYPE.DIMENSION_TYPE, type) || '-'
 }
 
 /** 格式化数字 */

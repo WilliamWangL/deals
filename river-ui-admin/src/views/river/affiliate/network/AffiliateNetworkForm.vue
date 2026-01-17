@@ -23,17 +23,24 @@
         <el-col :span="12">
           <el-form-item label="联盟类型" prop="type">
             <el-select v-model="formData.type" placeholder="请选择联盟类型" class="!w-full">
-              <el-option label="CPA 网络" :value="1" />
-              <el-option label="联盟营销" :value="2" />
-              <el-option label="其他" :value="3" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.AFFILIATE_NETWORK_TYPE)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
             <el-select v-model="formData.status" placeholder="请选择状态" class="!w-full">
-              <el-option label="启用" :value="1" />
-              <el-option label="禁用" :value="0" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -73,6 +80,7 @@
 
 <script setup lang="ts">
 import { AffiliateNetworkApi, AffiliateNetworkVO } from '@/api/river/affiliate'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 联盟网络 表单 */
 defineOptions({ name: 'AffiliateNetworkForm' })
@@ -90,7 +98,7 @@ const formData = ref({
   name: '',
   type: 1,
   apiBaseUrl: '',
-  status: 1,
+  status: 0,
   websiteUrl: '',
   logoUrl: '',
   description: '',
@@ -154,7 +162,7 @@ const resetForm = () => {
     name: '',
     type: 1,
     apiBaseUrl: '',
-    status: 1,
+    status: 0,
     websiteUrl: '',
     logoUrl: '',
     description: '',

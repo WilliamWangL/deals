@@ -23,20 +23,24 @@
         <el-col :span="12">
           <el-form-item label="转化类型" prop="conversionType">
             <el-select v-model="formData.conversionType" placeholder="请选择转化类型" class="!w-full">
-              <el-option label="Lead" :value="1" />
-              <el-option label="Sale" :value="2" />
-              <el-option label="Install" :value="3" />
-              <el-option label="Signup" :value="4" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.CONVERSION_TYPE)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
             <el-select v-model="formData.status" placeholder="请选择状态" class="!w-full">
-              <el-option label="待确认" :value="0" />
-              <el-option label="已确认" :value="1" />
-              <el-option label="已拒绝" :value="2" />
-              <el-option label="已撤销" :value="3" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.CONVERSION_STATUS)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -88,6 +92,7 @@
 
 <script setup lang="ts">
 import { ConversionApi, ConversionVO } from '@/api/river/tracking'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 转化记录表单 */
 defineOptions({ name: 'ConversionForm' })

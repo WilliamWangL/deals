@@ -17,7 +17,7 @@ CREATE TABLE river_coupon_coupon (
     source          SMALLINT NOT NULL DEFAULT 2,
     verified        BOOLEAN NOT NULL DEFAULT FALSE,
     hot_score       INT NOT NULL DEFAULT 0,
-    status          SMALLINT NOT NULL DEFAULT 1,
+    status          SMALLINT NOT NULL DEFAULT 0,
     creator         VARCHAR(64) DEFAULT '',
     create_time     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updater         VARCHAR(64) DEFAULT '',

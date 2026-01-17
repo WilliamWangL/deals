@@ -33,9 +33,12 @@
           clearable
           class="!w-180px"
         >
-          <el-option label="最后点击" :value="1" />
-          <el-option label="首次点击" :value="2" />
-          <el-option label="线性归因" :value="3" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.ATTRIBUTION_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -61,9 +64,7 @@
       </el-table-column>
       <el-table-column label="归因类型" prop="attributionType" width="120">
         <template #default="scope">
-          <el-tag v-if="scope.row.attributionType === 1" type="primary" size="small">最后点击</el-tag>
-          <el-tag v-else-if="scope.row.attributionType === 2" type="success" size="small">首次点击</el-tag>
-          <el-tag v-else-if="scope.row.attributionType === 3" type="info" size="small">线性归因</el-tag>
+          <dict-tag :type="DICT_TYPE.ATTRIBUTION_TYPE" :value="scope.row.attributionType" />
         </template>
       </el-table-column>
       <el-table-column label="置信度" prop="confidenceScore" width="100" align="center">
@@ -103,6 +104,7 @@
 <script setup lang="ts">
 import { dateFormatter } from '@/utils/formatTime'
 import { AttributionApi } from '@/api/river/tracking'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 defineOptions({ name: 'TrackingAttribution' })
 

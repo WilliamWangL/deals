@@ -105,7 +105,7 @@ CREATE TABLE river_tracking_link (
     preset_sub4     VARCHAR(200),
     preset_sub5     VARCHAR(200),
     utm_params      TEXT,
-    status          SMALLINT NOT NULL DEFAULT 1,
+    status          SMALLINT NOT NULL DEFAULT 0,
     creator         VARCHAR(64) DEFAULT '',
     create_time     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updater         VARCHAR(64) DEFAULT '',

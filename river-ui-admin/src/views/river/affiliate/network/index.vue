@@ -33,8 +33,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="启用" :value="1" />
-          <el-option label="禁用" :value="0" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -75,15 +79,12 @@
       <el-table-column label="联盟名称" align="center" prop="name" />
       <el-table-column label="联盟类型" align="center" prop="type">
         <template #default="scope">
-          <el-tag v-if="scope.row.type === 1" type="primary">CPA 网络</el-tag>
-          <el-tag v-else-if="scope.row.type === 2" type="success">联盟营销</el-tag>
-          <el-tag v-else type="info">其他</el-tag>
+          <dict-tag :type="DICT_TYPE.AFFILIATE_NETWORK_TYPE" :value="scope.row.type" />
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
-          <el-tag v-if="scope.row.status === 1" type="success">启用</el-tag>
-          <el-tag v-else type="danger">禁用</el-tag>
+          <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column label="官网" align="center" prop="websiteUrl" :show-overflow-tooltip="true" />
@@ -127,6 +128,7 @@ import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
 import { AffiliateNetworkApi, AffiliateNetworkVO } from '@/api/river/affiliate'
 import AffiliateNetworkForm from './AffiliateNetworkForm.vue'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 联盟网络 列表 */
 defineOptions({ name: 'AffiliateNetwork' })

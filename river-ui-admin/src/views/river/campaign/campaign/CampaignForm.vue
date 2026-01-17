@@ -30,10 +30,12 @@
         <el-col :span="12">
           <el-form-item label="类型" prop="type">
             <el-select v-model="formData.type" placeholder="请选择类型" class="!w-full">
-              <el-option label="搜索" :value="1" />
-              <el-option label="社交" :value="2" />
-              <el-option label="展示" :value="3" />
-              <el-option label="原生" :value="4" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.CAMPAIGN_TYPE)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -72,8 +74,12 @@
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="formData.status">
-          <el-radio :value="1">启用</el-radio>
-          <el-radio :value="0">暂停</el-radio>
+          <el-radio
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :value="dict.value"
+            >{{ dict.label }}</el-radio
+          >
         </el-radio-group>
       </el-form-item>
     </el-form>
@@ -86,6 +92,7 @@
 
 <script setup lang="ts">
 import { CampaignApi, CampaignVO } from '@/api/river/campaign'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 营销活动表单 */
 defineOptions({ name: 'CampaignForm' })
@@ -119,7 +126,7 @@ const formData = ref({
   budgetDaily: undefined,
   budgetTotal: undefined,
   externalCampaignId: '',
-  status: 1
+  status: 0
 })
 const formRules = reactive({
   name: [{ required: true, message: '活动名称不能为空', trigger: 'blur' }],
@@ -183,7 +190,7 @@ const resetForm = () => {
     budgetDaily: undefined,
     budgetTotal: undefined,
     externalCampaignId: '',
-    status: 1
+    status: 0
   }
   formRef.value?.resetFields()
 }

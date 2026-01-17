@@ -88,9 +88,7 @@
       </el-table-column>
       <el-table-column label="来源" prop="source" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.source === 1" type="primary" size="small">API</el-tag>
-          <el-tag v-else-if="scope.row.source === 2" type="success" size="small">手动</el-tag>
-          <el-tag v-else type="info" size="small">导入</el-tag>
+          <dict-tag :type="DICT_TYPE.COST_RECORD_SOURCE" :value="scope.row.source" />
         </template>
       </el-table-column>
       <el-table-column
@@ -137,6 +135,7 @@
 import { dateFormatter } from '@/utils/formatTime'
 import { CostRecordApi, CostRecordVO, CampaignApi, AdGroupApi } from '@/api/river/campaign'
 import CostRecordForm from './CostRecordForm.vue'
+import { DICT_TYPE } from '@/utils/dict'
 
 defineOptions({ name: 'CampaignCostRecord' })
 

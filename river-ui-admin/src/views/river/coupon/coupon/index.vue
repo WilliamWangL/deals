@@ -40,9 +40,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="百分比折扣" :value="1" />
-          <el-option label="固定金额" :value="2" />
-          <el-option label="免邮" :value="3" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.COUPON_DISCOUNT_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -52,8 +55,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="启用" :value="1" />
-          <el-option label="禁用" :value="0" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -102,9 +109,7 @@
       </el-table-column>
       <el-table-column label="折扣类型" align="center" prop="discountType" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.discountType === 1" type="primary">百分比</el-tag>
-          <el-tag v-else-if="scope.row.discountType === 2" type="success">固定金额</el-tag>
-          <el-tag v-else type="info">免邮</el-tag>
+          <dict-tag :type="DICT_TYPE.COUPON_DISCOUNT_TYPE" :value="scope.row.discountType" />
         </template>
       </el-table-column>
       <el-table-column label="折扣值" align="center" prop="discountValue">
@@ -136,8 +141,7 @@
       <el-table-column label="热度" align="center" prop="hotScore" width="80" />
       <el-table-column label="状态" align="center" prop="status" width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row.status === 1" type="success">启用</el-tag>
-          <el-tag v-else type="danger">禁用</el-tag>
+          <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" fixed="right" width="150">
@@ -180,6 +184,7 @@ import download from '@/utils/download'
 import { CouponApi, CouponVO } from '@/api/river/coupon'
 import { MerchantApi } from '@/api/river/affiliate'
 import CouponForm from './CouponForm.vue'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 优惠券 列表 */
 defineOptions({ name: 'Coupon' })

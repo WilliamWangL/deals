@@ -247,5 +247,21 @@ export enum DICT_TYPE {
   IOT_ALERT_RECEIVE_TYPE = 'iot_alert_receive_type', // IoT 告警接收类型
   IOT_OTA_TASK_DEVICE_SCOPE = 'iot_ota_task_device_scope', // IoT OTA任务设备范围
   IOT_OTA_TASK_STATUS = 'iot_ota_task_status', // IoT OTA 任务状态
-  IOT_OTA_TASK_RECORD_STATUS = 'iot_ota_task_record_status' // IoT OTA 记录状态
+  IOT_OTA_TASK_RECORD_STATUS = 'iot_ota_task_record_status', // IoT OTA 记录状态
+
+  // ========== RIVER - 联盟广告模块 ==========
+  AFFILIATE_NETWORK_TYPE = 'affiliate_network_type', // 联盟网络类型
+  AFFILIATE_COMMISSION_TYPE = 'affiliate_commission_type', // 佣金类型
+  COUPON_TYPE = 'coupon_type', // 优惠券类型
+  COUPON_DISCOUNT_TYPE = 'coupon_discount_type', // 折扣类型
+  COUPON_SOURCE = 'coupon_source', // 优惠券来源
+  BLOG_POST_TYPE = 'blog_post_type', // 博客文章类型
+  BLOG_POST_STATUS = 'blog_post_status', // 博客文章状态
+  CAMPAIGN_TYPE = 'campaign_type', // Campaign 类型
+  LANDING_PAGE_TYPE = 'landing_page_type', // 落地页类型
+  COST_RECORD_SOURCE = 'cost_record_source', // 成本记录来源
+  CONVERSION_TYPE = 'conversion_type', // 转化类型
+  CONVERSION_STATUS = 'conversion_status', // 转化状态
+  ATTRIBUTION_TYPE = 'attribution_type', // 归因类型
+  DIMENSION_TYPE = 'dimension_type' // 维度类型
 }

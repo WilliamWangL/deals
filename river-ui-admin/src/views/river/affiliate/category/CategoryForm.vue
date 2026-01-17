@@ -40,8 +40,12 @@
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="formData.status" placeholder="请选择状态" class="!w-full">
-          <el-option label="启用" :value="1" />
-          <el-option label="禁用" :value="0" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
     </el-form>
@@ -55,6 +59,7 @@
 <script setup lang="ts">
 import { CategoryApi, CategoryVO } from '@/api/river/affiliate'
 import { handleTree } from '@/utils/tree'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 分类 表单 */
 defineOptions({ name: 'CategoryForm' })
@@ -75,7 +80,7 @@ const formData = ref({
   level: 1,
   sort: 0,
   icon: '',
-  status: 1
+  status: 0
 })
 const formRules = reactive({
   name: [{ required: true, message: '分类名称不能为空', trigger: 'blur' }],
@@ -146,7 +151,7 @@ const resetForm = () => {
     level: 1,
     sort: 0,
     icon: '',
-    status: 1
+    status: 0
   }
   formRef.value?.resetFields()
 }

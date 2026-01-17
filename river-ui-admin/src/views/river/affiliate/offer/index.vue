@@ -40,11 +40,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="CPA" :value="1" />
-          <el-option label="CPC" :value="2" />
-          <el-option label="CPS" :value="3" />
-          <el-option label="CPL" :value="4" />
-          <el-option label="CPM" :value="5" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.AFFILIATE_COMMISSION_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -54,8 +55,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="启用" :value="1" />
-          <el-option label="禁用" :value="0" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -100,11 +105,7 @@
       </el-table-column>
       <el-table-column label="佣金类型" align="center" prop="commissionType" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.commissionType === 1" type="primary">CPA</el-tag>
-          <el-tag v-else-if="scope.row.commissionType === 2" type="success">CPC</el-tag>
-          <el-tag v-else-if="scope.row.commissionType === 3" type="warning">CPS</el-tag>
-          <el-tag v-else-if="scope.row.commissionType === 4" type="info">CPL</el-tag>
-          <el-tag v-else type="danger">CPM</el-tag>
+          <dict-tag :type="DICT_TYPE.AFFILIATE_COMMISSION_TYPE" :value="scope.row.commissionType" />
         </template>
       </el-table-column>
       <el-table-column label="佣金数值" align="center" prop="commissionValue">
@@ -127,8 +128,7 @@
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status" width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row.status === 1" type="success">启用</el-tag>
-          <el-tag v-else type="danger">禁用</el-tag>
+          <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" fixed="right" width="150">
@@ -170,6 +170,7 @@ import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
 import { OfferApi, OfferVO, MerchantApi, AffiliateNetworkApi } from '@/api/river/affiliate'
 import OfferForm from './OfferForm.vue'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** Offer 列表 */
 defineOptions({ name: 'Offer' })

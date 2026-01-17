@@ -49,10 +49,7 @@
       <el-table-column label="外部转化ID" prop="externalConversionId" width="180" />
       <el-table-column label="转化类型" prop="conversionType" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.conversionType === 1" type="info" size="small">Lead</el-tag>
-          <el-tag v-else-if="scope.row.conversionType === 2" type="success" size="small">Sale</el-tag>
-          <el-tag v-else-if="scope.row.conversionType === 3" type="warning" size="small">Install</el-tag>
-          <el-tag v-else-if="scope.row.conversionType === 4" type="primary" size="small">Signup</el-tag>
+          <dict-tag :type="DICT_TYPE.CONVERSION_TYPE" :value="scope.row.conversionType" />
         </template>
       </el-table-column>
       <el-table-column label="佣金" prop="commission" width="120" align="right">
@@ -103,10 +100,7 @@
       <el-descriptions-item label="网络代码">{{ currentDetail.networkCode }}</el-descriptions-item>
       <el-descriptions-item label="外部转化ID" :span="2">{{ currentDetail.externalConversionId }}</el-descriptions-item>
       <el-descriptions-item label="转化类型">
-        <el-tag v-if="currentDetail.conversionType === 1" type="info" size="small">Lead</el-tag>
-        <el-tag v-else-if="currentDetail.conversionType === 2" type="success" size="small">Sale</el-tag>
-        <el-tag v-else-if="currentDetail.conversionType === 3" type="warning" size="small">Install</el-tag>
-        <el-tag v-else-if="currentDetail.conversionType === 4" type="primary" size="small">Signup</el-tag>
+        <dict-tag :type="DICT_TYPE.CONVERSION_TYPE" :value="currentDetail.conversionType" />
       </el-descriptions-item>
       <el-descriptions-item label="佣金">
         {{ currentDetail.currency }} {{ currentDetail.commission?.toFixed(4) || '0.0000' }}
@@ -133,6 +127,7 @@
 <script setup lang="ts">
 import { dateFormatter } from '@/utils/formatTime'
 import { UnattributedConversionApi } from '@/api/river/tracking'
+import { DICT_TYPE } from '@/utils/dict'
 
 defineOptions({ name: 'TrackingUnattributed' })
 

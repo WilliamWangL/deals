@@ -10,10 +10,14 @@ import com.river.module.affiliate.dal.mysql.CategoryMapper;
 import com.river.module.affiliate.dal.mysql.CategoryMappingMapper;
 import com.river.module.affiliate.dal.mysql.MerchantMapper;
 import com.river.module.affiliate.dal.mysql.OfferMapper;
+import com.river.module.affiliate.enums.PayoutModelEnum;
 import com.river.module.coupon.dal.dataobject.CouponDO;
 import com.river.module.coupon.dal.dataobject.DealDO;
 import com.river.module.coupon.dal.mysql.CouponMapper;
 import com.river.module.coupon.dal.mysql.DealMapper;
+import com.river.framework.common.enums.CommonStatusEnum;
+import com.river.module.coupon.enums.CouponTypeEnum;
+import com.river.module.coupon.enums.DiscountTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -204,17 +208,13 @@ public class AdmitadSyncService {
     }
 
     private Integer mapStatus(String status) {
-        return "active".equalsIgnoreCase(status) ? 1 : 0;
+        return "active".equalsIgnoreCase(status)
+            ? CommonStatusEnum.ENABLE.getStatus()
+            : CommonStatusEnum.DISABLE.getStatus();
     }
 
     private Integer mapCommissionType(String type) {
-        if (type == null) return 1;
-        return switch (type.toLowerCase()) {
-            case "sale" -> 1;
-            case "lead" -> 2;
-            case "click" -> 3;
-            default -> 1;
-        };
+        return PayoutModelEnum.fromAdmitadType(type).getCode();
     }
 
     /**
@@ -277,7 +277,7 @@ public class AdmitadSyncService {
         category.setSlug(generateCategorySlug(name));
         category.setLevel(1);
         category.setSort(0);
-        category.setStatus(1);
+        category.setStatus(CommonStatusEnum.ENABLE.getStatus());
         return category;
     }
 
@@ -384,7 +384,7 @@ public class AdmitadSyncService {
         coupon.setExclusive(admitadCoupon.getExclusive());
         coupon.setVerified(admitadCoupon.getVerification());
         coupon.setCouponType(mapCouponType(admitadCoupon.getSpecies()));
-        coupon.setStatus(1); // 默认启用
+        coupon.setStatus(CommonStatusEnum.ENABLE.getStatus());
 
         // 解析折扣
         if (admitadCoupon.getDiscount() != null) {
@@ -450,7 +450,7 @@ public class AdmitadSyncService {
         deal.setImageUrl(admitadCoupon.getImage());
         deal.setGotoUrl(admitadCoupon.getGotoLink());
         deal.setExclusive(admitadCoupon.getExclusive());
-        deal.setStatus(1); // 默认启用
+        deal.setStatus(CommonStatusEnum.ENABLE.getStatus());
 
         // 解析折扣百分比
         if (admitadCoupon.getDiscount() != null) {
@@ -494,12 +494,7 @@ public class AdmitadSyncService {
     }
 
     private Integer mapCouponType(String species) {
-        if (species == null) return 1;
-        return switch (species.toLowerCase()) {
-            case "promocode" -> 1;
-            case "sale" -> 2;
-            default -> 3; // deal
-        };
+        return CouponTypeEnum.fromAdmitadSpecies(species).getCode();
     }
 
     private void parseDiscount(CouponDO coupon, String discount) {
@@ -510,7 +505,7 @@ public class AdmitadSyncService {
             try {
                 String value = discount.replace("%", "").trim();
                 coupon.setDiscountValue(new BigDecimal(value));
-                coupon.setDiscountType(1); // 百分比
+                coupon.setDiscountType(DiscountTypeEnum.PERCENT.getCode());
                 return;
             } catch (NumberFormatException ignored) {}
         }
@@ -520,7 +515,7 @@ public class AdmitadSyncService {
         if (!numericPart.isEmpty()) {
             try {
                 coupon.setDiscountValue(new BigDecimal(numericPart));
-                coupon.setDiscountType(2); // 固定金额
+                coupon.setDiscountType(DiscountTypeEnum.FIXED.getCode());
             } catch (NumberFormatException ignored) {}
         }
     }
