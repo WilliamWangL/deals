@@ -7,6 +7,9 @@
 -- =====================================================
 -- 1. 创建分类映射表
 -- =====================================================
+-- 创建序列（用于 MyBatis Plus 自动生成 ID）
+CREATE SEQUENCE IF NOT EXISTS river_affiliate_category_mapping_seq START 1;
+
 CREATE TABLE IF NOT EXISTS river_affiliate_category_mapping (
     id bigint NOT NULL,
     network_id bigint NOT NULL,                              -- 联盟网络 ID

@@ -1,10 +1,12 @@
 package com.river.module.affiliate.service.network.admitad;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.river.module.affiliate.dal.dataobject.CategoryDO;
 import com.river.module.affiliate.dal.dataobject.CategoryMappingDO;
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.affiliate.dal.dataobject.NetworkCredentialDO;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
+import com.river.module.affiliate.dal.mysql.CategoryMapper;
 import com.river.module.affiliate.dal.mysql.CategoryMappingMapper;
 import com.river.module.affiliate.dal.mysql.MerchantMapper;
 import com.river.module.affiliate.dal.mysql.OfferMapper;
@@ -37,6 +39,9 @@ public class AdmitadSyncService {
 
     @Resource
     private OfferMapper offerMapper;
+
+    @Resource
+    private CategoryMapper categoryMapper;
 
     @Resource
     private CategoryMappingMapper categoryMappingMapper;
@@ -214,11 +219,11 @@ public class AdmitadSyncService {
 
     /**
      * 映射联盟分类到本地分类
-     * 如果映射不存在，自动创建映射记录（待手动绑定本地分类）
+     * 如果映射不存在，自动创建本地分类和映射记录
      *
      * @param networkId  联盟网络 ID
      * @param categories 联盟分类列表
-     * @return 逗号分隔的本地分类 ID（仅返回已映射的分类）
+     * @return 逗号分隔的本地分类 ID
      */
     private String mapCategories(Long networkId, List<AdmitadCampaign.Category> categories) {
         List<Long> mappedCategoryIds = new ArrayList<>();
@@ -230,18 +235,29 @@ public class AdmitadSyncService {
             CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
 
             if (mapping == null) {
-                // 创建新的映射记录（待手动绑定本地分类）
+                // 自动创建本地分类
+                CategoryDO localCategory = createLocalCategory(category.getName());
+                categoryMapper.insert(localCategory);
+
+                // 创建映射记录并绑定本地分类
                 mapping = new CategoryMappingDO();
                 mapping.setNetworkId(networkId);
                 mapping.setExternalId(externalId);
                 mapping.setExternalName(category.getName());
+                mapping.setCategoryId(localCategory.getId());
                 mapping.setAutoCreated(true);
                 categoryMappingMapper.insert(mapping);
-                log.debug("Created category mapping: network={}, externalId={}, name={}",
-                    networkId, externalId, category.getName());
+                log.info("Auto-created category: {} -> local id={}", category.getName(), localCategory.getId());
+            } else if (mapping.getCategoryId() == null) {
+                // 已有映射但未绑定本地分类，自动创建并绑定
+                CategoryDO localCategory = createLocalCategory(category.getName());
+                categoryMapper.insert(localCategory);
+                mapping.setCategoryId(localCategory.getId());
+                categoryMappingMapper.updateById(mapping);
+                log.info("Auto-bound category: {} -> local id={}", category.getName(), localCategory.getId());
             }
 
-            // 只有已绑定本地分类的映射才加入结果
+            // 加入结果
             if (mapping.getCategoryId() != null) {
                 mappedCategoryIds.add(mapping.getCategoryId());
             }
@@ -249,6 +265,35 @@ public class AdmitadSyncService {
 
         return mappedCategoryIds.isEmpty() ? null :
             mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+    }
+
+    /**
+     * 创建本地分类
+     */
+    private CategoryDO createLocalCategory(String name) {
+        CategoryDO category = new CategoryDO();
+        category.setParentId(0L);
+        category.setName(name);
+        category.setSlug(generateCategorySlug(name));
+        category.setLevel(1);
+        category.setSort(0);
+        category.setStatus(1);
+        return category;
+    }
+
+    /**
+     * 生成分类 slug
+     */
+    private String generateCategorySlug(String name) {
+        if (name == null) return "category-" + System.currentTimeMillis();
+        // 尝试音译，简单处理：移除非ASCII字符，转小写，空格转连字符
+        String slug = name.toLowerCase()
+            .replaceAll("[^a-z0-9\\s-]", "")
+            .replaceAll("\\s+", "-")
+            .replaceAll("-+", "-")
+            .replaceAll("^-|-$", "");
+        // 如果slug为空（如全是中文/俄文），使用时间戳
+        return slug.isEmpty() ? "category-" + System.currentTimeMillis() : slug;
     }
 
     /**
@@ -495,15 +540,22 @@ public class AdmitadSyncService {
     private LocalDateTime parseDateTime(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) return null;
         try {
-            return LocalDateTime.parse(dateStr, DATE_FORMATTER);
-        } catch (Exception e) {
-            log.debug("Failed to parse date: {}", dateStr);
-            return null;
+            // 优先使用 ISO 格式（API 返回 "2026-01-14T00:00:00"）
+            return LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        } catch (Exception e1) {
+            try {
+                // 备用格式（旧格式 "2026-01-14 00:00:00"）
+                return LocalDateTime.parse(dateStr, DATE_FORMATTER);
+            } catch (Exception e2) {
+                log.debug("Failed to parse date: {}", dateStr);
+                return null;
+            }
         }
     }
 
     /**
      * 映射 Coupon 分类（AdmitadCoupon.Category 类型）
+     * 如果映射不存在，自动创建本地分类和映射记录
      */
     private String mapCouponCategories(Long networkId, List<AdmitadCoupon.Category> categories) {
         List<Long> mappedCategoryIds = new ArrayList<>();
@@ -514,12 +566,26 @@ public class AdmitadSyncService {
             CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
 
             if (mapping == null) {
+                // 自动创建本地分类
+                CategoryDO localCategory = createLocalCategory(category.getName());
+                categoryMapper.insert(localCategory);
+
+                // 创建映射记录并绑定本地分类
                 mapping = new CategoryMappingDO();
                 mapping.setNetworkId(networkId);
                 mapping.setExternalId(externalId);
                 mapping.setExternalName(category.getName());
+                mapping.setCategoryId(localCategory.getId());
                 mapping.setAutoCreated(true);
                 categoryMappingMapper.insert(mapping);
+                log.info("Auto-created category: {} -> local id={}", category.getName(), localCategory.getId());
+            } else if (mapping.getCategoryId() == null) {
+                // 已有映射但未绑定本地分类，自动创建并绑定
+                CategoryDO localCategory = createLocalCategory(category.getName());
+                categoryMapper.insert(localCategory);
+                mapping.setCategoryId(localCategory.getId());
+                categoryMappingMapper.updateById(mapping);
+                log.info("Auto-bound category: {} -> local id={}", category.getName(), localCategory.getId());
             }
 
             if (mapping.getCategoryId() != null) {
