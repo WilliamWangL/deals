@@ -60,8 +60,12 @@
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
             <el-radio-group v-model="formData.status">
-              <el-radio :value="1">启用</el-radio>
-              <el-radio :value="0">禁用</el-radio>
+              <el-radio
+                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+                :key="dict.value"
+                :value="dict.value"
+                >{{ dict.label }}</el-radio
+              >
             </el-radio-group>
           </el-form-item>
         </el-col>
@@ -90,6 +94,7 @@
 
 <script setup lang="ts">
 import { TrackingLinkApi, TrackingLinkVO } from '@/api/river/tracking'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 追踪链接表单 */
 defineOptions({ name: 'TrackingLinkForm' })
@@ -119,7 +124,7 @@ const formData = ref({
   presetSub4: '',
   presetSub5: '',
   utmParams: '',
-  status: 1
+  status: 0
 })
 const formRules = reactive({
   offerId: [{ required: true, message: 'Offer不能为空', trigger: 'change' }],
@@ -182,7 +187,7 @@ const resetForm = () => {
     presetSub4: '',
     presetSub5: '',
     utmParams: '',
-    status: 1
+    status: 0
   }
   formRef.value?.resetFields()
 }

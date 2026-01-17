@@ -54,8 +54,12 @@
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
             <el-select v-model="formData.status" placeholder="请选择状态" class="!w-full">
-              <el-option label="启用" :value="1" />
-              <el-option label="禁用" :value="0" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -97,6 +101,7 @@
 
 <script setup lang="ts">
 import { MerchantApi, MerchantVO, AffiliateNetworkApi } from '@/api/river/affiliate'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 商家 表单 */
 defineOptions({ name: 'MerchantForm' })
@@ -125,7 +130,7 @@ const formData = ref({
   logoUrl: '',
   description: '',
   rating: 0,
-  status: 1,
+  status: 0,
   regions: '',
   categoryIds: ''
 })
@@ -190,7 +195,7 @@ const resetForm = () => {
     logoUrl: '',
     description: '',
     rating: 0,
-    status: 1,
+    status: 0,
     regions: '',
     categoryIds: ''
   }

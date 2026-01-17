@@ -35,8 +35,12 @@
       </el-form-item>
       <el-form-item label="类型" prop="type">
         <el-select v-model="queryParams.type" placeholder="请选择类型" clearable class="!w-240px">
-          <el-option label="文章" :value="1" />
-          <el-option label="页面" :value="2" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.BLOG_POST_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -46,9 +50,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="草稿" :value="0" />
-          <el-option label="已发布" :value="1" />
-          <el-option label="已下线" :value="2" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.BLOG_POST_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -102,15 +109,12 @@
       </el-table-column>
       <el-table-column label="类型" prop="type" width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row.type === 1" type="primary" size="small">文章</el-tag>
-          <el-tag v-else-if="scope.row.type === 2" type="info" size="small">页面</el-tag>
+          <dict-tag :type="DICT_TYPE.BLOG_POST_TYPE" :value="scope.row.type" />
         </template>
       </el-table-column>
       <el-table-column label="状态" prop="status" width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row.status === 0" type="info" size="small">草稿</el-tag>
-          <el-tag v-else-if="scope.row.status === 1" type="success" size="small">已发布</el-tag>
-          <el-tag v-else-if="scope.row.status === 2" type="warning" size="small">已下线</el-tag>
+          <dict-tag :type="DICT_TYPE.BLOG_POST_STATUS" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column label="推荐" prop="featured" width="80" align="center">
@@ -174,6 +178,7 @@
 import { dateFormatter } from '@/utils/formatTime'
 import { PostApi, PostVO, AuthorApi } from '@/api/river/blog'
 import PostForm from './PostForm.vue'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 defineOptions({ name: 'BlogPost' })
 

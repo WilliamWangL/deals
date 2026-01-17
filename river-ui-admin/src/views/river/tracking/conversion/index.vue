@@ -33,10 +33,12 @@
           clearable
           class="!w-180px"
         >
-          <el-option label="Lead" :value="1" />
-          <el-option label="Sale" :value="2" />
-          <el-option label="Install" :value="3" />
-          <el-option label="Signup" :value="4" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.CONVERSION_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -46,10 +48,12 @@
           clearable
           class="!w-180px"
         >
-          <el-option label="待确认" :value="0" />
-          <el-option label="已确认" :value="1" />
-          <el-option label="已拒绝" :value="2" />
-          <el-option label="已撤销" :value="3" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.CONVERSION_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -100,10 +104,7 @@
       </el-table-column>
       <el-table-column label="转化类型" prop="conversionType" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.conversionType === 1" type="info" size="small">Lead</el-tag>
-          <el-tag v-else-if="scope.row.conversionType === 2" type="success" size="small">Sale</el-tag>
-          <el-tag v-else-if="scope.row.conversionType === 3" type="warning" size="small">Install</el-tag>
-          <el-tag v-else-if="scope.row.conversionType === 4" type="primary" size="small">Signup</el-tag>
+          <dict-tag :type="DICT_TYPE.CONVERSION_TYPE" :value="scope.row.conversionType" />
         </template>
       </el-table-column>
       <el-table-column label="佣金" prop="commission" width="120" align="right">
@@ -115,10 +116,7 @@
       </el-table-column>
       <el-table-column label="状态" prop="status" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.status === 0" type="info" size="small">待确认</el-tag>
-          <el-tag v-else-if="scope.row.status === 1" type="success" size="small">已确认</el-tag>
-          <el-tag v-else-if="scope.row.status === 2" type="danger" size="small">已拒绝</el-tag>
-          <el-tag v-else-if="scope.row.status === 3" type="warning" size="small">已撤销</el-tag>
+          <dict-tag :type="DICT_TYPE.CONVERSION_STATUS" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column
@@ -176,16 +174,10 @@
         <span v-else>-</span>
       </el-descriptions-item>
       <el-descriptions-item label="转化类型">
-        <el-tag v-if="currentDetail.conversionType === 1" type="info" size="small">Lead</el-tag>
-        <el-tag v-else-if="currentDetail.conversionType === 2" type="success" size="small">Sale</el-tag>
-        <el-tag v-else-if="currentDetail.conversionType === 3" type="warning" size="small">Install</el-tag>
-        <el-tag v-else-if="currentDetail.conversionType === 4" type="primary" size="small">Signup</el-tag>
+        <dict-tag :type="DICT_TYPE.CONVERSION_TYPE" :value="currentDetail.conversionType" />
       </el-descriptions-item>
       <el-descriptions-item label="状态">
-        <el-tag v-if="currentDetail.status === 0" type="info" size="small">待确认</el-tag>
-        <el-tag v-else-if="currentDetail.status === 1" type="success" size="small">已确认</el-tag>
-        <el-tag v-else-if="currentDetail.status === 2" type="danger" size="small">已拒绝</el-tag>
-        <el-tag v-else-if="currentDetail.status === 3" type="warning" size="small">已撤销</el-tag>
+        <dict-tag :type="DICT_TYPE.CONVERSION_STATUS" :value="currentDetail.status" />
       </el-descriptions-item>
       <el-descriptions-item label="佣金">
         {{ currentDetail.currency }} {{ currentDetail.commission?.toFixed(4) || '0.0000' }}
@@ -207,6 +199,7 @@
 import { dateFormatter } from '@/utils/formatTime'
 import { ConversionApi, ConversionVO } from '@/api/river/tracking'
 import ConversionForm from './ConversionForm.vue'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 defineOptions({ name: 'TrackingConversion' })
 

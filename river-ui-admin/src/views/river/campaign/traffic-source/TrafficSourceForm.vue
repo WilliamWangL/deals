@@ -23,8 +23,12 @@
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="formData.status">
-          <el-radio :value="1">启用</el-radio>
-          <el-radio :value="0">禁用</el-radio>
+          <el-radio
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :value="dict.value"
+            >{{ dict.label }}</el-radio
+          >
         </el-radio-group>
       </el-form-item>
     </el-form>
@@ -37,6 +41,7 @@
 
 <script setup lang="ts">
 import { TrafficSourceApi, TrafficSourceVO } from '@/api/river/campaign'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 流量来源表单 */
 defineOptions({ name: 'TrafficSourceForm' })
@@ -54,7 +59,7 @@ const formData = ref({
   code: '',
   name: '',
   apiCredentials: '',
-  status: 1
+  status: 0
 })
 const formRules = reactive({
   code: [{ required: true, message: '代码不能为空', trigger: 'blur' }],
@@ -112,7 +117,7 @@ const resetForm = () => {
     code: '',
     name: '',
     apiCredentials: '',
-    status: 1
+    status: 0
   }
   formRef.value?.resetFields()
 }

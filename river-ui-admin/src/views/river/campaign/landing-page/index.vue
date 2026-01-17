@@ -19,8 +19,12 @@
       </el-form-item>
       <el-form-item label="类型" prop="type">
         <el-select v-model="queryParams.type" placeholder="请选择类型" clearable class="!w-240px">
-          <el-option label="外部链接" :value="1" />
-          <el-option label="内部页面" :value="2" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.LANDING_PAGE_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -30,8 +34,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="启用" :value="1" />
-          <el-option label="禁用" :value="0" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -61,8 +69,7 @@
       <el-table-column label="Slug" prop="slug" width="150" />
       <el-table-column label="类型" prop="type" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.type === 1" type="primary" size="small">外部链接</el-tag>
-          <el-tag v-else-if="scope.row.type === 2" type="success" size="small">内部页面</el-tag>
+          <dict-tag :type="DICT_TYPE.LANDING_PAGE_TYPE" :value="scope.row.type" />
         </template>
       </el-table-column>
       <el-table-column label="URL" prop="url" min-width="250" show-overflow-tooltip>
@@ -81,8 +88,7 @@
       </el-table-column>
       <el-table-column label="状态" prop="status" width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row.status === 1" type="success">启用</el-tag>
-          <el-tag v-else type="info">禁用</el-tag>
+          <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column
@@ -129,6 +135,7 @@
 import { dateFormatter } from '@/utils/formatTime'
 import { LandingPageApi, LandingPageVO } from '@/api/river/campaign'
 import LandingPageForm from './LandingPageForm.vue'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 defineOptions({ name: 'CampaignLandingPage' })
 

@@ -35,8 +35,12 @@
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
             <el-select v-model="formData.status" placeholder="请选择状态" class="!w-full">
-              <el-option label="启用" :value="1" />
-              <el-option label="禁用" :value="0" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -126,6 +130,7 @@
 
 <script setup lang="ts">
 import { DealApi, DealVO } from '@/api/river/coupon'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** Deal 表单 */
 defineOptions({ name: 'DealForm' })
@@ -230,7 +235,7 @@ const resetForm = () => {
     imageUrl: '',
     hotScore: 0,
     featured: false,
-    status: 1
+    status: 0
   }
   formRef.value?.resetFields()
 }

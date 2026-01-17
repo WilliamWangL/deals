@@ -35,10 +35,12 @@
       </el-form-item>
       <el-form-item label="类型" prop="type">
         <el-select v-model="queryParams.type" placeholder="请选择类型" clearable class="!w-240px">
-          <el-option label="搜索" :value="1" />
-          <el-option label="社交" :value="2" />
-          <el-option label="展示" :value="3" />
-          <el-option label="原生" :value="4" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.CAMPAIGN_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -48,8 +50,12 @@
           clearable
           class="!w-240px"
         >
-          <el-option label="启用" :value="1" />
-          <el-option label="暂停" :value="0" />
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -92,10 +98,7 @@
       </el-table-column>
       <el-table-column label="类型" prop="type" width="100">
         <template #default="scope">
-          <el-tag v-if="scope.row.type === 1" type="primary" size="small">搜索</el-tag>
-          <el-tag v-else-if="scope.row.type === 2" type="success" size="small">社交</el-tag>
-          <el-tag v-else-if="scope.row.type === 3" type="warning" size="small">展示</el-tag>
-          <el-tag v-else-if="scope.row.type === 4" type="info" size="small">原生</el-tag>
+          <dict-tag :type="DICT_TYPE.CAMPAIGN_TYPE" :value="scope.row.type" />
         </template>
       </el-table-column>
       <el-table-column label="日预算" prop="budgetDaily" width="120" align="right">
@@ -117,8 +120,7 @@
       <el-table-column label="外部ID" prop="externalCampaignId" width="150" show-overflow-tooltip />
       <el-table-column label="状态" prop="status" width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row.status === 1" type="success">启用</el-tag>
-          <el-tag v-else type="info">暂停</el-tag>
+          <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column
@@ -165,6 +167,7 @@
 import { dateFormatter } from '@/utils/formatTime'
 import { CampaignApi, CampaignVO, TrafficSourceApi, LandingPageApi } from '@/api/river/campaign'
 import CampaignForm from './CampaignForm.vue'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 defineOptions({ name: 'CampaignManagement' })
 

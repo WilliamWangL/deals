@@ -1,7 +1,7 @@
 package com.river.module.affiliate.dal.dataobject;
 
 import com.river.framework.tenant.core.db.TenantBaseDO;
-import com.river.module.affiliate.enums.CommissionTypeEnum;
+import com.river.module.affiliate.enums.PayoutModelEnum;
 import com.river.module.affiliate.enums.OfferStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -41,7 +41,7 @@ public class OfferDO extends TenantBaseDO {
     /** Offer 描述 */
     private String description;
 
-    /** 佣金类型 {@link CommissionTypeEnum} */
+    /** 佣金类型 {@link PayoutModelEnum} */
     private Integer commissionType;
 
     /** 佣金数值 */

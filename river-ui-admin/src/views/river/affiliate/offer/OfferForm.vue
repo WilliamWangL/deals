@@ -49,11 +49,12 @@
         <el-col :span="12">
           <el-form-item label="佣金类型" prop="commissionType">
             <el-select v-model="formData.commissionType" placeholder="请选择佣金类型" class="!w-full">
-              <el-option label="CPA (按行动)" :value="1" />
-              <el-option label="CPC (按点击)" :value="2" />
-              <el-option label="CPS (按销售)" :value="3" />
-              <el-option label="CPL (按潜在客户)" :value="4" />
-              <el-option label="CPM (按千次展示)" :value="5" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.AFFILIATE_COMMISSION_TYPE)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -102,8 +103,12 @@
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
             <el-select v-model="formData.status" placeholder="请选择状态" class="!w-full">
-              <el-option label="启用" :value="1" />
-              <el-option label="禁用" :value="0" />
+              <el-option
+                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -172,6 +177,7 @@
 
 <script setup lang="ts">
 import { OfferApi, OfferVO, MerchantApi, AffiliateNetworkApi } from '@/api/river/affiliate'
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** Offer 表单 */
 defineOptions({ name: 'OfferForm' })
@@ -209,7 +215,7 @@ const formData = ref({
   cookieDays: 30,
   trackingUrlTemplate: '',
   landingUrl: '',
-  status: 1,
+  status: 0,
   regions: '',
   categoryIds: '',
   tags: '',
