@@ -53,12 +53,12 @@ public class AppDealController {
         List<MerchantDO> merchants = merchantMapper.selectListByIds(merchantIds);
         Map<Long, MerchantDO> merchantMap = CollectionUtils.convertMap(merchants, MerchantDO::getId);
 
+        // 先建立 index map，避免 O(n²) 复杂度
+        Map<Long, DealDO> dealMap = CollectionUtils.convertMap(filtered, DealDO::getId);
+
         // 使用 BeanUtils 转换并填充商家信息
         List<AppDealRespVO> result = BeanUtils.toBean(filtered, AppDealRespVO.class, vo -> {
-            DealDO deal = filtered.stream()
-                    .filter(d -> d.getId().equals(vo.getId()))
-                    .findFirst()
-                    .orElse(null);
+            DealDO deal = dealMap.get(vo.getId());
             if (deal != null) {
                 MerchantDO merchant = merchantMap.get(deal.getMerchantId());
                 if (merchant != null) {

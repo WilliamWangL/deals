@@ -1,6 +1,7 @@
 package com.river.module.coupon.dal.dataobject;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -24,5 +25,9 @@ public class MerchantDO {
 
     /** Logo URL */
     private String logoUrl;
+
+    /** 是否删除 */
+    @TableLogic
+    private Boolean deleted;
 
 }
