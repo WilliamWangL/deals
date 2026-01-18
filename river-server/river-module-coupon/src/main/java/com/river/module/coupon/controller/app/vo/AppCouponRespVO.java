@@ -46,4 +46,10 @@ public class AppCouponRespVO {
     @Schema(description = "追踪链接ID", example = "abc123")
     private String trackingLinkId;
 
+    @Schema(description = "跳转链接", example = "https://www.amazon.com/dp/B0123456")
+    private String gotoUrl;
+
+    @Schema(description = "商家信息")
+    private AppCouponMerchantRespVO merchant;
+
 }
