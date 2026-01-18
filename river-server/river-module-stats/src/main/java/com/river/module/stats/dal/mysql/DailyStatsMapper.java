@@ -47,4 +47,22 @@ public interface DailyStatsMapper extends BaseMapperX<DailyStatsDO> {
                 .leIfPresent(DailyStatsDO::getDate, endDate));
     }
 
+    /**
+     * 插入或更新日报统计
+     * 根据 date + dimensionType + dimensionId 唯一键判断
+     */
+    default void upsertStats(DailyStatsDO stats) {
+        DailyStatsDO existing = selectOne(new LambdaQueryWrapperX<DailyStatsDO>()
+                .eq(DailyStatsDO::getDate, stats.getDate())
+                .eq(DailyStatsDO::getDimensionType, stats.getDimensionType())
+                .eq(DailyStatsDO::getDimensionId, stats.getDimensionId()));
+
+        if (existing != null) {
+            stats.setId(existing.getId());
+            updateById(stats);
+        } else {
+            insert(stats);
+        }
+    }
+
 }

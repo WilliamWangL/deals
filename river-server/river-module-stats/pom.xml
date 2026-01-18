@@ -25,6 +25,27 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 依赖 affiliate 模块（商家、Offer、分类） -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-affiliate</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 依赖 campaign 模块（流量源、成本记录） -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-campaign</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 依赖 tracking 模块（点击、转化） -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-module-tracking</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 业务组件 -->
         <dependency>
             <groupId>com.river</groupId>
