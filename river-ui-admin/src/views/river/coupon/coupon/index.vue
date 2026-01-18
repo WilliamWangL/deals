@@ -127,7 +127,7 @@
       <el-table-column label="有效期" align="center" width="180">
         <template #default="scope">
           <div v-if="scope.row.startTime || scope.row.endTime" class="text-xs">
-            {{ formatDate(scope.row.startTime) }} 至<br>{{ formatDate(scope.row.endTime) }}
+            {{ formatDateStr(scope.row.startTime) }} 至<br/>{{ formatDateStr(scope.row.endTime) }}
           </div>
           <span v-else>-</span>
         </template>
@@ -179,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { dateFormatter } from '@/utils/formatTime'
+import { formatDate } from '@/utils/formatTime'
 import download from '@/utils/download'
 import { CouponApi, CouponVO } from '@/api/river/coupon'
 import { MerchantApi } from '@/api/river/affiliate'
@@ -232,9 +232,9 @@ const getMerchantName = (merchantId: number) => {
 }
 
 /** 格式化日期 */
-const formatDate = (date: Date) => {
+const formatDateStr = (date: Date) => {
   if (!date) return '-'
-  return dateFormatter(new Date(), new Date(date), 'YYYY-MM-DD')
+  return formatDate(new Date(date), 'YYYY-MM-DD')
 }
 
 /** 复制优惠码 */
