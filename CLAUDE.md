@@ -220,6 +220,4 @@ CREATE TABLE river_example (
 
 ## 模块间依赖
 
-- API 模块（`*-api`）可被其他模块引用，包含 VO、枚举、Feign 接口
-- BIZ 模块（`*-biz`）包含具体实现，通过 Spring 自动装配发现
 - 前端 API 路径与后端 Controller 路径保持一致
