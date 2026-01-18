@@ -188,13 +188,13 @@ const getList = async () => {
 
 /** 获取活动列表 */
 const getCampaignList = async () => {
-  const data = await CampaignApi.getCampaignPage({ pageNo: 1, pageSize: 1000 })
+  const data = await CampaignApi.getCampaignPage({ pageNo: 1, pageSize: 200 })
   campaignList.value = data.list
 }
 
 /** 获取广告组列表 */
 const getAdGroupList = async () => {
-  const data = await AdGroupApi.getAdGroupPage({ pageNo: 1, pageSize: 1000 })
+  const data = await AdGroupApi.getAdGroupPage({ pageNo: 1, pageSize: 200 })
   adGroupList.value = data.list
 }
 

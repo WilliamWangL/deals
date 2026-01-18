@@ -139,7 +139,7 @@ const formRef = ref() // 表单 Ref
 
 /** 获取广告组列表 */
 const getAdGroupList = async () => {
-  const data = await AdGroupApi.getAdGroupPage({ pageNo: 1, pageSize: 1000 })
+  const data = await AdGroupApi.getAdGroupPage({ pageNo: 1, pageSize: 200 })
   adGroupList.value = data.list
 }
 

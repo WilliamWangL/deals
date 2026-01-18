@@ -309,7 +309,7 @@ const handleDimensionTypeChange = async (type: number) => {
     let data: any[] = []
     switch (type) {
       case DimensionType.CAMPAIGN:
-        const campaignRes = await CampaignApi.getCampaignPage({ pageNo: 1, pageSize: 1000 })
+        const campaignRes = await CampaignApi.getCampaignPage({ pageNo: 1, pageSize: 200 })
         data = (campaignRes?.list || []).map((item: any) => ({ id: item.id, name: item.name }))
         break
       case DimensionType.SOURCE:
