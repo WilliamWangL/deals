@@ -31,9 +31,8 @@ function CountdownTimer({ endTime }: { endTime: string }) {
       
       let urgent = false;
       let text = '';
-      
+
       if (days > 1) {
-        urgent = false;
         text = `Ends in ${days} days`;
       } else {
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -76,7 +75,6 @@ function CountdownTimer({ endTime }: { endTime: string }) {
   );
 }
 
-export default DealCard;
 export function DealCard({ deal }: DealCardProps) {
   const t = useTranslations('Deal');
   const locale = useLocale();
@@ -177,3 +175,5 @@ export function DealCard({ deal }: DealCardProps) {
     </Card>
   )
 }
+
+export default DealCard;

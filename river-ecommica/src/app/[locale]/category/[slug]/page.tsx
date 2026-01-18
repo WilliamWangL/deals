@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
 import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
 import { Category } from '@/types';
 import DealCard from '@/components/deal/DealCard';
@@ -77,7 +76,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const { locale, slug } = await params;
+  const { slug } = await params;
   const categories = await fetchCategories();
   const category = findCategoryBySlug(categories, slug);
 
