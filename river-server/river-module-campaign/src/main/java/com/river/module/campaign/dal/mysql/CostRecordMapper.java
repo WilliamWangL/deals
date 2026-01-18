@@ -7,6 +7,12 @@ import com.river.module.campaign.controller.admin.costrecord.vo.CostRecordPageRe
 import com.river.module.campaign.dal.dataobject.CostRecordDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Mapper
 public interface CostRecordMapper extends BaseMapperX<CostRecordDO> {
 
@@ -17,5 +23,18 @@ public interface CostRecordMapper extends BaseMapperX<CostRecordDO> {
                 .eqIfPresent(CostRecordDO::getSource, reqVO.getSource())
                 .betweenIfPresent(CostRecordDO::getDate, reqVO.getStartDate(), reqVO.getEndDate())
                 .orderByDesc(CostRecordDO::getDate));
+    }
+
+    /**
+     * 按 Campaign 聚合指定日期的成本
+     */
+    default Map<Long, BigDecimal> selectCostGroupByCampaign(LocalDate date) {
+        List<CostRecordDO> costs = selectList(new LambdaQueryWrapperX<CostRecordDO>()
+                .eq(CostRecordDO::getDate, date));
+        return costs.stream()
+                .collect(Collectors.toMap(
+                        CostRecordDO::getCampaignId,
+                        CostRecordDO::getCost,
+                        BigDecimal::add));
     }
 }
