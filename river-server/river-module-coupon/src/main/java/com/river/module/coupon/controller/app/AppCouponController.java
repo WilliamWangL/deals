@@ -1,8 +1,13 @@
 package com.river.module.coupon.controller.app;
 
 import com.river.framework.common.pojo.CommonResult;
+import com.river.framework.common.util.collection.CollectionUtils;
+import com.river.framework.common.util.object.BeanUtils;
+import com.river.module.coupon.controller.app.vo.AppCouponMerchantRespVO;
 import com.river.module.coupon.controller.app.vo.AppCouponRespVO;
 import com.river.module.coupon.dal.dataobject.CouponDO;
+import com.river.module.coupon.dal.dataobject.MerchantDO;
+import com.river.module.coupon.dal.mysql.MerchantMapper;
 import com.river.module.coupon.service.CouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.river.framework.common.pojo.CommonResult.success;
 
@@ -23,35 +29,49 @@ public class AppCouponController {
     @Resource
     private CouponService couponService;
 
+    @Resource
+    private MerchantMapper merchantMapper;
+
     @GetMapping("/list")
     @Operation(summary = "获取优惠券列表")
     public CommonResult<List<AppCouponRespVO>> getCouponList(
             @RequestParam(value = "merchantId", required = false) Long merchantId,
             @RequestParam(value = "verified", required = false) Boolean verified) {
         List<CouponDO> list = couponService.getCouponList();
-        List<AppCouponRespVO> result = list.stream()
+        // 过滤逻辑
+        List<CouponDO> filtered = list.stream()
                 .filter(c -> merchantId == null || c.getMerchantId().equals(merchantId))
                 .filter(c -> verified == null || c.getVerified().equals(verified))
-                .map(this::convertToAppVO)
                 .toList();
-        return success(result);
-    }
 
-    private AppCouponRespVO convertToAppVO(CouponDO coupon) {
-        if (coupon == null) {
-            return null;
-        }
-        AppCouponRespVO vo = new AppCouponRespVO();
-        vo.setId(coupon.getId());
-        vo.setCode(coupon.getCode());
-        vo.setDescription(coupon.getTerms());
-        vo.setDiscountType(coupon.getDiscountType());
-        vo.setDiscountValue(coupon.getDiscountValue());
-        vo.setMinPurchase(coupon.getMinPurchase());
-        vo.setMerchantId(coupon.getMerchantId());
-        vo.setEndTime(coupon.getEndTime());
-        vo.setVerified(coupon.getVerified());
-        return vo;
+        // 批量获取商家信息，避免 N+1 问题
+        List<Long> merchantIds = filtered.stream()
+                .map(CouponDO::getMerchantId)
+                .distinct()
+                .toList();
+        List<MerchantDO> merchants = merchantMapper.selectListByIds(merchantIds);
+        Map<Long, MerchantDO> merchantMap = CollectionUtils.convertMap(merchants, MerchantDO::getId);
+
+        // 先建立 index map，避免 O(n²) 复杂度
+        Map<Long, CouponDO> couponMap = CollectionUtils.convertMap(filtered, CouponDO::getId);
+
+        // 使用 BeanUtils 转换并填充商家信息
+        List<AppCouponRespVO> result = BeanUtils.toBean(filtered, AppCouponRespVO.class, vo -> {
+            CouponDO coupon = couponMap.get(vo.getId());
+            if (coupon != null) {
+                // 填充 gotoUrl（从 CouponDO 映射）
+                vo.setGotoUrl(coupon.getGotoUrl());
+                // 填充 description（从 terms 字段映射）
+                vo.setDescription(coupon.getTerms());
+                MerchantDO merchant = merchantMap.get(coupon.getMerchantId());
+                if (merchant != null) {
+                    vo.setMerchant(BeanUtils.toBean(merchant, AppCouponMerchantRespVO.class));
+                    vo.setMerchantName(merchant.getName());
+                    vo.setMerchantLogo(merchant.getLogoUrl());
+                }
+            }
+        });
+        return success(result);
     }
 
 }
