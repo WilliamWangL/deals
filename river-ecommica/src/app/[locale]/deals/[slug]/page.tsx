@@ -32,8 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   
   return {
-    title: `${deal.title} - ${deal.merchantName}`,
-    description: deal.description || `Get ${deal.discountPercent}% off at ${deal.merchantName}`,
+    title: `${deal.title} - ${deal.merchant.name}`,
+    description: deal.description || `Get ${deal.discountPercent}% off at ${deal.merchant.name}`,
   };
 }
 
@@ -45,9 +45,7 @@ export default async function DealDetailPage({ params }: Props) {
     notFound();
   }
 
-  const trackingUrl = deal.trackingLinkId 
-    ? `/api/go/${deal.trackingLinkId}` 
-    : '#';
+  const trackingUrl = deal.gotoUrl || '#';
 
   return (
     <>
@@ -70,8 +68,8 @@ export default async function DealDetailPage({ params }: Props) {
 
           <h1 className="text-3xl font-bold mb-2">{deal.title}</h1>
           
-          <Link href={`/${locale}/stores/${deal.merchantName?.toLowerCase().replace(/\s+/g, '-')}`} className="text-blue-600 hover:underline mb-4 block">
-            {deal.merchantName}
+          <Link href={`/${locale}/stores/${deal.merchant.slug}`} className="text-blue-600 hover:underline mb-4 block">
+            {deal.merchant.name}
           </Link>
 
           <p className="text-gray-600 mb-6">{deal.description}</p>

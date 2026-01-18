@@ -15,6 +15,7 @@ import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -52,25 +53,19 @@ public class AppCouponController {
         List<MerchantDO> merchants = merchantMapper.selectListByIds(merchantIds);
         Map<Long, MerchantDO> merchantMap = CollectionUtils.convertMap(merchants, MerchantDO::getId);
 
-        // 先建立 index map，避免 O(n²) 复杂度
-        Map<Long, CouponDO> couponMap = CollectionUtils.convertMap(filtered, CouponDO::getId);
-
-        // 使用 BeanUtils 转换并填充商家信息
-        List<AppCouponRespVO> result = BeanUtils.toBean(filtered, AppCouponRespVO.class, vo -> {
-            CouponDO coupon = couponMap.get(vo.getId());
-            if (coupon != null) {
-                // 填充 gotoUrl（从 CouponDO 映射）
-                vo.setGotoUrl(coupon.getGotoUrl());
-                // 填充 description（从 terms 字段映射）
-                vo.setDescription(coupon.getTerms());
-                MerchantDO merchant = merchantMap.get(coupon.getMerchantId());
-                if (merchant != null) {
-                    vo.setMerchant(BeanUtils.toBean(merchant, AppCouponMerchantRespVO.class));
-                    vo.setMerchantName(merchant.getName());
-                    vo.setMerchantLogo(merchant.getLogoUrl());
-                }
+        // 转换结果
+        List<AppCouponRespVO> result = new ArrayList<>(filtered.size());
+        for (CouponDO coupon : filtered) {
+            AppCouponRespVO vo = BeanUtils.toBean(coupon, AppCouponRespVO.class);
+            vo.setDescription(coupon.getTerms());
+            MerchantDO merchant = merchantMap.get(coupon.getMerchantId());
+            if (merchant != null) {
+                vo.setMerchant(BeanUtils.toBean(merchant, AppCouponMerchantRespVO.class));
+                vo.setMerchantName(merchant.getName());
+                vo.setMerchantLogo(merchant.getLogoUrl());
             }
-        });
+            result.add(vo);
+        }
         return success(result);
     }
 

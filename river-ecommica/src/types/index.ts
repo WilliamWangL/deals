@@ -1,19 +1,24 @@
+export interface MerchantSimple {
+  id: number;
+  name: string;
+  slug: string;
+  logoUrl: string;
+}
+
 export interface Deal {
   id: number;
-  title: string;
   slug: string;
+  title: string;
   description: string;
   originalPrice: number;
   dealPrice: number;
   discountPercent: number;
-  merchantId: number;
-  merchantName: string;
-  merchantLogo: string;
   imageUrl: string;
   startTime: string;
   endTime: string;
   featured: boolean;
-  trackingLinkId?: string;
+  gotoUrl: string;
+  merchant: MerchantSimple;
 }
 
 export interface Store {
@@ -32,16 +37,15 @@ export interface Store {
 export interface Coupon {
   id: number;
   code: string;
+  title?: string;
   description: string;
   discountType: number;
   discountValue: number;
   minPurchase?: number;
-  merchantId: number;
-  merchantName: string;
-  merchantLogo: string;
   endTime: string;
   verified: boolean;
-  trackingLinkId?: string;
+  gotoUrl: string;
+  merchant: MerchantSimple;
 }
 
 export interface BlogPost {
@@ -66,5 +70,7 @@ export interface Category {
   name: string;
   slug: string;
   icon: string;
+  level?: number;
+  parentId?: number;
   children?: Category[];
 }

@@ -125,21 +125,21 @@ export function DealCard({ deal }: DealCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="relative w-8 h-8 rounded-full overflow-hidden bg-white border border-gray-100 shadow-sm flex-shrink-0 group-hover:ring-2 ring-primary/20 transition-all">
-              {deal.merchantLogo ? (
-                <Image 
-                  src={deal.merchantLogo} 
-                  alt={deal.merchantName} 
-                  fill 
+              {deal.merchant.logoUrl ? (
+                <Image
+                  src={deal.merchant.logoUrl}
+                  alt={deal.merchant.name}
+                  fill
                   className="object-contain p-1"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary text-xs font-bold">
-                  {deal.merchantName.charAt(0)}
+                  {deal.merchant.name.charAt(0)}
                 </div>
               )}
             </div>
             <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 truncate max-w-[100px]">
-              {deal.merchantName}
+              {deal.merchant.name}
             </span>
           </div>
           {deal.endTime && <CountdownTimer endTime={deal.endTime} />}
@@ -168,7 +168,7 @@ export function DealCard({ deal }: DealCardProps) {
           className="w-full h-11 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group/btn" 
           asChild
         >
-           <Link href={`/api/go/${deal.id}`} target="_blank" className="flex items-center justify-center gap-2">
+           <Link href={deal.gotoUrl} target="_blank" rel="noopener" className="flex items-center justify-center gap-2">
              <span>{t('getDeal')}</span>
              <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
            </Link>

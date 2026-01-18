@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { fetchDeals, fetchCoupons } from '@/lib/api';
-import { getCategoryBySlug, mockCategories } from '@/lib/mock/categories';
+import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
+import { Category } from '@/types';
 import DealCard from '@/components/deal/DealCard';
 import CouponCard from '@/components/coupon/CouponCard';
 import { Badge } from '@/components/ui/badge';
@@ -32,13 +32,31 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Heart,
 };
 
-interface CategoryPageProps {
-  params: Promise<{ locale: string; slug: string }>;
+// Helper function to find category by slug in category tree
+function findCategoryBySlug(categories: Category[], slug: string): Category | null {
+  for (const category of categories) {
+    if (category.slug === slug) return category;
+    if (category.children) {
+      const found = findCategoryBySlug(category.children, slug);
+      if (found) return found;
+    }
+  }
+  return null;
 }
 
-export async function generateStaticParams() {
+// Helper function to find parent category
+function findParentCategory(categories: Category[], slug: string): Category | null {
+  for (const category of categories) {
+    if (category.slug === slug) return category;
+    if (category.children?.some((child: Category) => child.slug === slug)) return category;
+  }
+  return null;
+}
+
+// Helper function to collect all slugs from category tree
+function collectCategorySlugs(categories: Category[]): { slug: string }[] {
   const params: { slug: string }[] = [];
-  for (const category of mockCategories) {
+  for (const category of categories) {
     params.push({ slug: category.slug });
     if (category.children) {
       for (const child of category.children) {
@@ -49,16 +67,24 @@ export async function generateStaticParams() {
   return params;
 }
 
+interface CategoryPageProps {
+  params: Promise<{ locale: string; slug: string }>;
+}
+
+export async function generateStaticParams() {
+  const categories = await fetchCategories();
+  return collectCategorySlugs(categories);
+}
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const category = getCategoryBySlug(slug);
-  
+  const categories = await fetchCategories();
+  const category = findCategoryBySlug(categories, slug);
+
   if (!category) {
     return { title: 'Category Not Found' };
   }
 
-  const t = await getTranslations({ locale, namespace: 'common' });
-  
   return {
     title: `${category.name} Deals & Coupons | Ecommica`,
     description: `Find the best ${category.name.toLowerCase()} deals, discounts and coupon codes. Save money on your favorite ${category.name.toLowerCase()} products.`,
@@ -67,25 +93,25 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { locale, slug } = await params;
-  const category = getCategoryBySlug(slug);
+
+  const [categories, allDeals, allCoupons] = await Promise.all([
+    fetchCategories(),
+    fetchDeals(),
+    fetchCoupons(),
+  ]);
+
+  const category = findCategoryBySlug(categories, slug);
 
   if (!category) {
     notFound();
   }
-
-  const [allDeals, allCoupons] = await Promise.all([
-    fetchDeals(),
-    fetchCoupons(),
-  ]);
 
   const deals = allDeals.slice(0, 8);
   const coupons = allCoupons.slice(0, 6);
 
   const IconComponent = iconMap[category.icon || 'Tag'] || Tag;
 
-  const parentCategory = mockCategories.find(c => 
-    c.slug === slug || c.children?.some(child => child.slug === slug)
-  );
+  const parentCategory = findParentCategory(categories, slug);
   const isSubcategory = parentCategory?.slug !== slug;
   const subcategories = isSubcategory ? [] : (parentCategory?.children || []);
 
