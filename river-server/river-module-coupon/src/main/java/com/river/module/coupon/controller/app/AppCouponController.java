@@ -12,6 +12,7 @@ import com.river.module.coupon.service.CouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ import static com.river.framework.common.pojo.CommonResult.success;
 @RestController
 @RequestMapping("/coupon/coupon")
 @Validated
+@PermitAll
 public class AppCouponController {
 
     @Resource

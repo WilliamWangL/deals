@@ -1,6 +1,17 @@
 import { Deal, Store, Coupon, BlogPost, Category } from '@/types'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:48080/app-api'
+const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID || '1'
+
+function fetchWithTenant(url: string, options: RequestInit = {}): Promise<Response> {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'tenant-id': TENANT_ID,
+    },
+  })
+}
 
 // BlogPost type 映射
 const POST_TYPE_MAP: Record<number, BlogPost['type']> = {
@@ -22,14 +33,14 @@ export async function fetchDeals(params?: { merchantId?: number; featured?: bool
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
 
-  const res = await fetch(url.toString(), { next: { revalidate: 300 } })
+  const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch deals failed')
   const json = await res.json()
   return json.data || []
 }
 
 export async function fetchDealBySlug(slug: string): Promise<Deal | null> {
-  const res = await fetch(`${API_BASE_URL}/coupon/deal/get-by-slug?slug=${encodeURIComponent(slug)}`, {
+  const res = await fetchWithTenant(`${API_BASE_URL}/coupon/deal/get-by-slug?slug=${encodeURIComponent(slug)}`, {
     next: { revalidate: 300 },
   })
   if (!res.ok) throw new Error('Fetch deal failed')
@@ -38,14 +49,14 @@ export async function fetchDealBySlug(slug: string): Promise<Deal | null> {
 }
 
 export async function fetchStores(): Promise<Store[]> {
-  const res = await fetch(`${API_BASE_URL}/affiliate/merchant/list`, { next: { revalidate: 3600 } })
+  const res = await fetchWithTenant(`${API_BASE_URL}/affiliate/merchant/list`, { next: { revalidate: 3600 } })
   if (!res.ok) throw new Error('Fetch stores failed')
   const json = await res.json()
   return json.data || []
 }
 
 export async function fetchStoreBySlug(slug: string): Promise<Store | null> {
-  const res = await fetch(`${API_BASE_URL}/affiliate/merchant/get-by-slug?slug=${encodeURIComponent(slug)}`, {
+  const res = await fetchWithTenant(`${API_BASE_URL}/affiliate/merchant/get-by-slug?slug=${encodeURIComponent(slug)}`, {
     next: { revalidate: 3600 },
   })
   if (!res.ok) throw new Error('Fetch store failed')
@@ -58,7 +69,7 @@ export async function fetchCoupons(params?: { merchantId?: number; verified?: bo
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.verified !== undefined) url.searchParams.set('verified', String(params.verified))
 
-  const res = await fetch(url.toString(), { next: { revalidate: 300 } })
+  const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch coupons failed')
   const json = await res.json()
   return json.data || []
@@ -69,14 +80,14 @@ export async function fetchPosts(params?: { type?: string; featured?: boolean })
   if (params?.type) url.searchParams.set('type', params.type)
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
 
-  const res = await fetch(url.toString(), { next: { revalidate: 300 } })
+  const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch posts failed')
   const json = await res.json()
   return (json.data || []).map(mapPostType)
 }
 
 export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {
-  const res = await fetch(`${API_BASE_URL}/blog/post/get-by-slug?slug=${encodeURIComponent(slug)}`, {
+  const res = await fetchWithTenant(`${API_BASE_URL}/blog/post/get-by-slug?slug=${encodeURIComponent(slug)}`, {
     next: { revalidate: 300 },
   })
   if (!res.ok) throw new Error('Fetch post failed')
@@ -85,7 +96,7 @@ export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {
 }
 
 export async function fetchCategories(): Promise<Category[]> {
-  const res = await fetch(`${API_BASE_URL}/affiliate/category/tree`, { next: { revalidate: 3600 } })
+  const res = await fetchWithTenant(`${API_BASE_URL}/affiliate/category/tree`, { next: { revalidate: 3600 } })
   if (!res.ok) throw new Error('Fetch categories failed')
   const json = await res.json()
   return json.data || []

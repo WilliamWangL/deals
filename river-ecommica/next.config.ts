@@ -21,6 +21,26 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.admitad.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.admitad-connect.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'cdn.admitad.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'cdn.admitad-connect.com',
+        pathname: '/**',
+      },
     ],
   },
 };

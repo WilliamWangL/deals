@@ -26,7 +26,7 @@ cd river-server
 mvn clean compile
 
 # 运行单个模块测试
-cd river-module-{module}/river-module-{module}-biz && mvn test -Dtest=TestClassName
+cd river-module-{module} && mvn test -Dtest=TestClassName
 
 # 运行服务器（默认端口 48080）
 cd river-server && mvn spring-boot:run
@@ -102,22 +102,19 @@ river-server/
 
 ```
 river-module-affiliate/
-├── river-module-affiliate-api/     # API 模块（接口定义、DTO、VO）
-│   └── src/main/java/
-│       └── com/river/module/affiliate/
-│           ├── controller/         # Feign 客户端接口
-│           ├── enums/              # 枚举
-│           └── vo/                 # 值对象
-└── river-module-affiliate-biz/     # 业务实现模块
-    └── src/main/java/
-        └── com/river/module/affiliate/
-            ├── controller/         # REST Controller
-            ├── convert/            # MapStruct 转换器
-            ├── dal/                # 数据访问层
-            │   ├── dataobject/     # DO (数据库实体)
-            │   └── mysql/          # MyBatis Mapper
-            ├── framework/          # 模块级配置
-            └── service/            # 业务逻辑层
+└── src/main/java/
+    └── com/river/module/affiliate/
+        ├── api/                # 跨模块 API 接口（供其他模块调用）
+        ├── controller/         # REST Controller
+        │   ├── admin/          # 管理后台接口（/admin-api/）
+        │   └── app/            # 公开接口（/app-api/，需 @PermitAll）
+        ├── convert/            # MapStruct 转换器
+        ├── dal/                # 数据访问层
+        │   ├── dataobject/     # DO (数据库实体)
+        │   └── mysql/          # MyBatis Mapper
+        ├── enums/              # 枚举定义
+        ├── framework/          # 模块级配置
+        └── service/            # 业务逻辑层
 ```
 
 **重要约定**：

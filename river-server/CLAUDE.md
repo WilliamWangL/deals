@@ -9,7 +9,7 @@
 mvn clean compile
 
 # 编译单个模块
-cd river-module-{module}/river-module-{module}-biz && mvn clean compile
+cd river-module-{module} && mvn clean compile
 
 # 运行服务器（默认端口 48080）
 cd river-server && mvn spring-boot:run
@@ -57,30 +57,26 @@ river-server/
 
 ### 业务模块结构
 
-每个业务模块（如 river-module-affiliate）分为两个子模块：
+每个业务模块（如 river-module-affiliate）采用单模块结构：
 
 ```
 river-module-{name}/
-├── river-module-{name}-api/    # API 模块
-│   └── src/main/java/
-│       └── com/river/module/{name}/
-│           ├── controller/     # Feign 客户端接口（跨模块调用）
-│           ├── enums/          # 枚举定义
-│           └── vo/             # 值对象（VO）
-└── river-module-{name}-biz/    # 业务实现模块
-    └── src/main/java/
-        └── com/river/module/{name}/
-            ├── controller/     # REST Controller（HTTP API）
-            ├── convert/        # MapStruct 转换器
-            ├── dal/            # 数据访问层
-            │   ├── dataobject/ # DO (数据库实体)
-            │   └── mysql/      # MyBatis Mapper
-            ├── framework/      # 模块级配置
-            │   └── rpc/config/ # RPC 配置
-            └── service/        # 业务逻辑层
-                ├── {Service}Service.java        # 服务接口
-                ├── {Service}ServiceImpl.java    # 服务实现
-                └── ...
+└── src/main/java/
+    └── com/river/module/{name}/
+        ├── api/                # 跨模块 API 接口（供其他模块调用）
+        ├── controller/         # REST Controller（HTTP API）
+        │   ├── admin/          # 管理后台接口（/admin-api/）
+        │   └── app/            # 公开接口（/app-api/，需 @PermitAll）
+        ├── convert/            # MapStruct 转换器
+        ├── dal/                # 数据访问层
+        │   ├── dataobject/     # DO (数据库实体)
+        │   └── mysql/          # MyBatis Mapper
+        ├── enums/              # 枚举定义
+        ├── framework/          # 模块级配置
+        └── service/            # 业务逻辑层
+            ├── {Service}Service.java        # 服务接口
+            ├── {Service}ServiceImpl.java    # 服务实现
+            └── ...
 ```
 
 ## 代码规范
