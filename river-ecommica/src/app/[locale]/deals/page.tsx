@@ -2,21 +2,20 @@ import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { fetchDeals } from '@/lib/api';
 import DealCard from '@/components/deal/DealCard';
-import { Input } from '@/components/ui/input';
+import { SearchBar } from '@/components/ui/search-bar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
+import { EmptyState } from '@/components/ui/empty-state';
+import {
   Zap,
-  Search, 
-  Tag, 
-  Percent, 
-  Clock, 
+  Tag,
+  Percent,
+  Clock,
   SlidersHorizontal,
   TrendingUp,
   LayoutGrid,
   List,
-  Flame,
-  ShoppingBag
+  Flame
 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -97,16 +96,11 @@ export default async function DealsPage() {
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            
-            <div className="relative w-full md:w-96 group">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-primary transition-colors">
-                <Search className="w-5 h-5" />
-              </div>
-              <Input 
-                placeholder="Search deals..." 
-                className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all rounded-xl"
-              />
-            </div>
+
+            <SearchBar
+              placeholder="Search deals..."
+              className="md:w-96"
+            />
 
             <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
               <Button variant="outline" size="sm" className="h-10 rounded-lg border-slate-200 text-slate-600 hover:text-primary hover:border-primary/50 gap-2 shrink-0">
@@ -123,12 +117,12 @@ export default async function DealsPage() {
                 Ending Soon
               </Button>
               <div className="ml-auto flex items-center gap-1 border rounded-lg p-1 border-slate-200 shrink-0 bg-slate-50">
-                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded bg-white text-slate-900 shadow-sm hover:bg-white">
-                   <LayoutGrid className="w-4 h-4" />
-                 </Button>
-                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-200/50">
-                   <List className="w-4 h-4" />
-                 </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded bg-white text-slate-900 shadow-sm hover:bg-white">
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-200/50">
+                  <List className="w-4 h-4" />
+                </Button>
               </div>
             </div>
 
@@ -144,18 +138,15 @@ export default async function DealsPage() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6">
-              <ShoppingBag className="w-12 h-12 text-slate-300" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No deals found</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
-              We couldn&apos;t find any deals matching your criteria. Try adjusting your search or check back later.
-            </p>
-            <Button variant="outline" className="mt-6">
-              Clear all filters
-            </Button>
-          </div>
+          <EmptyState
+            icon="bag"
+            title="No deals found"
+            description="We couldn't find any deals matching your criteria. Try adjusting your search or check back later."
+            action={{
+              label: 'Clear all filters',
+              onClick: () => {}
+            }}
+          />
         )}
       </div>
     </main>
