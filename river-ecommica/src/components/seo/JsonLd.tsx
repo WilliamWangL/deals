@@ -15,7 +15,7 @@ export function generateDealJsonLd(deal: Deal) {
     availability: 'https://schema.org/InStock',
     seller: {
       '@type': 'Organization',
-      name: deal.merchantName,
+      name: deal.merchant.name,
     },
     ...(deal.discountPercent > 0 && {
       discount: `${deal.discountPercent}%`,
@@ -62,17 +62,24 @@ export function generateBlogPostJsonLd(post: BlogPost) {
   };
 }
 
+function getDiscountText(discountType: number, discountValue: number): string {
+  switch (discountType) {
+    case 1:
+      return `${discountValue}% off`;
+    case 2:
+      return `$${discountValue} off`;
+    default:
+      return 'Free shipping';
+  }
+}
+
 export function generateCouponJsonLd(coupon: Coupon) {
-  const discountText = coupon.discountType === 1 
-    ? `${coupon.discountValue}% off`
-    : coupon.discountType === 2 
-    ? `$${coupon.discountValue} off`
-    : 'Free shipping';
+  const discountText = getDiscountText(coupon.discountType, coupon.discountValue);
 
   return {
     '@context': 'https://schema.org',
     '@type': 'Offer',
-    name: `${coupon.merchantName} - ${discountText}`,
+    name: `${coupon.merchant.name} - ${discountText}`,
     description: coupon.description,
     priceCurrency: 'USD',
     price: 0,
@@ -80,7 +87,7 @@ export function generateCouponJsonLd(coupon: Coupon) {
     availability: 'https://schema.org/InStock',
     seller: {
       '@type': 'Organization',
-      name: coupon.merchantName,
+      name: coupon.merchant.name,
     },
     ...(coupon.code && {
       'schema:discountCode': coupon.code,

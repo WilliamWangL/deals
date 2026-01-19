@@ -132,17 +132,28 @@ export default function CouponCard({ coupon }: CouponCardProps) {
           <div>
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100 shrink-0">
-                  {coupon.merchantLogo ? (
-                    <img src={coupon.merchantLogo} alt={coupon.merchantName} className="w-6 h-6 object-contain" />
+                <a
+                  href={coupon.gotoUrl}
+                  target="_blank"
+                  rel="noopener"
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100 shrink-0 hover:ring-2 hover:ring-blue-300 transition-all"
+                >
+                  {coupon.merchant.logoUrl ? (
+                    <img src={coupon.merchant.logoUrl} alt={coupon.merchant.name} className="w-6 h-6 object-contain" />
                   ) : (
                     <ShoppingBag className="w-4 h-4 text-gray-400" />
                   )}
-                </div>
+                </a>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-sm text-gray-900 leading-tight truncate" title={coupon.merchantName}>
-                    {coupon.merchantName}
-                  </h3>
+                  <a
+                    href={coupon.gotoUrl}
+                    target="_blank"
+                    rel="noopener"
+                    className="font-bold text-sm text-gray-900 leading-tight truncate block hover:text-blue-600 transition-colors"
+                    title={coupon.merchant.name}
+                  >
+                    {coupon.merchant.name}
+                  </a>
                   {coupon.verified && (
                     <div className="flex items-center gap-1 text-[10px] text-green-600 font-medium">
                       <Check className="w-3 h-3" /> Verified

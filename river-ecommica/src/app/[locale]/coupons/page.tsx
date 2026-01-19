@@ -46,9 +46,9 @@ export default async function CouponsPage(props: {
   let displayCoupons = allCoupons;
   if (q) {
     const query = q.toLowerCase();
-    displayCoupons = displayCoupons.filter(c => 
+    displayCoupons = displayCoupons.filter(c =>
       c.code.toLowerCase().includes(query) ||
-      c.merchantName?.toLowerCase().includes(query) ||
+      c.merchant.name?.toLowerCase().includes(query) ||
       c.description?.toLowerCase().includes(query)
     );
   }

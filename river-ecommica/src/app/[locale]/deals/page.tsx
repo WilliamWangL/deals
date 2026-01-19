@@ -64,7 +64,7 @@ export default async function DealsPage() {
               </h1>
               <p className="text-lg text-slate-600 leading-relaxed">
                 Discover the best bargains from your favorite brands. 
-                Don't miss out on these limited-time offers and exclusive savings.
+                Don&apos;t miss out on these limited-time offers and exclusive savings.
               </p>
             </div>
 
@@ -150,7 +150,7 @@ export default async function DealsPage() {
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">No deals found</h3>
             <p className="text-slate-500 max-w-md mx-auto">
-              We couldn't find any deals matching your criteria. Try adjusting your search or check back later.
+              We couldn&apos;t find any deals matching your criteria. Try adjusting your search or check back later.
             </p>
             <Button variant="outline" className="mt-6">
               Clear all filters
