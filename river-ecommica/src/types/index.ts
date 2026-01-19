@@ -17,6 +17,7 @@ export interface Deal {
   startTime: string;
   endTime: string;
   featured: boolean;
+  exclusive?: boolean;
   gotoUrl: string;
   merchant: MerchantSimple;
 }

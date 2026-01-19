@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { Coupon } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Copy, Clock, Scissors, ShoppingBag } from 'lucide-react';
+import { Check, Copy, Clock, Scissors, ShoppingBag, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface CouponCardProps {
   coupon: Coupon;
@@ -13,6 +14,8 @@ interface CouponCardProps {
 
 export default function CouponCard({ coupon }: CouponCardProps) {
   const [copied, setCopied] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const t = useTranslations('Coupon');
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(coupon.code);
@@ -22,7 +25,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
 
   const getDiscountConfig = () => {
     const { discountType, discountValue } = coupon;
-    
+
     if (discountType === 1) {
       if (discountValue >= 50) {
         return {
@@ -31,7 +34,8 @@ export default function CouponCard({ coupon }: CouponCardProps) {
           color: 'text-rose-600',
           bg: 'bg-rose-600',
           lightBg: 'bg-rose-50',
-          border: 'border-rose-200'
+          border: 'border-rose-200',
+          gradient: 'from-rose-500 to-pink-500'
         };
       }
       return {
@@ -40,10 +44,11 @@ export default function CouponCard({ coupon }: CouponCardProps) {
         color: 'text-blue-600',
         bg: 'bg-blue-600',
         lightBg: 'bg-blue-50',
-        border: 'border-blue-200'
+        border: 'border-blue-200',
+        gradient: 'from-blue-500 to-cyan-500'
       };
     }
-    
+
     if (discountType === 2) {
       return {
         main: `$${discountValue}`,
@@ -51,10 +56,11 @@ export default function CouponCard({ coupon }: CouponCardProps) {
         color: 'text-emerald-600',
         bg: 'bg-emerald-600',
         lightBg: 'bg-emerald-50',
-        border: 'border-emerald-200'
+        border: 'border-emerald-200',
+        gradient: 'from-emerald-500 to-teal-500'
       };
     }
-    
+
     if (discountType === 3) {
       return {
         main: 'FREE',
@@ -62,7 +68,8 @@ export default function CouponCard({ coupon }: CouponCardProps) {
         color: 'text-purple-600',
         bg: 'bg-purple-600',
         lightBg: 'bg-purple-50',
-        border: 'border-purple-200'
+        border: 'border-purple-200',
+        gradient: 'from-purple-500 to-violet-500'
       };
     }
 
@@ -72,7 +79,8 @@ export default function CouponCard({ coupon }: CouponCardProps) {
       color: 'text-slate-600',
       bg: 'bg-slate-600',
       lightBg: 'bg-slate-50',
-      border: 'border-slate-200'
+      border: 'border-slate-200',
+      gradient: 'from-slate-500 to-zinc-500'
     };
   };
 
@@ -86,32 +94,42 @@ export default function CouponCard({ coupon }: CouponCardProps) {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) return { text: 'Expired', className: 'text-gray-400', iconClass: 'text-gray-400' };
-    if (diffDays <= 3) return { text: 'Expires Soon!', className: 'text-red-600 font-bold', iconClass: 'text-red-600' };
+    if (diffDays <= 3) return { text: 'Expires Soon!', className: 'text-red-600 font-bold animate-pulse', iconClass: 'text-red-600' };
     if (diffDays <= 7) return { text: `${diffDays} days left`, className: 'text-orange-500 font-medium', iconClass: 'text-orange-500' };
-    
-    return { 
-      text: `Expires: ${end.toLocaleDateString()}`, 
+
+    return {
+      text: `Expires: ${end.toLocaleDateString()}`,
       className: 'text-gray-500',
-      iconClass: 'text-gray-400' 
+      iconClass: 'text-gray-400'
     };
   };
 
   const expiry = getExpiryStatus();
 
   return (
-    <Card className={cn(
-      "group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-l-0 h-full",
-      "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5 before:z-10",
-      config.bg.replace('bg-', 'before:bg-')
-    )}>
+    <Card
+      className={cn(
+        "group relative overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1.5 border-l-0 h-full",
+        "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5 before:z-10",
+        config.bg.replace('bg-', 'before:bg-')
+      )}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       <CardContent className="p-0 flex h-full items-stretch">
         <div className={cn(
-          "w-24 sm:w-28 flex flex-col items-center justify-center p-2 border-r-2 border-dashed relative shrink-0",
+          "w-24 sm:w-28 flex flex-col items-center justify-center p-2 border-r-2 border-dashed relative shrink-0 overflow-hidden",
           config.lightBg, config.border
         )}>
           <div className={cn(
-            "absolute -right-[11px] top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full border border-gray-200 z-20 flex items-center justify-center",
-            "group-hover:rotate-12 transition-transform duration-300"
+            "absolute inset-0 bg-gradient-to-br opacity-50 transition-opacity duration-300",
+            config.gradient,
+            isHovering && "opacity-70"
+          )} />
+
+          <div className={cn(
+            "absolute -right-[11px] top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full border border-gray-200 z-20 flex items-center justify-center transition-transform duration-300",
+            isHovering && "rotate-12"
           )}>
             <Scissors className="w-3 h-3 text-gray-400" />
           </div>
@@ -177,24 +195,27 @@ export default function CouponCard({ coupon }: CouponCardProps) {
           <div className="mt-auto space-y-2">
             <div className="relative group/code">
               <div className={cn(
-                "flex items-center justify-between bg-gray-50 border border-dashed border-gray-300 rounded-lg p-1 pr-1 pl-3 transition-colors",
-                "group-hover/code:border-gray-400 group-hover/code:bg-gray-100/50"
+                "flex items-center justify-between bg-gray-50 border border-dashed border-gray-300 rounded-lg p-1 pr-1 pl-3 transition-all duration-300",
+                "group-hover/code:border-gray-400 group-hover/code:bg-gray-100/50",
+                copied && "border-green-400 bg-green-50"
               )}>
                 <code className="font-mono font-bold text-gray-800 text-xs sm:text-sm tracking-wide truncate mr-2">
                   {coupon.code}
                 </code>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant={copied ? "default" : "secondary"}
                   className={cn(
                     "h-7 text-xs px-2 sm:px-3 transition-all duration-300 shrink-0 active:scale-95",
-                    copied ? "bg-green-600 hover:bg-green-700 text-white" : ""
+                    copied
+                      ? "bg-green-600 hover:bg-green-700 text-white shadow-sm"
+                      : "hover:bg-white hover:shadow-md"
                   )}
                   onClick={handleCopy}
                 >
                   {copied ? (
                     <span className="flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5" /> Copied
+                      <Check className="w-3.5 h-3.5" /> Copied!
                     </span>
                   ) : (
                     <span className="flex items-center gap-1.5">
@@ -203,10 +224,24 @@ export default function CouponCard({ coupon }: CouponCardProps) {
                   )}
                 </Button>
               </div>
+              {copied && (
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-md shadow-lg animate-in fade-in slide-in-from-bottom-2">
+                  Copied to clipboard!
+                </div>
+              )}
             </div>
 
             {expiry && (
-              <div className="flex items-center justify-end text-[10px] sm:text-xs">
+              <div className="flex items-center justify-between text-[10px] sm:text-xs">
+                 <a
+                   href={coupon.gotoUrl}
+                   target="_blank"
+                   rel="noopener"
+                   className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"
+                 >
+                   <ExternalLink className="w-3 h-3" />
+                   {t('getCoupon')}
+                 </a>
                  <div className={cn("flex items-center gap-1", expiry.className)}>
                    <Clock className={cn("w-3 h-3", expiry.iconClass)} />
                    {expiry.text}

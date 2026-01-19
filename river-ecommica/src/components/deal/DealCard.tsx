@@ -6,7 +6,7 @@ import { Deal } from "@/types"
 import Image from "next/image"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
-import { Clock, ArrowRight, Sparkles, Tag, Store } from "lucide-react"
+import { Clock, Sparkles, Tag, Store, Crown, ExternalLink } from "lucide-react"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -106,6 +106,13 @@ export function DealCard({ deal }: DealCardProps) {
           </div>
         )}
 
+        {deal.exclusive && (
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-purple-600 to-violet-600 text-white text-xs font-bold rounded-full shadow-lg shadow-purple-500/30 ring-1 ring-white/20 animate-in fade-in zoom-in duration-300">
+            <Crown className="w-3.5 h-3.5 fill-current" />
+            <span>EXCLUSIVE</span>
+          </div>
+        )}
+
         {deal.discountPercent > 0 && (
           <div className={cn(
             "absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg backdrop-blur-md ring-1 ring-white/20",
@@ -162,13 +169,13 @@ export function DealCard({ deal }: DealCardProps) {
       </CardContent>
 
       <CardFooter className="p-5 pt-0">
-        <Button 
-          className="w-full h-11 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group/btn" 
+        <Button
+          className="w-full h-11 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group/btn"
           asChild
         >
            <Link href={deal.gotoUrl} target="_blank" rel="noopener" className="flex items-center justify-center gap-2">
              <span>{t('getDeal')}</span>
-             <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+             <ExternalLink className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
            </Link>
         </Button>
       </CardFooter>
