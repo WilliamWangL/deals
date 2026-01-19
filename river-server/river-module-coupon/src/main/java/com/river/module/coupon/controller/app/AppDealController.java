@@ -1,13 +1,13 @@
 package com.river.module.coupon.controller.app;
 
+import com.river.framework.common.biz.affiliate.MerchantCommonApi;
+import com.river.framework.common.biz.affiliate.dto.MerchantSimpleRespDTO;
 import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.util.collection.CollectionUtils;
 import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.coupon.controller.app.vo.AppDealMerchantRespVO;
 import com.river.module.coupon.controller.app.vo.AppDealRespVO;
 import com.river.module.coupon.dal.dataobject.DealDO;
-import com.river.module.coupon.dal.dataobject.MerchantDO;
-import com.river.module.coupon.dal.mysql.MerchantMapper;
 import com.river.module.coupon.service.DealService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,7 +31,7 @@ public class AppDealController {
     private DealService dealService;
 
     @Resource
-    private MerchantMapper merchantMapper;
+    private MerchantCommonApi merchantApi;
 
     @GetMapping("/list")
     @Operation(summary = "获取 Deal 列表")
@@ -50,8 +50,8 @@ public class AppDealController {
                 .map(DealDO::getMerchantId)
                 .distinct()
                 .toList();
-        List<MerchantDO> merchants = merchantMapper.selectListByIds(merchantIds);
-        Map<Long, MerchantDO> merchantMap = CollectionUtils.convertMap(merchants, MerchantDO::getId);
+        List<MerchantSimpleRespDTO> merchants = merchantApi.getMerchantList(merchantIds);
+        Map<Long, MerchantSimpleRespDTO> merchantMap = CollectionUtils.convertMap(merchants, MerchantSimpleRespDTO::getId);
 
         // 先建立 index map，避免 O(n²) 复杂度
         Map<Long, DealDO> dealMap = CollectionUtils.convertMap(filtered, DealDO::getId);
@@ -60,7 +60,7 @@ public class AppDealController {
         List<AppDealRespVO> result = BeanUtils.toBean(filtered, AppDealRespVO.class, vo -> {
             DealDO deal = dealMap.get(vo.getId());
             if (deal != null) {
-                MerchantDO merchant = merchantMap.get(deal.getMerchantId());
+                MerchantSimpleRespDTO merchant = merchantMap.get(deal.getMerchantId());
                 if (merchant != null) {
                     vo.setMerchant(BeanUtils.toBean(merchant, AppDealMerchantRespVO.class));
                     vo.setMerchantName(merchant.getName());
@@ -80,7 +80,7 @@ public class AppDealController {
             return success(null);
         }
         AppDealRespVO vo = BeanUtils.toBean(deal, AppDealRespVO.class);
-        MerchantDO merchant = merchantMapper.selectById(deal.getMerchantId());
+        MerchantSimpleRespDTO merchant = merchantApi.getMerchant(deal.getMerchantId());
         if (merchant != null) {
             vo.setMerchant(BeanUtils.toBean(merchant, AppDealMerchantRespVO.class));
             vo.setMerchantName(merchant.getName());

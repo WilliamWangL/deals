@@ -75,4 +75,12 @@ public class MerchantServiceImpl implements MerchantService {
         return merchantMapper.selectBySlug(slug);
     }
 
+    @Override
+    public List<MerchantDO> getMerchantListByIds(java.util.Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return merchantMapper.selectBatchIds(ids);
+    }
+
 }

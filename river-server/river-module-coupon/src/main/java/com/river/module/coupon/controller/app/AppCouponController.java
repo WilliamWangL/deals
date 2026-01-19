@@ -1,13 +1,13 @@
 package com.river.module.coupon.controller.app;
 
+import com.river.framework.common.biz.affiliate.MerchantCommonApi;
+import com.river.framework.common.biz.affiliate.dto.MerchantSimpleRespDTO;
 import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.util.collection.CollectionUtils;
 import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.coupon.controller.app.vo.AppCouponMerchantRespVO;
 import com.river.module.coupon.controller.app.vo.AppCouponRespVO;
 import com.river.module.coupon.dal.dataobject.CouponDO;
-import com.river.module.coupon.dal.dataobject.MerchantDO;
-import com.river.module.coupon.dal.mysql.MerchantMapper;
 import com.river.module.coupon.service.CouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +31,7 @@ public class AppCouponController {
     private CouponService couponService;
 
     @Resource
-    private MerchantMapper merchantMapper;
+    private MerchantCommonApi merchantApi;
 
     @GetMapping("/list")
     @Operation(summary = "获取优惠券列表")
@@ -50,15 +50,15 @@ public class AppCouponController {
                 .map(CouponDO::getMerchantId)
                 .distinct()
                 .toList();
-        List<MerchantDO> merchants = merchantMapper.selectListByIds(merchantIds);
-        Map<Long, MerchantDO> merchantMap = CollectionUtils.convertMap(merchants, MerchantDO::getId);
+        List<MerchantSimpleRespDTO> merchants = merchantApi.getMerchantList(merchantIds);
+        Map<Long, MerchantSimpleRespDTO> merchantMap = CollectionUtils.convertMap(merchants, MerchantSimpleRespDTO::getId);
 
         // 转换结果
         List<AppCouponRespVO> result = new ArrayList<>(filtered.size());
         for (CouponDO coupon : filtered) {
             AppCouponRespVO vo = BeanUtils.toBean(coupon, AppCouponRespVO.class);
             vo.setDescription(coupon.getTerms());
-            MerchantDO merchant = merchantMap.get(coupon.getMerchantId());
+            MerchantSimpleRespDTO merchant = merchantMap.get(coupon.getMerchantId());
             if (merchant != null) {
                 vo.setMerchant(BeanUtils.toBean(merchant, AppCouponMerchantRespVO.class));
                 vo.setMerchantName(merchant.getName());

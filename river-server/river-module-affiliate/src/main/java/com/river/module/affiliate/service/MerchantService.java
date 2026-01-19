@@ -80,4 +80,12 @@ public interface MerchantService {
      */
     MerchantDO getMerchantBySlug(String slug);
 
+    /**
+     * 根据编号列表获得商家列表
+     *
+     * @param ids 编号列表
+     * @return 商家列表
+     */
+    List<MerchantDO> getMerchantListByIds(java.util.Collection<Long> ids);
+
 }
