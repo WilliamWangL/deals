@@ -6,19 +6,13 @@ import { PAGINATION } from '@/constants/pagination';
 import DealCard from '@/components/deal/DealCard';
 import { DealsSearchBar } from '@/components/deal/DealsSearchBar';
 import { DealPagination } from '@/components/deal/DealPagination';
-import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import {
-  Zap,
   Tag,
   Percent,
   Clock,
-  SlidersHorizontal,
-  TrendingUp,
-  LayoutGrid,
-  List,
-  Flame,
-  Sparkles
+  Zap,
+  ArrowRight
 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -68,58 +62,57 @@ export default async function DealsPage({
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Hero Header */}
-      <section className="page-header py-12 md:py-16">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-amber-200/30 to-orange-200/30 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-rose-200/20 to-pink-200/20 rounded-full blur-3xl" />
-        </div>
+      {/* Hero Section - Compact & Urgent Style */}
+      <section className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+        {/* Animated gradient overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(251,146,60,0.1)_50%,transparent_75%)] bg-[length:250%_250%] animate-shimmer" />
 
-        <div className="container mx-auto px-4 relative">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-            {/* Title Section */}
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100">
-                  <Flame className="w-8 h-8 text-amber-600" />
-                </div>
-                <div className="badge-featured">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Updated Hourly
-                </div>
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
+
+        <div className="container mx-auto px-4 py-8 md:py-12 relative">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            {/* Left: Title & Description */}
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-4">
+                <Zap className="w-3.5 h-3.5" />
+                LIVE DEALS
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight mb-4">
-                Top Deals &amp; Discounts
+
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-3">
+                Today's Best
+                <span className="block text-amber-400">Deals & Discounts</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Discover the best bargains from your favorite brands.
-                Don&apos;t miss out on these limited-time offers and exclusive savings.
+
+              <p className="text-slate-400 text-base md:text-lg max-w-xl">
+                Hand-picked savings updated every hour. Don't miss out.
               </p>
             </div>
 
-            {/* Stats Cards */}
-            <div className="flex gap-4 md:gap-6 flex-wrap lg:flex-nowrap">
-              <div className="stat-card min-w-[120px]">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
-                  <Tag className="w-4 h-4" />
-                  <span>Total Deals</span>
+            {/* Right: Stats Pills */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <Tag className="w-4 h-4 text-amber-400" />
+                <div>
+                  <span className="text-2xl font-bold text-white">{totalDeals}</span>
+                  <span className="text-slate-400 text-sm ml-1.5">deals</span>
                 </div>
-                <span className="stat-value">{totalDeals.toLocaleString()}</span>
               </div>
-              <div className="stat-card min-w-[120px]">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
-                  <Clock className="w-4 h-4" />
-                  <span>Active Now</span>
+
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <Clock className="w-4 h-4 text-emerald-400" />
+                <div>
+                  <span className="text-2xl font-bold text-white">{activeDeals}</span>
+                  <span className="text-slate-400 text-sm ml-1.5">active</span>
                 </div>
-                <span className="stat-value">{activeDeals.toLocaleString()}</span>
               </div>
-              <div className="stat-card min-w-[120px]">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
-                  <Percent className="w-4 h-4" />
-                  <span>Avg. Saving</span>
+
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30">
+                <Percent className="w-4 h-4 text-amber-400" />
+                <div>
+                  <span className="text-2xl font-bold text-amber-400">{avgDiscount}%</span>
+                  <span className="text-amber-400/70 text-sm ml-1.5">avg off</span>
                 </div>
-                <span className="stat-value text-gradient-savings">{avgDiscount}%</span>
               </div>
             </div>
           </div>
@@ -127,70 +120,22 @@ export default async function DealsPage({
       </section>
 
       {/* Toolbar */}
-      <section className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            {/* Search */}
-            <Suspense fallback={<div className="md:w-96 h-12 bg-muted animate-pulse rounded-xl" />}>
-              <DealsSearchBar
-                placeholder="Search deals..."
-                className="md:w-96"
-              />
-            </Suspense>
-
-            {/* Filters & View */}
-            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 rounded-xl border-border/80 text-muted-foreground hover:text-primary hover:border-primary/50 gap-2 shrink-0"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                Filter
-              </Button>
-              <div className="w-px h-6 bg-border mx-1 shrink-0" />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
-              >
-                <TrendingUp className="w-4 h-4" />
-                Trending
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
-              >
-                <Clock className="w-4 h-4" />
-                Ending Soon
-              </Button>
-              <div className="ml-auto flex items-center gap-1 p-1 rounded-xl border border-border/80 bg-muted/30 shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-lg bg-card text-foreground shadow-sm hover:bg-card"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+      <div className="sticky top-14 sm:top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40">
+        <div className="container mx-auto px-4 py-3">
+          <Suspense fallback={<div className="h-11 bg-muted animate-pulse rounded-xl max-w-md" />}>
+            <DealsSearchBar
+              placeholder="Search deals..."
+              className="max-w-md"
+            />
+          </Suspense>
         </div>
-      </section>
+      </div>
 
       {/* Deals Grid */}
-      <section className="container mx-auto px-4 py-10">
+      <section className="container mx-auto px-4 py-8 md:py-12">
         {deals.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
               {deals.map(deal => (
                 <DealCard key={deal.id} deal={deal} />
               ))}

@@ -12,13 +12,9 @@ import {
   Store as StoreIcon,
   Tag,
   Ticket,
-  Building2,
-  SlidersHorizontal,
-  MapPin,
+  Compass,
   TrendingUp,
-  LayoutGrid,
-  List,
-  Sparkles
+  Star
 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -58,58 +54,63 @@ export default async function StoresPage({
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Hero Header */}
-      <section className="page-header py-12 md:py-16">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-violet-200/30 to-purple-200/30 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-indigo-200/20 to-blue-200/20 rounded-full blur-3xl" />
+      {/* Hero Section - Brand Discovery Style */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-violet-50/80 via-background to-background">
+        {/* Abstract brand shapes background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Floating brand cards effect */}
+          <div className="absolute top-8 left-[10%] w-16 h-16 rounded-2xl bg-white shadow-lg border border-violet-100 rotate-12 opacity-60" />
+          <div className="absolute top-20 right-[15%] w-12 h-12 rounded-xl bg-white shadow-md border border-violet-100 -rotate-6 opacity-50" />
+          <div className="absolute bottom-12 left-[20%] w-14 h-14 rounded-2xl bg-white shadow-lg border border-violet-100 rotate-6 opacity-40" />
+          <div className="absolute top-1/3 right-[8%] w-10 h-10 rounded-lg bg-white shadow-md border border-violet-100 rotate-12 opacity-30" />
+
+          {/* Gradient orbs */}
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-br from-violet-200/30 via-purple-100/20 to-transparent rounded-full blur-3xl" />
         </div>
 
-        <div className="container mx-auto px-4 relative">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-            {/* Title Section */}
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100">
-                  <StoreIcon className="w-8 h-8 text-violet-600" />
-                </div>
-                <div className="badge-exclusive">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Updated Daily
-                </div>
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight mb-4">
-                Explore Top Stores
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Browse our curated collection of premium brands. Discover exclusive coupons,
-                limited-time deals, and verified discounts from your favorite retailers.
-              </p>
+        <div className="container mx-auto px-4 py-12 md:py-16 relative">
+          <div className="max-w-3xl">
+            {/* Breadcrumb-like intro */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+              <Compass className="w-4 h-4" />
+              <span>Explore</span>
+              <span className="text-violet-400">/</span>
+              <span className="text-violet-600 font-medium">All Brands</span>
             </div>
 
-            {/* Stats Cards */}
-            <div className="flex gap-4 md:gap-6 flex-wrap lg:flex-nowrap">
-              <div className="stat-card min-w-[120px]">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
-                  <Building2 className="w-4 h-4" />
-                  <span>Stores</span>
-                </div>
-                <span className="stat-value">{totalStores.toLocaleString()}</span>
+            {/* Main Title */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight mb-4">
+              Discover
+              <span className="relative ml-3">
+                <span className="relative z-10 text-violet-600">Top Stores</span>
+                <svg className="absolute -bottom-2 left-0 w-full h-3 text-violet-200" viewBox="0 0 100 12" preserveAspectRatio="none">
+                  <path d="M0,8 Q50,0 100,8" stroke="currentColor" strokeWidth="4" fill="none" />
+                </svg>
+              </span>
+            </h1>
+
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8">
+              Browse {totalStores}+ premium brands with exclusive deals and verified coupon codes.
+            </p>
+
+            {/* Stats Row - Inline Pills */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-violet-100 shadow-sm">
+                <StoreIcon className="w-4 h-4 text-violet-600" />
+                <span className="font-bold text-foreground">{totalStores}</span>
+                <span className="text-muted-foreground text-sm">stores</span>
               </div>
-              <div className="stat-card min-w-[120px]">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
-                  <Tag className="w-4 h-4" />
-                  <span>Deals</span>
-                </div>
-                <span className="stat-value">{totalDeals.toLocaleString()}</span>
+
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-violet-100 shadow-sm">
+                <Tag className="w-4 h-4 text-amber-500" />
+                <span className="font-bold text-foreground">{totalDeals}</span>
+                <span className="text-muted-foreground text-sm">deals</span>
               </div>
-              <div className="stat-card min-w-[120px]">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
-                  <Ticket className="w-4 h-4" />
-                  <span>Coupons</span>
-                </div>
-                <span className="stat-value text-gradient-primary">{totalCoupons.toLocaleString()}</span>
+
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-violet-100 shadow-sm">
+                <Ticket className="w-4 h-4 text-emerald-500" />
+                <span className="font-bold text-foreground">{totalCoupons}</span>
+                <span className="text-muted-foreground text-sm">codes</span>
               </div>
             </div>
           </div>
@@ -117,70 +118,22 @@ export default async function StoresPage({
       </section>
 
       {/* Toolbar */}
-      <section className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            {/* Search */}
-            <Suspense fallback={<div className="w-full md:w-96 h-12 bg-muted animate-pulse rounded-xl" />}>
-              <StoresSearchBar
-                placeholder="Search stores..."
-                className="md:w-96"
-              />
-            </Suspense>
-
-            {/* Filters & View */}
-            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 rounded-xl border-border/80 text-muted-foreground hover:text-primary hover:border-primary/50 gap-2 shrink-0"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                Filter
-              </Button>
-              <div className="w-px h-6 bg-border mx-1 shrink-0" />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
-              >
-                <MapPin className="w-4 h-4" />
-                Region
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
-              >
-                <TrendingUp className="w-4 h-4" />
-                Popular
-              </Button>
-              <div className="ml-auto flex items-center gap-1 p-1 rounded-xl border border-border/80 bg-muted/30 shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-lg bg-card text-foreground shadow-sm hover:bg-card"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+      <div className="sticky top-14 sm:top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40">
+        <div className="container mx-auto px-4 py-3">
+          <Suspense fallback={<div className="h-11 bg-muted animate-pulse rounded-xl max-w-md" />}>
+            <StoresSearchBar
+              placeholder="Search stores..."
+              className="max-w-md"
+            />
+          </Suspense>
         </div>
-      </section>
+      </div>
 
       {/* Stores Grid */}
-      <section className="container mx-auto px-4 py-10">
+      <section className="container mx-auto px-4 py-8 md:py-12">
         {stores.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
               {stores.map(store => (
                 <StoreCard key={store.id} store={store} locale={locale} />
               ))}
@@ -191,15 +144,15 @@ export default async function StoresPage({
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mb-6">
-              <Building2 className="w-10 h-10 text-muted-foreground/50" />
+            <div className="w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-6">
+              <StoreIcon className="w-10 h-10 text-muted-foreground/50" />
             </div>
-            <h3 className="text-xl font-display font-bold text-foreground mb-2">No stores found</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">No stores found</h3>
             <p className="text-muted-foreground max-w-md mx-auto">
-              We couldn&apos;t find any stores matching your criteria. Try adjusting your search or filters.
+              We couldn&apos;t find any stores matching your search. Try a different keyword.
             </p>
             <Button variant="outline" className="mt-6 rounded-xl" asChild>
-              <Link href={`/${locale}/stores`}>Clear all filters</Link>
+              <Link href={`/${locale}/stores`}>Clear search</Link>
             </Button>
           </div>
         )}

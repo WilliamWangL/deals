@@ -4,13 +4,9 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useTransition, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { 
-  Search, 
-  SlidersHorizontal, 
-  CheckCircle2, 
-  ArrowUpDown,
-  LayoutGrid,
-  List,
+import {
+  Search,
+  BadgeCheck,
   X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -49,89 +45,54 @@ export default function CouponsToolbar() {
     });
   };
 
-  const clearFilters = () => {
-    setSearchValue('');
-    startTransition(() => {
-      router.replace(pathname);
-    });
-  };
-
-  const hasActiveFilters = searchValue || showVerified;
-
   return (
-    <section className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-
-          <div className="relative w-full md:w-96 group">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors">
-              <Search className="w-5 h-5" />
-            </div>
+    <div className="sticky top-14 sm:top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center gap-3">
+          {/* Search Input */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search coupons..."
+              placeholder="Search codes or stores..."
               value={searchValue}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 h-12 bg-muted/50 border-border/80 focus:bg-card transition-all rounded-xl shadow-sm focus:shadow-md focus:border-primary/50"
+              className={cn(
+                "pl-10 pr-10 h-11 bg-muted/30 border-border/50 rounded-xl",
+                "focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10",
+                "placeholder:text-muted-foreground/60",
+                "transition-all duration-200"
+              )}
             />
             {searchValue && (
               <button
                 onClick={() => handleSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted hover:bg-muted-foreground/20 flex items-center justify-center transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3 text-muted-foreground" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-
-            <Button
-              variant={showVerified ? "default" : "outline"}
-              size="sm"
-              onClick={toggleVerified}
-              className={cn(
-                "h-10 rounded-xl gap-2 shrink-0 transition-all",
-                showVerified
-                  ? "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent shadow-md"
-                  : "border-border/80 text-muted-foreground hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50"
-              )}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              Verified Only
-            </Button>
-
-            <div className="w-px h-6 bg-border mx-1 shrink-0" />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
-            >
-              <ArrowUpDown className="w-4 h-4" />
-              Sort
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filters
-            </Button>
-
-            <div className="ml-auto md:ml-2 flex items-center gap-1 p-1 rounded-xl border border-border/80 bg-muted/30 shrink-0">
-               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg bg-card text-foreground shadow-sm hover:bg-card">
-                 <LayoutGrid className="w-4 h-4" />
-               </Button>
-               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                 <List className="w-4 h-4" />
-               </Button>
-            </div>
-          </div>
-
+          {/* Verified Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleVerified}
+            className={cn(
+              "h-11 px-4 rounded-xl gap-2 font-medium transition-all duration-200",
+              showVerified
+                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            <BadgeCheck className={cn(
+              "w-4 h-4",
+              showVerified && "text-emerald-600"
+            )} />
+            <span className="hidden sm:inline">Verified</span>
+          </Button>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

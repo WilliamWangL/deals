@@ -1,104 +1,120 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Store } from "@/types"
 import Link from "next/link"
 import Image from "next/image"
-import { Star, ArrowRight, Tag, TicketPercent } from "lucide-react"
+import { Star, ArrowUpRight, Tag, Ticket } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export function StoreCard({ store, locale = 'en' }: { store: Store; locale?: string }) {
   const rating = store.rating || 0;
+  const hasOffers = (store.dealCount || 0) + (store.couponCount || 0) > 0;
 
   return (
     <Link href={`/${locale}/stores/${store.slug}`} className="group block h-full">
-      <Card className="h-full transition-all duration-300 hover:shadow-xl hover:shadow-primary/[0.08] hover:-translate-y-1 hover:border-primary/20 overflow-hidden relative bg-card border-border/50 rounded-2xl">
+      <article className={cn(
+        "h-full relative bg-card rounded-2xl overflow-hidden transition-all duration-300",
+        "border border-border/40 hover:border-border/80",
+        "hover:shadow-lg hover:shadow-black/[0.03]",
+        "hover:-translate-y-0.5"
+      )}>
+        {/* Header with Logo */}
+        <div className="relative p-5 pb-4">
+          <div className="flex items-start gap-4">
+            {/* Logo */}
+            <div className="relative shrink-0">
+              <div className={cn(
+                "w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden",
+                "bg-gradient-to-br from-slate-50 to-slate-100",
+                "border border-slate-200/60",
+                "transition-all duration-300 group-hover:shadow-md group-hover:scale-105"
+              )}>
+                {store.logoUrl ? (
+                  <Image
+                    src={store.logoUrl}
+                    alt={store.name}
+                    width={48}
+                    height={48}
+                    className="object-contain w-12 h-12"
+                  />
+                ) : (
+                  <span className="text-xl font-bold text-slate-400">
+                    {store.name[0]}
+                  </span>
+                )}
+              </div>
+            </div>
 
-        {/* Hover arrow indicator */}
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 z-10">
-          <div className="bg-primary/10 p-2 rounded-full backdrop-blur-sm">
-            <ArrowRight className="w-4 h-4 text-primary" />
+            {/* Info */}
+            <div className="flex-1 min-w-0 pt-1">
+              <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors truncate mb-1">
+                {store.name}
+              </h3>
+
+              {/* Rating */}
+              {rating > 0 ? (
+                <div className="flex items-center gap-1.5">
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={cn(
+                          "w-3.5 h-3.5",
+                          star <= Math.round(rating)
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-slate-200 text-slate-200"
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{rating.toFixed(1)}</span>
+                </div>
+              ) : (
+                <span className="text-xs text-muted-foreground">New Store</span>
+              )}
+            </div>
+
+            {/* Arrow */}
+            <div className={cn(
+              "shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+              "bg-muted/50 text-muted-foreground",
+              "transition-all duration-300",
+              "group-hover:bg-primary group-hover:text-white group-hover:scale-110"
+            )}>
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
           </div>
         </div>
 
-        <CardContent className="p-6 flex flex-col items-center text-center h-full">
-
-          {/* Logo */}
-          <div className="relative w-20 h-20 mb-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl flex items-center justify-center p-3 border border-border/50 group-hover:shadow-lg group-hover:shadow-primary/[0.08] transition-all duration-300 group-hover:-translate-y-1">
-            {store.logoUrl ? (
-              <Image
-                src={store.logoUrl}
-                alt={store.name}
-                width={64}
-                height={64}
-                className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
-              />
-            ) : (
-              <span className="text-2xl font-display font-bold text-muted-foreground/50 group-hover:text-primary/50 transition-colors">
-                {store.name[0]}
-              </span>
-            )}
+        {/* Description if available */}
+        {store.description && (
+          <div className="px-5 pb-4">
+            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+              {store.description}
+            </p>
           </div>
+        )}
 
-          {/* Store Name */}
-          <h3 className="font-display font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-1">
-            {store.name}
-          </h3>
-
-          {/* Rating */}
-          <div className="flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
-            <div className="flex gap-0.5">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`w-3.5 h-3.5 ${
-                    star <= Math.round(rating)
-                      ? "fill-amber-400 text-amber-400"
-                      : "fill-muted text-muted"
-                  }`}
-                />
-              ))}
+        {/* Stats Footer */}
+        <div className="border-t border-border/40 bg-muted/20">
+          <div className="flex">
+            <div className="flex-1 py-3 px-5 flex items-center justify-center gap-2">
+              <Tag className="w-4 h-4 text-muted-foreground" />
+              <span className="font-semibold text-foreground">{store.dealCount || 0}</span>
+              <span className="text-sm text-muted-foreground">Deals</span>
             </div>
-            <span className="text-sm font-semibold text-foreground">{rating.toFixed(1)}</span>
-          </div>
-
-          {/* Regions */}
-          {store.regions && store.regions.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 justify-center mb-5 min-h-[1.5rem]">
-              {store.regions.slice(0, 3).map((region) => (
-                <Badge
-                  key={region}
-                  variant="secondary"
-                  className="bg-card text-muted-foreground border border-border/60 text-[10px] uppercase tracking-wider px-2 py-0.5 font-medium hover:bg-muted"
-                >
-                  {region}
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <div className="mb-5 min-h-[1.5rem]" />
-          )}
-
-          {/* Stats */}
-          <div className="mt-auto w-full pt-4 border-t border-border/50 grid grid-cols-2 gap-4">
-            <div className="flex flex-col items-center">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1 flex items-center gap-1">
-                <Tag className="w-3 h-3" /> Deals
-              </span>
-              <span className="font-display font-bold text-foreground text-lg group-hover:text-primary transition-colors">
-                {store.dealCount || 0}
-              </span>
-            </div>
-            <div className="flex flex-col items-center border-l border-border/50">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1 flex items-center gap-1">
-                <TicketPercent className="w-3 h-3" /> Coupons
-              </span>
-              <span className="font-display font-bold text-foreground text-lg group-hover:text-primary transition-colors">
-                {store.couponCount || 0}
-              </span>
+            <div className="w-px bg-border/40" />
+            <div className="flex-1 py-3 px-5 flex items-center justify-center gap-2">
+              <Ticket className="w-4 h-4 text-muted-foreground" />
+              <span className="font-semibold text-foreground">{store.couponCount || 0}</span>
+              <span className="text-sm text-muted-foreground">Codes</span>
             </div>
           </div>
+        </div>
 
-        </CardContent>
-      </Card>
+        {/* Highlight indicator for stores with offers */}
+        {hasOffers && (
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+        )}
+      </article>
     </Link>
   )
 }

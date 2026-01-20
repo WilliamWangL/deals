@@ -1,12 +1,10 @@
 'use client';
 
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Deal } from "@/types"
 import Image from "next/image"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
-import { Clock, Sparkles, Tag, Store, Crown, ExternalLink } from "lucide-react"
+import { Clock, Sparkles, Crown, ArrowUpRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -61,137 +59,163 @@ function CountdownTimer({ endTime }: { endTime: string }) {
   if (!timeLeft) return null;
 
   return (
-    <div className={cn(
-      "flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm",
-      isUrgent
-        ? "text-rose-600 bg-rose-50 border border-rose-100 animate-pulse"
-        : "text-amber-600 bg-amber-50 border border-amber-100"
+    <span className={cn(
+      "inline-flex items-center gap-1 text-[11px] font-semibold",
+      isUrgent ? "text-rose-600" : "text-amber-600"
     )}>
-      <Clock className="w-3 h-3" />
-      <span>{timeLeft}</span>
-    </div>
+      <Clock className={cn("w-3 h-3", isUrgent && "animate-pulse")} />
+      {timeLeft}
+    </span>
   );
 }
 
 export function DealCard({ deal }: DealCardProps) {
   const t = useTranslations('Deal');
   const locale = useLocale();
+  const hasDiscount = deal.discountPercent > 0;
   const discountHigh = deal.discountPercent >= 50;
 
+  // Generate a gradient based on discount percentage
+  const getDiscountGradient = () => {
+    if (deal.discountPercent >= 70) return "from-rose-500 to-pink-600";
+    if (deal.discountPercent >= 50) return "from-orange-500 to-rose-500";
+    if (deal.discountPercent >= 30) return "from-amber-500 to-orange-500";
+    return "from-emerald-500 to-teal-500";
+  };
+
   return (
-    <Card className="group relative h-full flex flex-col overflow-hidden bg-card border-border/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/[0.08] hover:-translate-y-1 hover:border-primary/20 rounded-2xl">
-      {/* Image Container */}
-      <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
-        {deal.imageUrl ? (
-          <Image
-            src={deal.imageUrl}
-            alt={deal.title}
-            fill
-            className="object-contain p-8 transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Store className="w-12 h-12 text-muted-foreground/20" />
-          </div>
-        )}
-
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-        {/* Badges */}
-        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-          {deal.featured && (
-            <div className="badge-featured">
-              <Sparkles className="w-3 h-3" />
-              FEATURED
-            </div>
-          )}
-          {deal.exclusive && (
-            <div className="badge-exclusive">
-              <Crown className="w-3 h-3" />
-              EXCLUSIVE
-            </div>
-          )}
-        </div>
-
-        {/* Discount Badge */}
-        {deal.discountPercent > 0 && (
-          <div className={cn(
-            "absolute top-3 right-3 z-10",
-            discountHigh ? "badge-deal" : "badge-savings"
-          )}>
-            <Tag className="w-3 h-3" />
-            {deal.discountPercent}% OFF
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <CardContent className="flex flex-col flex-grow p-5 space-y-4">
-        {/* Merchant & Timer Row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-muted border border-border flex-shrink-0 group-hover:ring-2 ring-primary/20 transition-all">
-              {deal.merchant.logoUrl ? (
-                <Image
-                  src={deal.merchant.logoUrl}
-                  alt={deal.merchant.name}
-                  fill
-                  className="object-contain p-1"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary text-xs font-bold">
-                  {deal.merchant.name.charAt(0)}
-                </div>
-              )}
-            </div>
-            <span className="text-sm font-medium text-muted-foreground truncate max-w-[100px]">
-              {deal.merchant.name}
-            </span>
+    <article className={cn(
+      "group relative bg-card rounded-2xl overflow-hidden transition-all duration-300",
+      "border border-border/40 hover:border-border/80",
+      "hover:shadow-lg hover:shadow-black/[0.03]",
+      "hover:-translate-y-0.5"
+    )}>
+      {/* Top Section - Discount Highlight */}
+      <div className={cn(
+        "relative px-5 pt-5 pb-4",
+        "bg-gradient-to-br from-slate-50/80 to-slate-100/50"
+      )}>
+        {/* Badges Row */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1.5">
+            {deal.featured && (
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wide">
+                <Sparkles className="w-3 h-3" />
+                Featured
+              </div>
+            )}
+            {deal.exclusive && (
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold uppercase tracking-wide">
+                <Crown className="w-3 h-3" />
+                Exclusive
+              </div>
+            )}
           </div>
           {deal.endTime && <CountdownTimer endTime={deal.endTime} />}
         </div>
 
+        {/* Main Discount Display */}
+        <div className="flex items-center gap-4">
+          {/* Merchant Logo */}
+          <div className="relative shrink-0">
+            <div className={cn(
+              "w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden",
+              "bg-white border border-slate-200/60 shadow-sm",
+              "transition-all duration-300 group-hover:shadow-md group-hover:scale-105"
+            )}>
+              {deal.merchant.logoUrl ? (
+                <Image
+                  src={deal.merchant.logoUrl}
+                  alt={deal.merchant.name}
+                  width={40}
+                  height={40}
+                  className="object-contain w-10 h-10"
+                />
+              ) : (
+                <span className="text-lg font-bold text-slate-400">
+                  {deal.merchant.name.charAt(0)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Discount Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline gap-2 mb-1">
+              {hasDiscount ? (
+                <>
+                  <span className={cn(
+                    "text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                    getDiscountGradient()
+                  )}>
+                    {deal.discountPercent}%
+                  </span>
+                  <span className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
+                    OFF
+                  </span>
+                </>
+              ) : deal.dealPrice > 0 ? (
+                <>
+                  <span className="text-3xl font-bold text-foreground">
+                    ${deal.dealPrice}
+                  </span>
+                  {deal.originalPrice > 0 && (
+                    <span className="text-sm text-muted-foreground line-through">
+                      ${deal.originalPrice}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-2xl font-bold text-primary">
+                  Special Deal
+                </span>
+              )}
+            </div>
+            <span className="text-sm font-medium text-muted-foreground truncate block">
+              {deal.merchant.name}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section - Title & CTA */}
+      <div className="p-5 pt-4">
         {/* Title */}
-        <h3 className="text-base font-semibold leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2 min-h-[2.75rem]">
+        <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-2 mb-4 min-h-[2.5rem] group-hover:text-primary transition-colors">
           <Link
             href={`/${locale}/deals/${deal.slug}`}
-            className="hover:underline decoration-2 decoration-primary/30 underline-offset-4"
+            className="hover:underline decoration-primary/30 underline-offset-2"
           >
             {deal.title}
           </Link>
         </h3>
 
-        {/* Price */}
-        <div className="mt-auto pt-2 flex items-baseline gap-3">
-          <span className={cn(
-            "text-2xl font-bold font-display",
-            deal.dealPrice > 0 ? "text-foreground" : "text-gradient-savings"
-          )}>
-            {deal.dealPrice > 0 ? `$${deal.dealPrice}` : `${deal.discountPercent}% OFF`}
-          </span>
-          {deal.originalPrice > 0 && (
-            <span className="text-sm font-medium text-muted-foreground line-through">
-              ${deal.originalPrice}
-            </span>
+        {/* CTA Button */}
+        <Link
+          href={deal.gotoUrl}
+          target="_blank"
+          rel="noopener"
+          className={cn(
+            "flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl",
+            "bg-foreground text-background font-semibold text-sm",
+            "transition-all duration-300",
+            "hover:opacity-90 hover:shadow-md",
+            "active:scale-[0.98]"
           )}
-        </div>
-      </CardContent>
-
-      {/* Footer */}
-      <CardFooter className="p-5 pt-0">
-        <Button
-          className="w-full h-11 bg-primary text-primary-foreground font-semibold rounded-xl shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 group/btn"
-          asChild
         >
-          <Link href={deal.gotoUrl} target="_blank" rel="noopener" className="flex items-center justify-center gap-2">
-            <span>{t('getDeal')}</span>
-            <ExternalLink className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>
+          <span>{t('getDeal')}</span>
+          <ArrowUpRight className="w-4 h-4" />
+        </Link>
+      </div>
+
+      {/* Top accent line for high discount deals */}
+      {discountHigh && (
+        <div className={cn(
+          "absolute top-0 left-0 right-0 h-1 bg-gradient-to-r",
+          getDiscountGradient()
+        )} />
+      )}
+    </article>
   )
 }
 
