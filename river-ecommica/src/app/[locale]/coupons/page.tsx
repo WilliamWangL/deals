@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { fetchCoupons } from '@/lib/api';
+import { PAGINATION } from '@/constants/pagination';
 import CouponCard from '@/components/coupon/CouponCard';
 import CouponsToolbar from '@/components/coupon/CouponsToolbar';
+import { CouponPagination } from '@/components/coupon/CouponPagination';
 import { Badge } from '@/components/ui/badge';
 import { 
   Ticket, 
@@ -21,43 +23,46 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default async function CouponsPage(props: { 
+export default async function CouponsPage(props: {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { locale } = await props.params;
   const searchParams = await props.searchParams;
-  
+
   const t = await getTranslations({ locale, namespace: 'coupons' });
   const tCommon = await getTranslations({ locale, namespace: 'Common' });
-  
+
   const q = typeof searchParams.q === 'string' ? searchParams.q : '';
   const verifiedOnly = searchParams.verified === 'true';
+  const currentPage = parseInt(typeof searchParams.page === 'string' ? searchParams.page : String(PAGINATION.DEFAULT_PAGE), 10);
+  const pageSize = PAGINATION.PAGE_SIZE.COUPON;
 
-  const allCoupons = await fetchCoupons({ 
-    verified: verifiedOnly ? true : undefined 
+  const { list: allCoupons, total } = await fetchCoupons({
+    pageNo: currentPage,
+    pageSize,
+    verified: verifiedOnly ? true : undefined
   });
 
-  const globalCoupons = verifiedOnly ? await fetchCoupons() : allCoupons;
-
-  const totalCoupons = globalCoupons.length;
-  const verifiedCount = globalCoupons.filter(c => c.verified).length;
-  
-  let displayCoupons = allCoupons;
-  if (q) {
-    const query = q.toLowerCase();
-    displayCoupons = displayCoupons.filter(c =>
-      c.code.toLowerCase().includes(query) ||
-      c.merchant.name?.toLowerCase().includes(query) ||
-      c.description?.toLowerCase().includes(query)
-    );
-  }
+  const displayCoupons = q
+    ? allCoupons.filter(c =>
+        c.code.toLowerCase().includes(q.toLowerCase()) ||
+        c.merchant.name?.toLowerCase().includes(q.toLowerCase()) ||
+        c.description?.toLowerCase().includes(q.toLowerCase())
+      )
+    : allCoupons;
 
   const now = new Date();
   const threeDaysFromNow = new Date();
   threeDaysFromNow.setDate(now.getDate() + 3);
-  
-  const expiringCount = globalCoupons.filter(c => {
+
+  // Fetch all coupons for stats (without pagination)
+  const allCouponsResult = await fetchCoupons({ verified: verifiedOnly ? true : undefined });
+  const allCouponsForStats = allCouponsResult.list;
+  const totalCoupons = total;
+  const verifiedCount = allCouponsForStats.filter(c => c.verified).length;
+
+  const expiringCount = allCouponsForStats.filter(c => {
     if (!c.endTime) return false;
     const end = new Date(c.endTime);
     return end > now && end <= threeDaysFromNow;
@@ -120,11 +125,14 @@ export default async function CouponsPage(props: {
 
       <div className="container mx-auto px-4 py-8">
         {displayCoupons.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayCoupons.map(coupon => (
-              <CouponCard key={coupon.id} coupon={coupon} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayCoupons.map(coupon => (
+                <CouponCard key={coupon.id} coupon={coupon} />
+              ))}
+            </div>
+            <CouponPagination total={total} pageSize={pageSize} currentPage={currentPage} />
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6">

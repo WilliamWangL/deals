@@ -11,7 +11,7 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const stores = await fetchStores();
+  const { list: stores } = await fetchStores();
   const locales = ['en', 'zh'];
   
   return locales.flatMap(locale =>

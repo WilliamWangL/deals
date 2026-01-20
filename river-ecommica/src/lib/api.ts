@@ -28,15 +28,17 @@ function mapPostType(post: Record<string, unknown>): BlogPost {
   } as BlogPost
 }
 
-export async function fetchDeals(params?: { merchantId?: number; featured?: boolean }): Promise<Deal[]> {
-  const url = new URL(`${API_BASE_URL}/coupon/deal/list`)
+export async function fetchDeals(params?: { merchantId?: number; featured?: boolean; pageNo?: number; pageSize?: number }): Promise<PageResult<Deal>> {
+  const url = new URL(`${API_BASE_URL}/coupon/deal/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
+  if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
+  if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize))
 
   const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch deals failed')
   const json = await res.json()
-  return json.data || []
+  return json.data || { total: 0, list: [] }
 }
 
 export async function fetchDealBySlug(slug: string): Promise<Deal | null> {
@@ -48,11 +50,21 @@ export async function fetchDealBySlug(slug: string): Promise<Deal | null> {
   return json.data || null
 }
 
-export async function fetchStores(): Promise<Store[]> {
-  const res = await fetchWithTenant(`${API_BASE_URL}/affiliate/merchant/list`, { next: { revalidate: 3600 } })
-  if (!res.ok) throw new Error('Fetch stores failed')
-  const json = await res.json()
-  return json.data || []
+export interface PageResult<T> {
+  total: number;
+  list: T[];
+}
+
+export async function fetchStores(params?: { pageNo?: number; pageSize?: number; name?: string }): Promise<PageResult<Store>> {
+  const url = new URL(`${API_BASE_URL}/affiliate/merchant/page`);
+  if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo));
+  if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize));
+  if (params?.name) url.searchParams.set('name', params.name);
+
+  const res = await fetchWithTenant(url.toString(), { cache: 'no-store' });
+  if (!res.ok) throw new Error('Fetch stores failed');
+  const json = await res.json();
+  return json.data || { total: 0, list: [] };
 }
 
 export async function fetchStoreBySlug(slug: string): Promise<Store | null> {
@@ -64,26 +76,34 @@ export async function fetchStoreBySlug(slug: string): Promise<Store | null> {
   return json.data || null
 }
 
-export async function fetchCoupons(params?: { merchantId?: number; verified?: boolean }): Promise<Coupon[]> {
-  const url = new URL(`${API_BASE_URL}/coupon/coupon/list`)
+export async function fetchCoupons(params?: { merchantId?: number; verified?: boolean; pageNo?: number; pageSize?: number }): Promise<PageResult<Coupon>> {
+  const url = new URL(`${API_BASE_URL}/coupon/coupon/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.verified !== undefined) url.searchParams.set('verified', String(params.verified))
+  if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
+  if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize))
 
   const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch coupons failed')
   const json = await res.json()
-  return json.data || []
+  return json.data || { total: 0, list: [] }
 }
 
-export async function fetchPosts(params?: { type?: string; featured?: boolean }): Promise<BlogPost[]> {
-  const url = new URL(`${API_BASE_URL}/blog/post/list`)
+export async function fetchPosts(params?: { type?: string; featured?: boolean; pageNo?: number; pageSize?: number }): Promise<PageResult<BlogPost>> {
+  const url = new URL(`${API_BASE_URL}/blog/post/page`)
   if (params?.type) url.searchParams.set('type', params.type)
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
+  if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
+  if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize))
 
   const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch posts failed')
   const json = await res.json()
-  return (json.data || []).map(mapPostType)
+  const data = json.data || { total: 0, list: [] }
+  return {
+    ...data,
+    list: data.list.map(mapPostType)
+  }
 }
 
 export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {

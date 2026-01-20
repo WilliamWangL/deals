@@ -3,8 +3,11 @@ package com.river.module.coupon.controller.app;
 import com.river.framework.common.biz.affiliate.MerchantCommonApi;
 import com.river.framework.common.biz.affiliate.dto.MerchantSimpleRespDTO;
 import com.river.framework.common.pojo.CommonResult;
+import com.river.framework.common.pojo.PageResult;
 import com.river.framework.common.util.collection.CollectionUtils;
 import com.river.framework.common.util.object.BeanUtils;
+import com.river.module.coupon.controller.admin.deal.vo.DealPageReqVO;
+import com.river.module.coupon.controller.app.vo.AppDealPageReqVO;
 import com.river.module.coupon.controller.app.vo.AppDealMerchantRespVO;
 import com.river.module.coupon.controller.app.vo.AppDealRespVO;
 import com.river.module.coupon.dal.dataobject.DealDO;
@@ -14,6 +17,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.PermitAll;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,30 +51,21 @@ public class AppDealController {
                 .filter(d -> featured == null || d.getFeatured().equals(featured))
                 .toList();
 
-        // 批量获取商家信息，避免 N+1 问题
-        List<Long> merchantIds = filtered.stream()
-                .map(DealDO::getMerchantId)
-                .distinct()
-                .toList();
-        List<MerchantSimpleRespDTO> merchants = merchantApi.getMerchantList(merchantIds);
-        Map<Long, MerchantSimpleRespDTO> merchantMap = CollectionUtils.convertMap(merchants, MerchantSimpleRespDTO::getId);
+        return success(convertToAppVOList(filtered));
+    }
 
-        // 先建立 index map，避免 O(n²) 复杂度
-        Map<Long, DealDO> dealMap = CollectionUtils.convertMap(filtered, DealDO::getId);
+    @GetMapping("/page")
+    @Operation(summary = "获取 Deal 分页")
+    public CommonResult<PageResult<AppDealRespVO>> getDealPage(@Valid AppDealPageReqVO pageReqVO) {
+        DealPageReqVO adminPageReqVO = new DealPageReqVO();
+        adminPageReqVO.setPageNo(pageReqVO.getPageNo());
+        adminPageReqVO.setPageSize(pageReqVO.getPageSize());
+        adminPageReqVO.setMerchantId(pageReqVO.getMerchantId());
+        adminPageReqVO.setFeatured(pageReqVO.getFeatured());
+        PageResult<DealDO> pageResult = dealService.getDealPage(adminPageReqVO);
 
-        // 使用 BeanUtils 转换并填充商家信息
-        List<AppDealRespVO> result = BeanUtils.toBean(filtered, AppDealRespVO.class, vo -> {
-            DealDO deal = dealMap.get(vo.getId());
-            if (deal != null) {
-                MerchantSimpleRespDTO merchant = merchantMap.get(deal.getMerchantId());
-                if (merchant != null) {
-                    vo.setMerchant(BeanUtils.toBean(merchant, AppDealMerchantRespVO.class));
-                    vo.setMerchantName(merchant.getName());
-                    vo.setMerchantLogo(merchant.getLogoUrl());
-                }
-            }
-        });
-        return success(result);
+        List<AppDealRespVO> result = convertToAppVOList(pageResult.getList());
+        return success(new PageResult<>(result, pageResult.getTotal()));
     }
 
     @GetMapping("/get-by-slug")
@@ -89,6 +84,35 @@ public class AppDealController {
             vo.setMerchantLogo(merchant.getLogoUrl());
         }
         return success(vo);
+    }
+
+    /**
+     * 将Deal DO列表转换为App VO列表，包含商家信息
+     */
+    private List<AppDealRespVO> convertToAppVOList(List<DealDO> deals) {
+        if (deals == null || deals.isEmpty()) {
+            return List.of();
+        }
+
+        // 批量获取商家信息，避免 N+1 问题
+        List<Long> merchantIds = deals.stream()
+                .map(DealDO::getMerchantId)
+                .distinct()
+                .toList();
+        List<MerchantSimpleRespDTO> merchants = merchantApi.getMerchantList(merchantIds);
+        Map<Long, MerchantSimpleRespDTO> merchantMap = CollectionUtils.convertMap(merchants, MerchantSimpleRespDTO::getId);
+
+        // 转换结果
+        return deals.stream().map(deal -> {
+            AppDealRespVO vo = BeanUtils.toBean(deal, AppDealRespVO.class);
+            MerchantSimpleRespDTO merchant = merchantMap.get(deal.getMerchantId());
+            if (merchant != null) {
+                vo.setMerchant(BeanUtils.toBean(merchant, AppDealMerchantRespVO.class));
+                vo.setMerchantName(merchant.getName());
+                vo.setMerchantLogo(merchant.getLogoUrl());
+            }
+            return vo;
+        }).toList();
     }
 
 }

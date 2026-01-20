@@ -15,7 +15,7 @@ interface CouponCardProps {
 export default function CouponCard({ coupon }: CouponCardProps) {
   const [copied, setCopied] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const t = useTranslations('Coupon');
+  const t = useTranslations('Deal');
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(coupon.code);

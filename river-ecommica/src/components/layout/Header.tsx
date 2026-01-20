@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
 import { NAV_LINKS } from '@/config/navigation';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,36 @@ import { cn } from '@/lib/utils';
 
 export function Header() {
     const t = useTranslations('Common');
+    const router = useRouter();
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const handleSearch = () => {
+        const query = searchQuery.trim();
+        if (query) {
+            router.push(`/deals?q=${encodeURIComponent(query)}`);
+            setIsSearchOpen(false);
+            setSearchQuery('');
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearch();
+        } else if (e.key === 'Escape') {
+            setIsSearchOpen(false);
+            setSearchQuery('');
+        }
+    };
+
+    useEffect(() => {
+        if (isSearchOpen && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [isSearchOpen]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -116,11 +144,21 @@ export function Header() {
                     <div className="relative w-full max-w-2xl transform transition-all duration-500 delay-75">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <input
+                            ref={searchInputRef}
                             type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={handleKeyDown}
                             placeholder={t('searchPlaceholder')}
-                            className="w-full h-12 pl-12 pr-4 rounded-full border border-input bg-muted/30 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
-                            autoFocus={isSearchOpen}
+                            className="w-full h-12 pl-12 pr-24 rounded-full border border-input bg-muted/30 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
                         />
+                        <Button
+                            onClick={handleSearch}
+                            disabled={!searchQuery.trim()}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 px-4"
+                        >
+                            {t('search')}
+                        </Button>
                     </div>
                 </div>
             </div>

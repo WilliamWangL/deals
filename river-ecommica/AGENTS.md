@@ -94,16 +94,116 @@ src/
 │   ├── ui/           # UI 基础组件
 │   ├── layout/       # 布局组件
 │   ├── deal/         # Deal 相关
-│   └── coupon/       # Coupon 相关
+│   ├── coupon/       # Coupon 相关
+│   ├── store/        # Store 相关
+│   └── blog/         # Blog 相关
 ├── lib/              # 工具库
 │   ├── api/          # API 调用
 │   ├── tracking/     # 追踪逻辑
 │   └── utils/        # 工具函数
+├── constants/        # 常量定义
+│   └── pagination.ts # 分页配置
 ├── i18n/             # 国际化配置
 ├── messages/         # 翻译文件
 ├── config/           # 配置
 ├── types/            # TypeScript 类型
 └── middleware.ts     # 中间件
+```
+
+## 分页规范
+
+### 分页常量
+
+所有分页配置使用 `src/constants/pagination.ts` 中的枚举常量，禁止硬编码：
+
+```typescript
+import { PAGINATION } from '@/constants/pagination';
+
+// 使用方式
+const pageSize = PAGINATION.PAGE_SIZE.STORE;    // 12
+const pageNo = PAGINATION.DEFAULT_PAGE;         // 1
+const pageRange = PAGINATION.PAGE_RANGE;        // 5
+```
+
+### 分页配置
+
+| 常量 | 值 | 说明 |
+|------|-----|------|
+| `PAGINATION.PAGE_SIZE.STORE` | 12 | 商家列表每页数量 |
+| `PAGINATION.PAGE_SIZE.DEAL` | 12 | 优惠列表每页数量 |
+| `PAGINATION.PAGE_SIZE.COUPON` | 12 | 优惠券列表每页数量 |
+| `PAGINATION.PAGE_SIZE.BLOG` | 9 | 博客列表每页数量 |
+| `PAGINATION.DEFAULT_PAGE` | 1 | 默认页码 |
+| `PAGINATION.PAGE_RANGE` | 5 | 分页组件显示的页码数量 |
+
+### 分页组件
+
+各模块使用对应的分页组件：
+
+```tsx
+import { StorePagination } from '@/components/store/StorePagination';
+import { DealPagination } from '@/components/deal/DealPagination';
+import { CouponPagination } from '@/components/coupon/CouponPagination';
+import { BlogPagination } from '@/components/blog/BlogPagination';
+```
+
+### API 返回格式
+
+```typescript
+interface PageResult<T> {
+  total: number;  // 总数量
+  list: T[];      // 当前页数据
+}
+
+// API 调用
+const { list: items, total } = await fetchStores({
+  pageNo: PAGINATION.DEFAULT_PAGE,
+  pageSize: PAGINATION.PAGE_SIZE.STORE,
+});
+```
+
+### URL 参数
+
+分页状态同步到 URL 查询参数：
+
+- `?page=2` - 第 2 页
+- `?page=3&q=keyword` - 第 3 页 + 搜索关键词
+
+### 页面中使用分页
+
+```tsx
+export default async function StoresPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>
+}) {
+  const { locale } = await params;
+  const queryParams = await searchParams;
+  
+  const currentPage = parseInt(
+    queryParams.page || String(PAGINATION.DEFAULT_PAGE), 
+    10
+  );
+  const pageSize = PAGINATION.PAGE_SIZE.STORE;
+
+  const { list: stores, total } = await fetchStores({
+    pageNo: currentPage,
+    pageSize,
+  });
+
+  return (
+    <>
+      <StoreCard ... />
+      <StorePagination 
+        total={total} 
+        pageSize={pageSize} 
+        currentPage={currentPage} 
+      />
+    </>
+  );
+}
 ```
 
 ## ESLint 配置

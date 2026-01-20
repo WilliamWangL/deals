@@ -2,6 +2,8 @@ package com.river.module.affiliate.controller.app;
 
 import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.pojo.PageResult;
+import com.river.module.affiliate.controller.admin.merchant.vo.MerchantPageReqVO;
+import com.river.module.affiliate.controller.app.vo.AppMerchantPageReqVO;
 import com.river.module.affiliate.controller.app.vo.AppMerchantRespVO;
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.affiliate.service.MerchantService;
@@ -18,6 +20,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import jakarta.validation.Valid;
 
 import static com.river.framework.common.pojo.CommonResult.success;
 
@@ -39,6 +43,18 @@ public class AppMerchantController {
     public CommonResult<List<AppMerchantRespVO>> getMerchantList() {
         List<MerchantDO> list = merchantService.getMerchantList();
         return success(convertToAppVOList(list));
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "获取商家分页")
+    public CommonResult<PageResult<AppMerchantRespVO>> getMerchantPage(@Valid AppMerchantPageReqVO pageReqVO) {
+        // Convert to admin VO for service call
+        MerchantPageReqVO adminPageReqVO = new MerchantPageReqVO();
+        adminPageReqVO.setPageNo(pageReqVO.getPageNo());
+        adminPageReqVO.setPageSize(pageReqVO.getPageSize());
+        adminPageReqVO.setName(pageReqVO.getName());
+        PageResult<MerchantDO> pageResult = merchantService.getMerchantPage(adminPageReqVO);
+        return success(convertToAppVOPage(pageResult));
     }
 
     @GetMapping("/get-by-slug")
@@ -104,6 +120,14 @@ public class AppMerchantController {
             vo.setCouponCount(couponCount.intValue());
             return vo;
         }).toList();
+    }
+
+    private PageResult<AppMerchantRespVO> convertToAppVOPage(PageResult<MerchantDO> pageResult) {
+        if (pageResult == null || pageResult.getList() == null) {
+            return PageResult.empty();
+        }
+        List<AppMerchantRespVO> voList = convertToAppVOList(pageResult.getList());
+        return new PageResult<>(voList, pageResult.getTotal());
     }
 
 }

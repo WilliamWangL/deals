@@ -24,8 +24,6 @@ export function SearchBar({
 }: SearchBarProps) {
   const t = useTranslations('Common');
   const [query, setQuery] = useState(defaultValue);
-  const router = useRouter();
-  const searchParams = useSearchParams();
 
   const handleSearch = useCallback((q: string) => {
     if (onSearch) {

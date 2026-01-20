@@ -3,14 +3,13 @@ import { DealCard } from '@/components/deal/DealCard';
 import { StoreCard } from '@/components/store/StoreCard';
 import { fetchDeals, fetchStores, fetchCategories } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { HeroSearchForm } from '@/components/home/HeroSearchForm';
 import Link from 'next/link';
-import { 
-  Search, 
-  Tag, 
-  Store, 
-  TrendingUp, 
+import {
+  Tag,
+  Store,
+  TrendingUp,
   ArrowRight,
   Zap,
   ShieldCheck,
@@ -48,15 +47,15 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
   const t = await getTranslations({locale, namespace: 'Home'});
   const tCommon = await getTranslations({locale, namespace: 'Common'});
   
-  const [deals, stores, categories] = await Promise.all([
+  const [dealsResult, storesResult, categories] = await Promise.all([
     fetchDeals({ featured: true }),
-    fetchStores(),
+    fetchStores({ pageNo: 1, pageSize: 6 }),
     fetchCategories()
   ]);
-  
-  const featuredDealsRaw = deals.length > 0 ? deals : await fetchDeals();
+
+  const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals()).list;
   const featuredDeals = featuredDealsRaw.slice(0, 8);
-  const popularStores = stores.slice(0, 6);
+  const popularStores = storesResult.list.slice(0, 6);
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -87,20 +86,10 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
             </p>
             
             <div className="w-full max-w-2xl mb-16 animate-in fade-in zoom-in-95 duration-700 delay-500 ease-out fill-mode-both">
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-                <div className="relative flex items-center shadow-2xl rounded-xl overflow-hidden bg-white/95 backdrop-blur-xl p-2 ring-1 ring-white/20">
-                  <Search className="ml-4 h-6 w-6 text-slate-400" />
-                  <Input 
-                    type="text" 
-                    placeholder={tCommon('searchPlaceholder')}
-                    className="border-0 bg-transparent text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-lg h-14 pl-4 shadow-none flex-grow"
-                  />
-                  <Button size="lg" className="h-14 px-8 bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] rounded-lg text-base">
-                    {tCommon('search')}
-                  </Button>
-                </div>
-              </div>
+              <HeroSearchForm
+                placeholder={tCommon('searchPlaceholder')}
+                buttonText={tCommon('search')}
+              />
             </div>
 
             <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base font-medium text-slate-300 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700 fill-mode-both">

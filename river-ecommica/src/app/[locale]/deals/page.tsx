@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { fetchDeals } from '@/lib/api';
+import { PAGINATION } from '@/constants/pagination';
 import DealCard from '@/components/deal/DealCard';
-import { SearchBar } from '@/components/ui/search-bar';
+import { DealsSearchBar } from '@/components/deal/DealsSearchBar';
+import { DealPagination } from '@/components/deal/DealPagination';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -28,16 +31,42 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default async function DealsPage() {
-  const deals = await fetchDeals();
+export default async function DealsPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>
+}) {
+  await params; // Extract locale when i18n is implemented
+  const queryParams = await searchParams;
+  const searchQuery = queryParams.q?.trim() || '';
+  const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);
+  const pageSize = PAGINATION.PAGE_SIZE.DEAL;
+
+  const dealsResult = await fetchDeals({
+    pageNo: currentPage,
+    pageSize,
+    featured: true
+  });
+  const allDeals = dealsResult.list || [];
+  const total = dealsResult.total || 0;
+
+  const deals = searchQuery
+    ? allDeals.filter(deal =>
+        deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.merchant?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allDeals;
+
   const now = new Date();
 
-  const totalDeals = deals.length;
-
+  const totalDeals = total;
   const activeDeals = deals.filter(d => !d.endTime || new Date(d.endTime) > now).length;
-  
-  const avgDiscount = totalDeals > 0 
-    ? Math.round(deals.reduce((acc, d) => acc + (d.discountPercent || 0), 0) / totalDeals) 
+
+  const avgDiscount = totalDeals > 0
+    ? Math.round(allDeals.reduce((acc, d) => acc + (d.discountPercent || 0), 0) / Math.max(1, allDeals.length))
     : 0;
 
   return (
@@ -97,10 +126,12 @@ export default async function DealsPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
 
-            <SearchBar
-              placeholder="Search deals..."
-              className="md:w-96"
-            />
+            <Suspense fallback={<div className="md:w-96 h-11 bg-slate-100 animate-pulse rounded-xl" />}>
+              <DealsSearchBar
+                placeholder="Search deals..."
+                className="md:w-96"
+              />
+            </Suspense>
 
             <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
               <Button variant="outline" size="sm" className="h-10 rounded-lg border-slate-200 text-slate-600 hover:text-primary hover:border-primary/50 gap-2 shrink-0">
@@ -132,20 +163,19 @@ export default async function DealsPage() {
 
       <div className="container mx-auto px-4 py-8">
         {deals.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {deals.map(deal => (
-              <DealCard key={deal.id} deal={deal} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {deals.map(deal => (
+                <DealCard key={deal.id} deal={deal} />
+              ))}
+            </div>
+            <DealPagination total={total} pageSize={pageSize} currentPage={currentPage} />
+          </>
         ) : (
           <EmptyState
             icon="bag"
             title="No deals found"
             description="We couldn't find any deals matching your criteria. Try adjusting your search or check back later."
-            action={{
-              label: 'Clear all filters',
-              onClick: () => {}
-            }}
           />
         )}
       </div>
