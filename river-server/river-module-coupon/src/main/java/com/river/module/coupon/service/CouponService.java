@@ -22,4 +22,21 @@ public interface CouponService {
 
     void validateCouponExists(Long id);
 
+    /**
+     * 根据地区获得优惠券分页
+     *
+     * @param pageReqVO 分页查询
+     * @param region 地区代码
+     * @return 优惠券分页
+     */
+    PageResult<CouponDO> getCouponPageByRegion(CouponPageReqVO pageReqVO, String region);
+
+    /**
+     * 根据地区获得优惠券列表
+     *
+     * @param region 地区代码
+     * @return 优惠券列表
+     */
+    List<CouponDO> getCouponListByRegion(String region);
+
 }

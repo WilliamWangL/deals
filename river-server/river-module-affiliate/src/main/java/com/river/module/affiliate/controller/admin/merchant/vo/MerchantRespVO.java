@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 商家 Response VO")
 @Data
@@ -37,8 +38,8 @@ public class MerchantRespVO {
     @Schema(description = "状态", example = "1")
     private Integer status;
 
-    @Schema(description = "支持的国家/地区（JSON 数组）")
-    private String regions;
+    @Schema(description = "支持的国家/地区（ISO 代码列表）")
+    private List<String> regions;
 
     @Schema(description = "分类 ID 列表（JSON 数组）")
     private String categoryIds;

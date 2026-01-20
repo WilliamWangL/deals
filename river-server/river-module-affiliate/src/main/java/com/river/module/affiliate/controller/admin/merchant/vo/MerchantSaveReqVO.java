@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Schema(description = "管理后台 - 商家创建/修改 Request VO")
 @Data
@@ -41,8 +42,8 @@ public class MerchantSaveReqVO {
     @NotNull(message = "状态不能为空")
     private Integer status;
 
-    @Schema(description = "支持的国家/地区（JSON 数组）", example = "[\"US\", \"UK\"]")
-    private String regions;
+    @Schema(description = "支持的国家/地区（ISO 代码列表）", example = "[\"US\", \"UK\"]")
+    private List<String> regions;
 
     @Schema(description = "分类 ID 列表（JSON 数组）", example = "[1, 2, 3]")
     private String categoryIds;

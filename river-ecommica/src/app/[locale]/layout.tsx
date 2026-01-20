@@ -3,6 +3,7 @@ import {getMessages} from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { getRegionData } from '@/components/providers/RegionProvider';
 import "@/app/globals.css";
 import { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
@@ -47,13 +48,14 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const { currentRegion, regions } = await getRegionData();
 
   return (
     <html lang={locale} className={`${plusJakarta.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans">
         <NextIntlClientProvider messages={messages}>
           <div className="min-h-screen flex flex-col">
-            <Header />
+            <Header currentRegion={currentRegion} regions={regions} />
             <main className="flex-grow">
                {children}
             </main>

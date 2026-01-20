@@ -2,11 +2,14 @@ package com.river.module.affiliate.dal.dataobject;
 
 import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.river.framework.mybatis.core.type.StringListTypeHandler;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 商家/广告主 DO
@@ -51,8 +54,9 @@ public class MerchantDO extends TenantBaseDO {
     /** 状态：0-停用，1-启用 */
     private Integer status;
 
-    /** 支持的国家/地区（JSON 数组） */
-    private String regions;
+    /** 支持的国家/地区（ISO 代码列表） */
+    @TableField(typeHandler = StringListTypeHandler.class)
+    private List<String> regions;
 
     /** 分类 ID 列表（JSON 数组） */
     private String categoryIds;

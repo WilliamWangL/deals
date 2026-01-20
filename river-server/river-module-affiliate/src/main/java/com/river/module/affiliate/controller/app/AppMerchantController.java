@@ -16,7 +16,6 @@ import jakarta.annotation.security.PermitAll;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -40,20 +39,23 @@ public class AppMerchantController {
 
     @GetMapping("/list")
     @Operation(summary = "获取商家列表")
-    public CommonResult<List<AppMerchantRespVO>> getMerchantList() {
-        List<MerchantDO> list = merchantService.getMerchantList();
+    public CommonResult<List<AppMerchantRespVO>> getMerchantList(
+            @RequestParam(value = "region", required = false) String region) {
+        List<MerchantDO> list = merchantService.getMerchantListByRegion(region);
         return success(convertToAppVOList(list));
     }
 
     @GetMapping("/page")
     @Operation(summary = "获取商家分页")
-    public CommonResult<PageResult<AppMerchantRespVO>> getMerchantPage(@Valid AppMerchantPageReqVO pageReqVO) {
+    public CommonResult<PageResult<AppMerchantRespVO>> getMerchantPage(
+            @Valid AppMerchantPageReqVO pageReqVO,
+            @RequestParam(value = "region", required = false) String region) {
         // Convert to admin VO for service call
         MerchantPageReqVO adminPageReqVO = new MerchantPageReqVO();
         adminPageReqVO.setPageNo(pageReqVO.getPageNo());
         adminPageReqVO.setPageSize(pageReqVO.getPageSize());
         adminPageReqVO.setName(pageReqVO.getName());
-        PageResult<MerchantDO> pageResult = merchantService.getMerchantPage(adminPageReqVO);
+        PageResult<MerchantDO> pageResult = merchantService.getMerchantPageByRegion(adminPageReqVO, region);
         return success(convertToAppVOPage(pageResult));
     }
 
@@ -83,17 +85,10 @@ public class AppMerchantController {
         vo.setLogoUrl(merchant.getLogoUrl());
         vo.setDescription(merchant.getDescription());
         vo.setRating(merchant.getRating());
-        vo.setRegions(parseRegions(merchant.getRegions()));
+        vo.setRegions(merchant.getRegions() != null ? merchant.getRegions() : Collections.emptyList());
         vo.setDealCount(dealCount != null ? dealCount.intValue() : 0);
         vo.setCouponCount(couponCount != null ? couponCount.intValue() : 0);
         return vo;
-    }
-
-    private List<String> parseRegions(String regions) {
-        if (regions == null || regions.isBlank()) {
-            return Collections.emptyList();
-        }
-        return Arrays.asList(regions.split(","));
     }
 
     private List<AppMerchantRespVO> convertToAppVOList(List<MerchantDO> list) {
@@ -113,7 +108,7 @@ public class AppMerchantController {
             vo.setLogoUrl(merchant.getLogoUrl());
             vo.setDescription(merchant.getDescription());
             vo.setRating(merchant.getRating());
-            vo.setRegions(parseRegions(merchant.getRegions()));
+            vo.setRegions(merchant.getRegions() != null ? merchant.getRegions() : Collections.emptyList());
             Long dealCount = dealCounts.getOrDefault(merchant.getId(), 0L);
             Long couponCount = couponCounts.getOrDefault(merchant.getId(), 0L);
             vo.setDealCount(dealCount.intValue());

@@ -129,9 +129,9 @@ public class AdmitadSyncService {
         merchant.setStatus(mapStatus(campaign.getStatus()));
 
         if (campaign.getRegions() != null) {
-            String regions = campaign.getRegions().stream()
+            List<String> regions = campaign.getRegions().stream()
                 .map(AdmitadCampaign.Region::getRegion)
-                .collect(Collectors.joining(","));
+                .collect(Collectors.toList());
             merchant.setRegions(regions);
         }
 
@@ -401,7 +401,7 @@ public class AdmitadSyncService {
 
         // 设置地区
         if (admitadCoupon.getRegions() != null && !admitadCoupon.getRegions().isEmpty()) {
-            coupon.setRegions(String.join(",", admitadCoupon.getRegions()));
+            coupon.setRegions(new ArrayList<>(admitadCoupon.getRegions()));
         }
 
         // 映射分类
@@ -467,7 +467,7 @@ public class AdmitadSyncService {
 
         // 设置地区
         if (admitadCoupon.getRegions() != null && !admitadCoupon.getRegions().isEmpty()) {
-            deal.setRegions(String.join(",", admitadCoupon.getRegions()));
+            deal.setRegions(new ArrayList<>(admitadCoupon.getRegions()));
         }
 
         // 映射分类

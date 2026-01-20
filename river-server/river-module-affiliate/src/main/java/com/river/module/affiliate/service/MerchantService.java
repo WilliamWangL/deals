@@ -88,4 +88,21 @@ public interface MerchantService {
      */
     List<MerchantDO> getMerchantListByIds(java.util.Collection<Long> ids);
 
+    /**
+     * 根据地区获得商家分页
+     *
+     * @param pageReqVO 分页查询
+     * @param region 地区代码
+     * @return 商家分页
+     */
+    PageResult<MerchantDO> getMerchantPageByRegion(MerchantPageReqVO pageReqVO, String region);
+
+    /**
+     * 根据地区获得商家列表
+     *
+     * @param region 地区代码
+     * @return 商家列表
+     */
+    List<MerchantDO> getMerchantListByRegion(String region);
+
 }

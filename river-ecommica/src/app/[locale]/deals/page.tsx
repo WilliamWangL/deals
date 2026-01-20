@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { fetchDeals } from '@/lib/api';
+import { getCurrentRegion } from '@/lib/region';
 import { PAGINATION } from '@/constants/pagination';
 import DealCard from '@/components/deal/DealCard';
 import { DealsSearchBar } from '@/components/deal/DealsSearchBar';
@@ -30,17 +31,19 @@ export default async function DealsPage({
   searchParams
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string; page?: string }>
+  searchParams: Promise<{ q?: string; page?: string; region?: string }>
 }) {
   await params;
   const queryParams = await searchParams;
   const searchQuery = queryParams.q?.trim() || '';
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);
   const pageSize = PAGINATION.PAGE_SIZE.DEAL;
+  const region = await getCurrentRegion(queryParams);
 
   const dealsResult = await fetchDeals({
     pageNo: currentPage,
-    pageSize
+    pageSize,
+    region
   });
   const allDeals = dealsResult.list || [];
   const total = dealsResult.total || 0;

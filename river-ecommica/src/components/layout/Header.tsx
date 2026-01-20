@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { NAV_LINKS } from '@/config/navigation';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
+import { RegionSelector } from '@/components/layout/RegionSelector';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
 import { Menu, Search, X, ShoppingBag, ChevronRight, Flame, Store, Ticket, BookOpen, LayoutGrid } from 'lucide-react';
@@ -17,7 +18,12 @@ const NAV_ICONS: Record<string, React.ElementType> = {
   '/blog': BookOpen,
 };
 
-export function Header() {
+interface HeaderProps {
+  currentRegion?: string
+  regions?: { code: string; name: string; count: number }[]
+}
+
+export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) {
     const t = useTranslations('Common');
     const router = useRouter();
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -195,6 +201,10 @@ export function Header() {
                         {isSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
                         <span className="sr-only">{isSearchOpen ? 'Close search' : t('search')}</span>
                     </Button>
+
+                    {regions.length > 0 && (
+                      <RegionSelector currentRegion={currentRegion} regions={regions} />
+                    )}
 
                     <div className="hidden sm:block">
                         <LanguageSwitcher />

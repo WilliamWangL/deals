@@ -3,6 +3,7 @@ import { DealCard } from '@/components/deal/DealCard';
 import { StoreCard } from '@/components/store/StoreCard';
 import { AffiliateNetworks } from '@/components/home/AffiliateNetworks';
 import { fetchDeals, fetchStores, fetchCategories } from '@/lib/api';
+import { getCurrentRegion } from '@/lib/region';
 import { Button } from '@/components/ui/button';
 import { HeroSearchForm } from '@/components/home/HeroSearchForm';
 import Link from 'next/link';
@@ -47,18 +48,26 @@ export async function generateMetadata({params}: {params: Promise<{locale: strin
   return { title: t('title') };
 }
 
-export default async function HomePage({params}: {params: Promise<{locale: string}>}) {
+export default async function HomePage({
+  params,
+  searchParams
+}: {
+  params: Promise<{locale: string}>;
+  searchParams: Promise<{ region?: string }>
+}) {
   const { locale } = await params;
+  const queryParams = await searchParams;
+  const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({locale, namespace: 'Home'});
   const tCommon = await getTranslations({locale, namespace: 'Common'});
 
   const [dealsResult, storesResult, categories] = await Promise.all([
-    fetchDeals({ featured: true }),
-    fetchStores({ pageNo: 1, pageSize: 6 }),
+    fetchDeals({ featured: true, region }),
+    fetchStores({ pageNo: 1, pageSize: 6, region }),
     fetchCategories()
   ]);
 
-  const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals()).list;
+  const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals({ region })).list;
   const featuredDeals = featuredDealsRaw.slice(0, 8);
   const popularStores = storesResult.list.slice(0, 6);
 

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { fetchStores } from '@/lib/api';
+import { getCurrentRegion } from '@/lib/region';
 import { PAGINATION } from '@/constants/pagination';
 import StoreCard from '@/components/store/StoreCard';
 import { StoresSearchBar } from '@/components/store/StoresSearchBar';
@@ -32,18 +33,20 @@ export default async function StoresPage({
   searchParams
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string; page?: string }>
+  searchParams: Promise<{ q?: string; page?: string; region?: string }>
 }) {
   const { locale } = await params;
   const queryParams = await searchParams;
   const searchQuery = queryParams.q?.trim() || '';
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);
   const pageSize = PAGINATION.PAGE_SIZE.STORE;
+  const region = await getCurrentRegion(queryParams);
 
   const storesResult = await fetchStores({
     pageNo: currentPage,
     pageSize,
-    name: searchQuery || undefined
+    name: searchQuery || undefined,
+    region
   });
   const stores = storesResult.list || [];
   const total = storesResult.total || 0;

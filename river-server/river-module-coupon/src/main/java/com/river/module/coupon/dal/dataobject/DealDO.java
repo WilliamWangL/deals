@@ -2,12 +2,15 @@ package com.river.module.coupon.dal.dataobject;
 
 import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.river.framework.mybatis.core.type.StringListTypeHandler;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @TableName("river_coupon_deal")
 @KeySequence("river_coupon_deal_seq")
@@ -52,8 +55,9 @@ public class DealDO extends TenantBaseDO {
 
     private String imageUrl;
 
-    /** 适用地区（ISO 代码，逗号分隔） */
-    private String regions;
+    /** 适用地区（ISO 代码列表） */
+    @TableField(typeHandler = StringListTypeHandler.class)
+    private List<String> regions;
 
     /** 分类 ID（逗号分隔） */
     private String categoryIds;

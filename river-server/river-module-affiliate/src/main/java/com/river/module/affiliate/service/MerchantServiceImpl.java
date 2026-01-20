@@ -10,6 +10,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
+import com.river.framework.common.util.region.RegionUtils;
+
 import static com.river.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.river.module.affiliate.enums.ErrorCodeConstants.*;
 
@@ -81,6 +83,19 @@ public class MerchantServiceImpl implements MerchantService {
             return List.of();
         }
         return merchantMapper.selectBatchIds(ids);
+    }
+
+    @Override
+    public PageResult<MerchantDO> getMerchantPageByRegion(MerchantPageReqVO pageReqVO, String region) {
+        return merchantMapper.selectPageByRegion(pageReqVO, region);
+    }
+
+    @Override
+    public List<MerchantDO> getMerchantListByRegion(String region) {
+        List<MerchantDO> list = merchantMapper.selectList();
+        return list.stream()
+            .filter(merchant -> RegionUtils.matchesRegion(merchant.getRegions(), region))
+            .toList();
     }
 
 }

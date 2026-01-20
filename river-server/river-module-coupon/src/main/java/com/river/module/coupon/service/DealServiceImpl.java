@@ -10,6 +10,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
+import com.river.framework.common.util.region.RegionUtils;
+
 import static com.river.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.river.module.coupon.enums.ErrorCodeConstants.*;
 
@@ -63,6 +65,19 @@ public class DealServiceImpl implements DealService {
     @Override
     public DealDO getDealBySlug(String slug) {
         return dealMapper.selectBySlug(slug);
+    }
+
+    @Override
+    public PageResult<DealDO> getDealPageByRegion(DealPageReqVO pageReqVO, String region) {
+        return dealMapper.selectPageByRegion(pageReqVO, region);
+    }
+
+    @Override
+    public List<DealDO> getDealListByRegion(String region) {
+        List<DealDO> list = dealMapper.selectList();
+        return list.stream()
+            .filter(deal -> RegionUtils.matchesRegion(deal.getRegions(), region))
+            .toList();
     }
 
 }
