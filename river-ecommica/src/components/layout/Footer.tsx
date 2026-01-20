@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Facebook, Twitter, Instagram, Linkedin, Send, ArrowRight } from "lucide-react"
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -8,134 +8,138 @@ interface FooterProps {
 }
 
 export function Footer({ locale = 'en' }: FooterProps) {
+  const quickLinks = [
+    { label: 'Home', href: `/${locale}` },
+    { label: 'Deals', href: `/${locale}/deals` },
+    { label: 'Coupons', href: `/${locale}/coupons` },
+    { label: 'Stores', href: `/${locale}/stores` },
+  ];
+
+  const supportLinks = [
+    { label: 'Blog', href: `/${locale}/blog` },
+    { label: 'About Us', href: `/${locale}/about` },
+    { label: 'Contact', href: `/${locale}/contact` },
+    { label: 'FAQ', href: `/${locale}/faq` },
+  ];
+
+  const legalLinks = [
+    { label: 'Privacy Policy', href: `/${locale}/privacy-policy` },
+    { label: 'Terms of Service', href: `/${locale}/terms-of-service` },
+    { label: 'Cookie Policy', href: `/${locale}/cookie-policy` },
+  ];
+
+  const socialLinks = [
+    { Icon: Twitter, label: "Twitter", href: "#" },
+    { Icon: Facebook, label: "Facebook", href: "#" },
+    { Icon: Instagram, label: "Instagram", href: "#" },
+    { Icon: Linkedin, label: "LinkedIn", href: "#" },
+  ];
+
   return (
-    <footer className="bg-slate-950 text-slate-300 py-16 mt-16 relative overflow-hidden border-t border-slate-800/50">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950 opacity-50 pointer-events-none" />
-      
+    <footer className="bg-slate-950 text-slate-300 pt-16 pb-8 mt-16 relative overflow-hidden border-t border-slate-800/50">
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-600/5 rounded-full blur-[100px]" />
+      </div>
+
       <div className="container mx-auto px-4 relative z-10">
-        <div className="mb-16 p-8 rounded-2xl bg-slate-900/50 border border-slate-800/50 backdrop-blur-sm">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-                <div className="text-center lg:text-left max-w-xl">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 tracking-tight">Stay ahead of the best deals</h3>
-                    <p className="text-slate-400 text-lg">Join 50,000+ smart shoppers saving money every day.</p>
+        {/* Newsletter Section */}
+        <div className="mb-12 p-8 rounded-2xl bg-gradient-to-r from-slate-900/80 via-indigo-950/50 to-slate-900/80 border border-slate-800/50 backdrop-blur-sm">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="text-center lg:text-left flex-1">
+              <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
+                <div className="p-1.5 rounded-lg bg-amber-500/10">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
                 </div>
-                <div className="flex w-full max-w-md items-center gap-3">
-                    <div className="relative flex-1">
-                        <Input 
-                            type="email" 
-                            placeholder="Enter your email address" 
-                            className="bg-slate-950/80 border-slate-700/50 text-white placeholder:text-slate-500 focus-visible:ring-primary h-12 rounded-lg pl-4"
-                        />
-                    </div>
-                    <Button size="lg" className="h-12 px-8 font-semibold shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:shadow-[0_0_25px_rgba(59,130,246,0.25)] transition-all">
-                        Subscribe
-                    </Button>
-                </div>
+                <span className="text-sm font-medium text-amber-400 uppercase tracking-wider">Newsletter</span>
+              </div>
+              <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tight">
+                Stay ahead of the best deals
+              </h3>
+              <p className="text-slate-400">
+                Join 50,000+ smart shoppers saving money every day.
+              </p>
             </div>
+            <div className="flex w-full max-w-md items-center gap-3">
+              <div className="relative flex-1">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="bg-slate-950/80 border-slate-700/50 text-white placeholder:text-slate-500 focus-visible:ring-primary h-12 rounded-xl pl-12"
+                />
+              </div>
+              <Button size="lg" className="h-12 px-6 font-semibold rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:shadow-[0_0_25px_rgba(59,130,246,0.25)] transition-all">
+                Subscribe
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-16">
-          <div className="lg:col-span-4 space-y-6">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-12">
+          {/* Brand Section */}
+          <div className="lg:col-span-5 space-y-5">
             <Link href={`/${locale}`} className="inline-block">
-                <h2 className="text-2xl font-bold text-white tracking-tighter flex items-center gap-2">
-                    Ecommica
-                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                </h2>
+              <h2 className="text-2xl font-bold text-white tracking-tighter flex items-center gap-2">
+                Ecommica
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              </h2>
             </Link>
-            <p className="text-slate-400 leading-relaxed text-sm max-w-sm">
+            <p className="text-slate-400 leading-relaxed text-sm max-w-md">
               Your ultimate destination for verified coupon codes, exclusive deals, and smart shopping guides. Save more on brands you love.
             </p>
-            <div className="flex space-x-4 pt-2">
-              {[
-                { Icon: Twitter, label: "Twitter" },
-                { Icon: Facebook, label: "Facebook" },
-                { Icon: Instagram, label: "Instagram" },
-                { Icon: Linkedin, label: "LinkedIn" }
-              ].map(({ Icon, label }) => (
-                <Link 
-                    key={label}
-                    href="#" 
-                    className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-white hover:bg-primary/10 hover:scale-110 transition-all duration-300 border border-slate-800"
+            {/* Social Links */}
+            <div className="flex items-center gap-3 pt-2">
+              {socialLinks.map(({ Icon, label, href }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="w-10 h-10 rounded-xl bg-slate-900/80 flex items-center justify-center text-slate-400 hover:text-white hover:bg-primary/20 hover:scale-105 transition-all duration-300 border border-slate-800/50"
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-4 w-4" />
                   <span className="sr-only">{label}</span>
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="lg:col-span-2 md:col-span-1">
-            <h3 className="text-white font-semibold mb-6">Quick Links</h3>
-            <ul className="space-y-4">
-              {['Home', 'Deals', 'Coupons', 'Stores'].map((item) => (
-                <li key={item}>
-                    <Link href={`/${locale}/${item.toLowerCase() === 'home' ? '' : item.toLowerCase()}`} className="text-slate-400 hover:text-primary transition-colors text-sm flex items-center group">
-                        <span className="w-0 group-hover:w-2 h-px bg-primary mr-0 group-hover:mr-2 transition-all duration-300" />
-                        {item}
-                    </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-3 md:col-span-1">
-            <h3 className="text-white font-semibold mb-6">Popular Categories</h3>
-            <ul className="space-y-4">
-              {[
-                  { label: 'Electronics', href: `/${locale}/category/electronics` },
-                  { label: 'Fashion', href: `/${locale}/category/fashion` },
-                  { label: 'Home & Garden', href: `/${locale}/category/home-garden` },
-                  { label: 'Beauty', href: `/${locale}/category/beauty` },
-                  { label: 'Sports', href: `/${locale}/category/sports-outdoors` }
-              ].map((item) => (
-                <li key={item.label}>
-                    <Link 
-                        href={item.href} 
-                        className="text-sm flex items-center group text-slate-400 hover:text-primary transition-colors"
+          {/* Link Columns */}
+          {[
+            { title: 'Quick Links', links: quickLinks, span: 'lg:col-span-2' },
+            { title: 'Support', links: supportLinks, span: 'lg:col-span-2' },
+            { title: 'Legal', links: legalLinks, span: 'lg:col-span-3' },
+          ].map((section) => (
+            <div key={section.title} className={section.span}>
+              <h3 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">
+                {section.title}
+              </h3>
+              <ul className="space-y-3">
+                {section.links.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className="text-slate-400 hover:text-white transition-colors text-sm inline-flex items-center group"
                     >
-                         <span className="w-0 group-hover:w-2 h-px bg-primary mr-0 group-hover:mr-2 transition-all duration-300" />
-                        {item.label}
+                      <span className="w-0 group-hover:w-2 h-px bg-primary mr-0 group-hover:mr-2 transition-all duration-200" />
+                      {item.label}
                     </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-3 md:col-span-1">
-            <h3 className="text-white font-semibold mb-6">Support & Resources</h3>
-            <ul className="space-y-4">
-              {[
-{ label: 'Blog', href: `/${locale}/blog` },
-                  { label: 'About Us', href: `/${locale}/about` },
-                  { label: 'Contact', href: `/${locale}/contact` },
-                  { label: 'FAQ', href: `/${locale}/faq` }
-              ].map((item) => (
-                <li key={item.label}>
-                    <Link href={item.href} className="text-slate-400 hover:text-primary transition-colors text-sm flex items-center group">
-                        <span className="w-0 group-hover:w-2 h-px bg-primary mr-0 group-hover:mr-2 transition-all duration-300" />
-                        {item.label}
-                    </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+        {/* Bottom Bar */}
+        <div className="border-t border-slate-800/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-slate-500">
             &copy; {new Date().getFullYear()} Ecommica. All rights reserved.
           </p>
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm">
-            {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item) => (
-                <Link 
-                    key={item} 
-                    href={`/${locale}/${item.toLowerCase().replace(/ /g, '-')}`} 
-                    className="text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                    {item}
-                </Link>
-            ))}
-          </div>
+          <p className="text-sm text-slate-600">
+            Made with <span className="text-red-500">♥</span> for smart shoppers
+          </p>
         </div>
       </div>
     </footer>

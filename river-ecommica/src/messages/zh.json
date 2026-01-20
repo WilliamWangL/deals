@@ -67,5 +67,227 @@
     },
     "title": "博客",
     "subtitle": "攻略、指南和最新优惠资讯"
+  },
+  "about": {
+    "meta": {
+      "title": "关于我们 - Ecommica",
+      "description": "了解 Ecommica 以及我们帮助您省钱的使命"
+    },
+    "heroTitle": "您的省钱，我们的使命",
+    "heroSubtitle": "我们致力于帮助消费者发现最佳优惠，最大化您的节省。",
+    "storyTitle": "我们的故事",
+    "storyContent": "Ecommica 的创立基于一个简单的信念：每个人都应该享有最佳优惠。我们建立了一个聚合数千家商店已验证优惠券和折扣的平台，让您轻松在每次购物中省钱。",
+    "stats": {
+      "users": "50K+",
+      "usersLabel": "满意用户",
+      "stores": "10K+",
+      "storesLabel": "合作商家",
+      "brands": "500+",
+      "brandsLabel": "知名品牌",
+      "validRate": "99%",
+      "validRateLabel": "有效优惠券"
+    },
+    "valuesTitle": "我们的价值观",
+    "values": {
+      "transparency": {
+        "title": "透明",
+        "description": "我们验证每个优惠，清晰展示过期时间、条款和条件。"
+      },
+      "quality": {
+        "title": "品质",
+        "description": "我们的团队手动审核优惠，确保您只看到有效的优惠。"
+      },
+      "trust": {
+        "title": "信任",
+        "description": "我们从不分享您的数据，只与信誉良好的零售商合作。"
+      }
+    }
+  },
+  "contact": {
+    "meta": {
+      "title": "联系我们 - Ecommica",
+      "description": "联系我们的团队获取支持、洽谈合作或提供反馈"
+    },
+    "heroTitle": "联系我们",
+    "heroSubtitle": "我们很乐意听到您的声音。选择最适合您的联系方式。",
+    "email": {
+      "title": "发送邮件",
+      "description": "一般咨询和支持",
+      "address": "support@ecommica.com"
+    },
+    "social": {
+      "title": "关注我们",
+      "description": "获取最新优惠动态",
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "instagram": "Instagram"
+    },
+    "info": {
+      "title": "商务信息",
+      "description": "合作与商务咨询",
+      "hours": "24小时内回复",
+      "partnerships": "partnerships@ecommica.com"
+    },
+    "faqCallout": {
+      "title": "在找答案？",
+      "description": "查看我们的常见问题获取快速解答。",
+      "link": "查看FAQ"
+    }
+  },
+  "faq": {
+    "meta": {
+      "title": "常见问题 - FAQ",
+      "description": "查找关于使用优惠券、优惠和我们平台的常见问题解答"
+    },
+    "heroTitle": "常见问题",
+    "heroSubtitle": "关于使用 Ecommica 您需要了解的一切",
+    "categories": {
+      "coupons": {
+        "title": "使用优惠券",
+        "q1": {
+          "question": "如何使用优惠券代码？",
+          "answer": "点击任意优惠券上的\"复制代码\"按钮，然后在零售商网站结账时粘贴。折扣将自动应用。"
+        },
+        "q2": {
+          "question": "为什么我的优惠券代码不起作用？",
+          "answer": "某些代码有特定要求，如最低消费金额或仅限特定商品。请检查优惠券条款，确保未过期，并尝试清空购物车后重新添加商品。"
+        },
+        "q3": {
+          "question": "优惠券会过期吗？",
+          "answer": "是的，大多数优惠券都有过期日期。我们在每个优惠券上显示过期日期，并及时移除过期代码，确保您只看到有效的优惠。"
+        }
+      },
+      "deals": {
+        "title": "优惠与折扣",
+        "q1": {
+          "question": "优惠是如何验证的？",
+          "answer": "我们的团队每天手动检查优惠。我们测试优惠券代码，验证价格，并在展示前确认优惠仍然有效。"
+        },
+        "q2": {
+          "question": "优惠多久更新一次？",
+          "answer": "我们每天多次更新优惠数据库。热门优惠和限时优惠会实时添加。"
+        },
+        "q3": {
+          "question": "我可以提交我发现的优惠吗？",
+          "answer": "我们一直在寻找好优惠！请通过邮件联系我们并提供优惠详情，我们的团队会验证并可能将其添加到网站。"
+        }
+      },
+      "account": {
+        "title": "账户与支持",
+        "q1": {
+          "question": "使用优惠券需要注册账户吗？",
+          "answer": "不需要账户！我们的所有优惠券和折扣都可以免费访问。只需浏览、复制代码，然后省钱。"
+        },
+        "q2": {
+          "question": "如何联系客服？",
+          "answer": "您可以通过 support@ecommica.com 联系我们。我们通常在工作日 24 小时内回复。"
+        }
+      }
+    },
+    "contactCta": {
+      "title": "还有疑问？",
+      "description": "我们的支持团队随时为您服务。",
+      "link": "联系我们"
+    }
+  },
+  "legal": {
+    "lastUpdated": "最后更新: {date}",
+    "relatedLinks": "相关政策",
+    "tableOfContents": "目录",
+    "privacy": {
+      "meta": {
+        "title": "隐私政策 - Ecommica",
+        "description": "了解我们如何收集、使用和保护您的个人信息"
+      },
+      "title": "隐私政策",
+      "sections": {
+        "intro": {
+          "title": "简介",
+          "content": "在 Ecommica，我们尊重您的隐私，并致力于保护您的个人信息。本政策说明了当您使用我们的优惠券和折扣聚合平台时，我们如何收集、使用和保护数据。"
+        },
+        "collection": {
+          "title": "我们收集的信息",
+          "content": "我们只收集提供服务所必需的最少信息：浏览器类型、设备信息、访问的页面和来源。当您点击联盟链接时，我们可能会收到购买确认以获取佣金，但我们不会收到您的支付详情。"
+        },
+        "usage": {
+          "title": "我们如何使用信息",
+          "content": "我们使用收集的数据来改进服务、分析流量模式、个性化您的体验，并维护我们的联盟合作关系。我们绝不会向第三方出售您的个人信息。"
+        },
+        "affiliates": {
+          "title": "联盟合作",
+          "content": "Ecommica 参与联盟营销计划。当您点击零售商链接并购物时，我们可能会获得佣金。这不会影响您支付的价格。我们的联盟关系会透明披露。"
+        },
+        "rights": {
+          "title": "您的权利",
+          "content": "您有权访问、更正或删除您的个人信息。您可以通过浏览器设置退出分析跟踪并管理 Cookie 偏好。"
+        },
+        "contact": {
+          "title": "联系我们",
+          "content": "如有隐私相关问题或请求，请联系 privacy@ecommica.com。"
+        }
+      }
+    },
+    "terms": {
+      "meta": {
+        "title": "服务条款 - Ecommica",
+        "description": "阅读使用 Ecommica 的条款和条件"
+      },
+      "title": "服务条款",
+      "sections": {
+        "intro": {
+          "title": "简介",
+          "content": "欢迎来到 Ecommica。访问我们的网站即表示您同意这些条款。我们提供优惠和优惠券聚合服务，将消费者与各零售商的省钱机会连接起来。"
+        },
+        "service": {
+          "title": "服务说明",
+          "content": "Ecommica 聚合来自第三方零售商的优惠、优惠券和促销活动。我们努力保持信息准确，但无法保证所有优惠都可用、价格都是最新的，或优惠券始终有效。"
+        },
+        "user": {
+          "title": "用户责任",
+          "content": "您同意将我们的服务用于个人、非商业目的。您不会抓取、复制或重新分发我们的内容。在购买前，您有责任直接与零售商核实优惠条款。"
+        },
+        "disclaimer": {
+          "title": "免责声明",
+          "content": "Ecommica 不对第三方零售商的产品、服务或交易负责。价格、库存和优惠条款由零售商控制，可能随时变更。我们不对过期的优惠券或不准确的价格承担责任。"
+        },
+        "ip": {
+          "title": "知识产权",
+          "content": "Ecommica 上的所有内容，包括设计、徽标和精选优惠信息，均为我们的知识产权。零售商的商标和徽标归其各自所有者所有。"
+        },
+        "termination": {
+          "title": "终止",
+          "content": "我们保留随时修改或停止服务的权利。我们也可能限制违反这些条款的用户的访问。"
+        }
+      }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Cookie 政策 - Ecommica",
+        "description": "了解我们如何使用 Cookie 和类似技术"
+      },
+      "title": "Cookie 政策",
+      "sections": {
+        "intro": {
+          "title": "什么是 Cookie",
+          "content": "Cookie 是您访问网站时存储在设备上的小型文本文件。它们通过记住偏好和分析您如何使用我们的网站来帮助改善您的体验。"
+        },
+        "types": {
+          "title": "我们使用的 Cookie 类型",
+          "content": "必要 Cookie 启用核心功能。分析 Cookie 帮助我们了解流量模式。联盟 Cookie 跟踪推荐，以便我们在您通过我们的链接购买时获得佣金。"
+        },
+        "purpose": {
+          "title": "我们如何使用 Cookie",
+          "content": "我们使用 Cookie 来记住您的偏好、分析网站性能、跟踪联盟推荐，并改进我们的优惠推荐。我们不使用 Cookie 进行侵入性广告。"
+        },
+        "thirdParty": {
+          "title": "第三方 Cookie",
+          "content": "当您点击进入零售商网站时，我们的联盟合作伙伴和分析提供商可能会设置 Cookie。这些受其各自隐私政策的约束。"
+        },
+        "manage": {
+          "title": "管理 Cookie",
+          "content": "您可以通过浏览器设置控制 Cookie。请注意，禁用某些 Cookie 可能会影响网站功能和我们跟踪联盟推荐的能力。"
+        }
+      }
+    }
   }
 }

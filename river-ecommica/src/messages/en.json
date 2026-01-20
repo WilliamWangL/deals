@@ -67,5 +67,227 @@
     },
     "title": "Blog",
     "subtitle": "Tips, guides, and the latest deals news"
+  },
+  "about": {
+    "meta": {
+      "title": "About Us - Ecommica",
+      "description": "Learn about Ecommica and our mission to help you save money on every purchase"
+    },
+    "heroTitle": "Your Savings, Our Mission",
+    "heroSubtitle": "We're dedicated to helping shoppers discover the best deals and maximize their savings.",
+    "storyTitle": "Our Story",
+    "storyContent": "Ecommica was founded with a simple belief: everyone deserves access to the best deals. We've built a platform that aggregates verified coupons and deals from thousands of stores, making it easy for you to save money on every purchase.",
+    "stats": {
+      "users": "50K+",
+      "usersLabel": "Happy Shoppers",
+      "stores": "10K+",
+      "storesLabel": "Partner Stores",
+      "brands": "500+",
+      "brandsLabel": "Top Brands",
+      "validRate": "99%",
+      "validRateLabel": "Valid Coupons"
+    },
+    "valuesTitle": "Our Values",
+    "values": {
+      "transparency": {
+        "title": "Transparency",
+        "description": "We verify every deal and clearly display expiration dates, terms, and conditions."
+      },
+      "quality": {
+        "title": "Quality",
+        "description": "Our team manually reviews deals to ensure you only see working offers."
+      },
+      "trust": {
+        "title": "Trust",
+        "description": "We never share your data and only partner with reputable retailers."
+      }
+    }
+  },
+  "contact": {
+    "meta": {
+      "title": "Contact Us - Ecommica",
+      "description": "Get in touch with our team for support, partnerships, or feedback"
+    },
+    "heroTitle": "Get in Touch",
+    "heroSubtitle": "We'd love to hear from you. Choose the best way to reach us.",
+    "email": {
+      "title": "Email Us",
+      "description": "For general inquiries and support",
+      "address": "support@ecommica.com"
+    },
+    "social": {
+      "title": "Follow Us",
+      "description": "Stay updated with the latest deals",
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "instagram": "Instagram"
+    },
+    "info": {
+      "title": "Business Info",
+      "description": "Partnership and business inquiries",
+      "hours": "Response within 24 hours",
+      "partnerships": "partnerships@ecommica.com"
+    },
+    "faqCallout": {
+      "title": "Looking for answers?",
+      "description": "Check our FAQ for quick answers to common questions.",
+      "link": "View FAQ"
+    }
+  },
+  "faq": {
+    "meta": {
+      "title": "FAQ - Frequently Asked Questions",
+      "description": "Find answers to common questions about using coupons, deals, and our platform"
+    },
+    "heroTitle": "Frequently Asked Questions",
+    "heroSubtitle": "Everything you need to know about using Ecommica",
+    "categories": {
+      "coupons": {
+        "title": "Using Coupons",
+        "q1": {
+          "question": "How do I use a coupon code?",
+          "answer": "Click the \"Copy Code\" button on any coupon, then paste it at checkout on the retailer's website. The discount will be applied automatically."
+        },
+        "q2": {
+          "question": "Why isn't my coupon code working?",
+          "answer": "Some codes have specific requirements like minimum purchase amounts or are limited to certain products. Check the coupon terms, ensure it hasn't expired, and try clearing your cart and re-adding items."
+        },
+        "q3": {
+          "question": "Do coupons expire?",
+          "answer": "Yes, most coupons have expiration dates. We display the expiry date on each coupon and remove expired codes promptly to ensure you only see valid offers."
+        }
+      },
+      "deals": {
+        "title": "Deals & Offers",
+        "q1": {
+          "question": "How are deals verified?",
+          "answer": "Our team manually checks deals daily. We test coupon codes, verify prices, and confirm that offers are still active before displaying them on our site."
+        },
+        "q2": {
+          "question": "How often are deals updated?",
+          "answer": "We update our deals database multiple times daily. Hot deals and time-sensitive offers are added in real-time as we discover them."
+        },
+        "q3": {
+          "question": "Can I submit a deal I found?",
+          "answer": "We're always looking for great deals! Contact us through email with the deal details, and our team will verify and potentially add it to the site."
+        }
+      },
+      "account": {
+        "title": "Account & Support",
+        "q1": {
+          "question": "Do I need an account to use coupons?",
+          "answer": "No account is required! All our coupons and deals are freely accessible. Just browse, copy the code, and save money."
+        },
+        "q2": {
+          "question": "How do I contact support?",
+          "answer": "You can reach us at support@ecommica.com. We typically respond within 24 hours on business days."
+        }
+      }
+    },
+    "contactCta": {
+      "title": "Still have questions?",
+      "description": "Our support team is here to help.",
+      "link": "Contact Us"
+    }
+  },
+  "legal": {
+    "lastUpdated": "Last updated: {date}",
+    "relatedLinks": "Related Policies",
+    "tableOfContents": "Table of Contents",
+    "privacy": {
+      "meta": {
+        "title": "Privacy Policy - Ecommica",
+        "description": "Learn how we collect, use, and protect your personal information"
+      },
+      "title": "Privacy Policy",
+      "sections": {
+        "intro": {
+          "title": "Introduction",
+          "content": "At Ecommica, we respect your privacy and are committed to protecting your personal information. This policy explains how we collect, use, and safeguard data when you use our coupon and deal aggregation platform."
+        },
+        "collection": {
+          "title": "Information We Collect",
+          "content": "We collect minimal information necessary to provide our services: browser type, device information, pages visited, and referral sources. When you click on affiliate links, we may receive confirmation of purchases for commission purposes, but we do not receive your payment details."
+        },
+        "usage": {
+          "title": "How We Use Information",
+          "content": "We use collected data to improve our service, analyze traffic patterns, personalize your experience, and maintain our affiliate partnerships. We never sell your personal information to third parties."
+        },
+        "affiliates": {
+          "title": "Affiliate Partnerships",
+          "content": "Ecommica participates in affiliate marketing programs. When you click links to retailer sites and make purchases, we may earn commissions. This doesn't affect the price you pay. Our affiliate relationships are disclosed transparently."
+        },
+        "rights": {
+          "title": "Your Rights",
+          "content": "You have the right to access, correct, or delete your personal information. You can opt out of analytics tracking and manage cookie preferences through your browser settings."
+        },
+        "contact": {
+          "title": "Contact Us",
+          "content": "For privacy-related questions or requests, contact us at privacy@ecommica.com."
+        }
+      }
+    },
+    "terms": {
+      "meta": {
+        "title": "Terms of Service - Ecommica",
+        "description": "Read our terms and conditions for using Ecommica"
+      },
+      "title": "Terms of Service",
+      "sections": {
+        "intro": {
+          "title": "Introduction",
+          "content": "Welcome to Ecommica. By accessing our website, you agree to these terms. We provide a deal and coupon aggregation service, connecting shoppers with savings opportunities from various retailers."
+        },
+        "service": {
+          "title": "Service Description",
+          "content": "Ecommica aggregates deals, coupons, and promotional offers from third-party retailers. We strive to keep information accurate, but we cannot guarantee that all deals are available, prices are current, or coupons will work at all times."
+        },
+        "user": {
+          "title": "User Responsibilities",
+          "content": "You agree to use our service for personal, non-commercial purposes. You will not scrape, copy, or redistribute our content. You are responsible for verifying deal terms directly with retailers before making purchases."
+        },
+        "disclaimer": {
+          "title": "Disclaimer",
+          "content": "Ecommica is not responsible for products, services, or transactions with third-party retailers. Prices, availability, and deal terms are controlled by retailers and may change without notice. We are not liable for expired coupons or inaccurate pricing."
+        },
+        "ip": {
+          "title": "Intellectual Property",
+          "content": "All content on Ecommica, including design, logos, and curated deal information, is our intellectual property. Retailer trademarks and logos belong to their respective owners."
+        },
+        "termination": {
+          "title": "Termination",
+          "content": "We reserve the right to modify or discontinue our service at any time. We may also restrict access to users who violate these terms."
+        }
+      }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Cookie Policy - Ecommica",
+        "description": "Learn about how we use cookies and similar technologies"
+      },
+      "title": "Cookie Policy",
+      "sections": {
+        "intro": {
+          "title": "What Are Cookies",
+          "content": "Cookies are small text files stored on your device when you visit websites. They help us improve your experience by remembering preferences and analyzing how you use our site."
+        },
+        "types": {
+          "title": "Types of Cookies We Use",
+          "content": "Essential cookies enable core functionality. Analytics cookies help us understand traffic patterns. Affiliate cookies track referrals so we can earn commissions when you make purchases through our links."
+        },
+        "purpose": {
+          "title": "How We Use Cookies",
+          "content": "We use cookies to remember your preferences, analyze site performance, track affiliate referrals, and improve our deal recommendations. We do not use cookies for intrusive advertising."
+        },
+        "thirdParty": {
+          "title": "Third-Party Cookies",
+          "content": "Our affiliate partners and analytics providers may set cookies when you click through to retailer sites. These are governed by their respective privacy policies."
+        },
+        "manage": {
+          "title": "Managing Cookies",
+          "content": "You can control cookies through your browser settings. Note that disabling certain cookies may affect site functionality and our ability to track affiliate referrals."
+        }
+      }
+    }
   }
 }
