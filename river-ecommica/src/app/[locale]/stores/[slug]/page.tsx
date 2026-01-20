@@ -13,12 +13,14 @@ type Props = {
 export async function generateStaticParams() {
   const { list: stores } = await fetchStores();
   const locales = ['en', 'zh'];
-  
+
   return locales.flatMap(locale =>
-    stores.map(store => ({
-      locale,
-      slug: store.slug,
-    }))
+    stores
+      .filter(store => store.slug && typeof store.slug === 'string')
+      .map(store => ({
+        locale,
+        slug: store.slug,
+      }))
   );
 }
 
@@ -44,7 +46,7 @@ export default async function StoreDetailPage({ params }: Props) {
     notFound();
   }
 
-  const deals = await fetchDeals({ merchantId: store.id });
+  const { list: deals } = await fetchDeals({ merchantId: store.id });
 
   return (
     <>

@@ -5,12 +5,13 @@ import { PAGINATION } from '@/constants/pagination';
 import CouponCard from '@/components/coupon/CouponCard';
 import CouponsToolbar from '@/components/coupon/CouponsToolbar';
 import { CouponPagination } from '@/components/coupon/CouponPagination';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Ticket, 
-  CheckCircle2, 
+import { EmptyState } from '@/components/ui/empty-state';
+import {
+  Ticket,
+  CheckCircle2,
   Clock,
-  Sparkles
+  Sparkles,
+  TicketPercent
 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -31,7 +32,6 @@ export default async function CouponsPage(props: {
   const searchParams = await props.searchParams;
 
   const t = await getTranslations({ locale, namespace: 'coupons' });
-  const tCommon = await getTranslations({ locale, namespace: 'Common' });
 
   const q = typeof searchParams.q === 'string' ? searchParams.q : '';
   const verifiedOnly = searchParams.verified === 'true';
@@ -69,61 +69,68 @@ export default async function CouponsPage(props: {
   }).length;
 
   return (
-    <main className="min-h-screen bg-slate-50/50 pb-12">
-      <div className="bg-white border-b border-slate-200 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-           <Ticket className="w-64 h-64 text-primary transform -rotate-12 translate-x-20 -translate-y-20" />
+    <main className="min-h-screen bg-background">
+      {/* Hero Header */}
+      <section className="page-header py-12 md:py-16">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-emerald-200/30 to-teal-200/30 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl" />
         </div>
 
-        <div className="container mx-auto px-4 py-10 md:py-14 relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="container mx-auto px-4 relative">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            {/* Title Section */}
             <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-primary/10 rounded-2xl">
-                  <Ticket className="w-8 h-8 text-primary" />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100">
+                  <TicketPercent className="w-8 h-8 text-emerald-600" />
                 </div>
-                <Badge variant="secondary" className="px-3 py-1 bg-green-50 text-green-700 border-green-100 gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  {tCommon('stores')} & {tCommon('categories')}
-                </Badge>
+                <div className="badge-exclusive">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  100% Verified
+                </div>
               </div>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight mb-4">
                 {t('title')}
               </h1>
-              <p className="text-lg text-slate-600 leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
                 {t('subtitle')}. {t('meta.description')}
               </p>
             </div>
 
-            <div className="flex gap-4 md:gap-8 flex-wrap">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-1">
-                  <Ticket className="w-4 h-4" /> Total
+            {/* Stats Cards */}
+            <div className="flex gap-4 md:gap-6 flex-wrap lg:flex-nowrap">
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Ticket className="w-4 h-4" />
+                  <span>Total</span>
                 </div>
-                <span className="text-2xl font-bold text-slate-900">{totalCoupons.toLocaleString()}</span>
+                <span className="stat-value">{totalCoupons.toLocaleString()}</span>
               </div>
-              <div className="w-px h-12 bg-slate-200 hidden md:block" />
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-1">
-                  <CheckCircle2 className="w-4 h-4 text-green-600" /> Verified
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Verified</span>
                 </div>
-                <span className="text-2xl font-bold text-slate-900">{verifiedCount.toLocaleString()}</span>
+                <span className="stat-value text-gradient-savings">{verifiedCount.toLocaleString()}</span>
               </div>
-              <div className="w-px h-12 bg-slate-200 hidden md:block" />
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-1">
-                  <Clock className="w-4 h-4 text-orange-500" /> Expiring
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Clock className="w-4 h-4 text-amber-500" />
+                  <span>Expiring</span>
                 </div>
-                <span className="text-2xl font-bold text-slate-900">{expiringCount.toLocaleString()}</span>
+                <span className="stat-value">{expiringCount.toLocaleString()}</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <CouponsToolbar />
 
-      <div className="container mx-auto px-4 py-8">
+      {/* Coupons Grid */}
+      <section className="container mx-auto px-4 py-10">
         {displayCoupons.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,20 +138,18 @@ export default async function CouponsPage(props: {
                 <CouponCard key={coupon.id} coupon={coupon} />
               ))}
             </div>
-            <CouponPagination total={total} pageSize={pageSize} currentPage={currentPage} />
+            <div className="mt-12">
+              <CouponPagination total={total} pageSize={pageSize} currentPage={currentPage} />
+            </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6">
-              <Sparkles className="w-12 h-12 text-slate-300" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No coupons found</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
-              We couldn&apos;t find any coupons matching your criteria. Try adjusting your search or filters.
-            </p>
-          </div>
+          <EmptyState
+            icon="ticket"
+            title="No coupons found"
+            description="We couldn't find any coupons matching your criteria. Try adjusting your search or filters."
+          />
         )}
-      </div>
+      </section>
     </main>
   );
 }

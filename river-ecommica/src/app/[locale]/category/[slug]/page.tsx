@@ -1,11 +1,12 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
 import { Category } from '@/types';
 import DealCard from '@/components/deal/DealCard';
 import CouponCard from '@/components/coupon/CouponCard';
-import { Badge } from '@/components/ui/badge';
-import { 
+import { EmptyState } from '@/components/ui/empty-state';
+import {
   Laptop,
   Shirt,
   Home,
@@ -16,11 +17,12 @@ import {
   Heart,
   Tag,
   Ticket,
-  ArrowRight
+  ArrowRight,
+  ChevronRight,
+  type LucideIcon
 } from 'lucide-react';
-import Link from 'next/link';
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Laptop,
   Shirt,
   Home,
@@ -93,7 +95,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { locale, slug } = await params;
 
-  const [categories, allDeals, allCoupons] = await Promise.all([
+  const [categories, allDealsResult, allCouponsResult] = await Promise.all([
     fetchCategories(),
     fetchDeals(),
     fetchCoupons(),
@@ -105,8 +107,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const deals = allDeals.slice(0, 8);
-  const coupons = allCoupons.slice(0, 6);
+  const deals = allDealsResult.list.slice(0, 8);
+  const coupons = allCouponsResult.list.slice(0, 6);
 
   const IconComponent = iconMap[category.icon || 'Tag'] || Tag;
 
@@ -115,49 +117,79 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const subcategories = isSubcategory ? [] : (parentCategory?.children || []);
 
   return (
-    <main className="min-h-screen bg-slate-50/50 pb-12">
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500/20 rounded-full blur-[100px]" />
-          <div className="absolute bottom-10 right-20 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px]" />
+    <main className="min-h-screen bg-background">
+      {/* Hero Header */}
+      <section className="page-header py-12 md:py-16">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-cyan-200/30 to-blue-200/30 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-indigo-200/20 to-violet-200/20 rounded-full blur-3xl" />
         </div>
-        
-        <div className="container mx-auto px-4 py-12 md:py-16 relative z-10">
-          <nav className="flex items-center gap-2 text-sm text-slate-400 mb-6">
-            <Link href={`/${locale}`} className="hover:text-white transition-colors">Home</Link>
-            <span>/</span>
+
+        <div className="container mx-auto px-4 relative">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+            <Link href={`/${locale}`} className="hover:text-primary transition-colors">Home</Link>
+            <ChevronRight className="w-4 h-4" />
             {isSubcategory && parentCategory && (
               <>
-                <Link href={`/${locale}/category/${parentCategory.slug}`} className="hover:text-white transition-colors">
+                <Link href={`/${locale}/category/${parentCategory.slug}`} className="hover:text-primary transition-colors">
                   {parentCategory.name}
                 </Link>
-                <span>/</span>
+                <ChevronRight className="w-4 h-4" />
               </>
             )}
-            <span className="text-white">{category.name}</span>
+            <span className="text-foreground font-medium">{category.name}</span>
           </nav>
 
-          <div className="flex items-center gap-4 mb-6">
-            <div className="p-4 bg-white/10 backdrop-blur-sm rounded-2xl">
-              <IconComponent className="w-10 h-10 text-cyan-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            {/* Title Section */}
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-3 rounded-2xl bg-gradient-to-br from-cyan-100 to-blue-100">
+                  <IconComponent className="w-8 h-8 text-cyan-600" />
+                </div>
+                <div className="badge-exclusive">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Best Deals
+                </div>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight mb-4">
                 {category.name}
               </h1>
-              <p className="text-slate-400 mt-1">
-                {deals.length} deals • {coupons.length} coupons available
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                Find the best {category.name.toLowerCase()} deals, discounts and coupon codes.
+                Save money on your favorite products.
               </p>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="flex gap-4 md:gap-6 flex-wrap lg:flex-nowrap">
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Tag className="w-4 h-4" />
+                  <span>Deals</span>
+                </div>
+                <span className="stat-value">{deals.length}</span>
+              </div>
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Ticket className="w-4 h-4" />
+                  <span>Coupons</span>
+                </div>
+                <span className="stat-value text-gradient-savings">{coupons.length}</span>
+              </div>
             </div>
           </div>
 
+          {/* Subcategories */}
           {subcategories.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-6">
+            <div className="flex flex-wrap gap-2 mt-8">
               {subcategories.map(sub => (
                 <Link
                   key={sub.id}
                   href={`/${locale}/category/${sub.slug}`}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium transition-colors"
+                  className="group px-4 py-2 bg-card/80 backdrop-blur-sm hover:bg-primary/10 border border-border/60 hover:border-primary/30 rounded-full text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200"
                 >
                   {sub.name}
                 </Link>
@@ -165,24 +197,30 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 py-10">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-50 rounded-xl">
-              <Tag className="w-5 h-5 text-amber-600" />
+      {/* Deals Section */}
+      <section className="container mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100">
+              <Tag className="w-6 h-6 text-amber-600" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">Top Deals</h2>
-            <Badge variant="secondary" className="bg-amber-50 text-amber-700">
-              {deals.length} available
-            </Badge>
+            <div>
+              <h2 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
+                Top Deals
+              </h2>
+              <p className="text-muted-foreground text-sm mt-0.5">
+                {deals.length} deals available
+              </p>
+            </div>
           </div>
-          <Link 
+          <Link
             href={`/${locale}/deals`}
-            className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+            className="group hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-colors"
           >
-            View all <ArrowRight className="w-4 h-4" />
+            View all
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
@@ -193,29 +231,36 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-2xl border border-slate-200">
-            <Tag className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500">No deals in this category yet</p>
-          </div>
+          <EmptyState
+            icon="bag"
+            title="No deals yet"
+            description={`We don't have any ${category.name.toLowerCase()} deals at the moment. Check back soon!`}
+          />
         )}
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 py-10">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-50 rounded-xl">
-              <Ticket className="w-5 h-5 text-emerald-600" />
+      {/* Coupons Section */}
+      <section className="container mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100">
+              <Ticket className="w-6 h-6 text-emerald-600" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">Coupon Codes</h2>
-            <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">
-              {coupons.length} available
-            </Badge>
+            <div>
+              <h2 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
+                Coupon Codes
+              </h2>
+              <p className="text-muted-foreground text-sm mt-0.5">
+                {coupons.length} coupons available
+              </p>
+            </div>
           </div>
-          <Link 
+          <Link
             href={`/${locale}/coupons`}
-            className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+            className="group hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-colors"
           >
-            View all <ArrowRight className="w-4 h-4" />
+            View all
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
@@ -226,12 +271,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-2xl border border-slate-200">
-            <Ticket className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500">No coupons in this category yet</p>
-          </div>
+          <EmptyState
+            icon="ticket"
+            title="No coupons yet"
+            description={`We don't have any ${category.name.toLowerCase()} coupons at the moment. Check back soon!`}
+          />
         )}
-      </div>
+      </section>
     </main>
   );
 }

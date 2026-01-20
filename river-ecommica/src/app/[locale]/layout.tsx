@@ -5,6 +5,19 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import "@/app/globals.css";
 import { Metadata } from 'next';
+import { Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-plus-jakarta',
+  display: 'swap',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -28,16 +41,16 @@ export default async function LocaleLayout({
   params: Promise<{locale: string}>;
 }) {
   const { locale } = await params;
-  
+
   if (!['en', 'zh'].includes(locale)) {
     notFound();
   }
- 
+
   const messages = await getMessages();
- 
+
   return (
-    <html lang={locale}>
-      <body>
+    <html lang={locale} className={`${plusJakarta.variable} ${spaceGrotesk.variable}`}>
+      <body className="font-sans">
         <NextIntlClientProvider messages={messages}>
           <div className="min-h-screen flex flex-col">
             <Header />

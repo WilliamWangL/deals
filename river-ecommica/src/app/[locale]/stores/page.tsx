@@ -8,7 +8,6 @@ import StoreCard from '@/components/store/StoreCard';
 import { StoresSearchBar } from '@/components/store/StoresSearchBar';
 import { StorePagination } from '@/components/store/StorePagination';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Store as StoreIcon,
   Tag,
@@ -18,13 +17,14 @@ import {
   MapPin,
   TrendingUp,
   LayoutGrid,
-  List
+  List,
+  Sparkles
 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'stores' });
-  
+
   return {
     title: t('meta.title'),
     description: t('meta.description'),
@@ -57,121 +57,153 @@ export default async function StoresPage({
   const totalCoupons = stores.reduce((acc, s) => acc + (s.couponCount || 0), 0);
 
   return (
-    <main className="min-h-screen bg-slate-50/50 pb-12">
-      <div className="bg-white border-b border-slate-200 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-           <StoreIcon className="w-64 h-64 text-primary transform rotate-12 translate-x-20 -translate-y-20" />
+    <main className="min-h-screen bg-background">
+      {/* Hero Header */}
+      <section className="page-header py-12 md:py-16">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-violet-200/30 to-purple-200/30 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-indigo-200/20 to-blue-200/20 rounded-full blur-3xl" />
         </div>
 
-        <div className="container mx-auto px-4 py-10 md:py-14 relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="container mx-auto px-4 relative">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            {/* Title Section */}
             <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-primary/10 rounded-2xl">
-                  <StoreIcon className="w-8 h-8 text-primary" />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100">
+                  <StoreIcon className="w-8 h-8 text-violet-600" />
                 </div>
-                <Badge variant="secondary" className="px-3 py-1 bg-blue-50 text-blue-700 border-blue-100">
+                <div className="badge-exclusive">
+                  <Sparkles className="w-3.5 h-3.5" />
                   Updated Daily
-                </Badge>
+                </div>
               </div>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight mb-4">
                 Explore Top Stores
               </h1>
-              <p className="text-lg text-slate-600 leading-relaxed">
-                Browse our curated collection of premium brands. Discover exclusive coupons, 
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                Browse our curated collection of premium brands. Discover exclusive coupons,
                 limited-time deals, and verified discounts from your favorite retailers.
               </p>
             </div>
 
-            <div className="flex gap-4 md:gap-8 flex-wrap">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-1">
-                  <Building2 className="w-4 h-4" /> Stores
+            {/* Stats Cards */}
+            <div className="flex gap-4 md:gap-6 flex-wrap lg:flex-nowrap">
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Building2 className="w-4 h-4" />
+                  <span>Stores</span>
                 </div>
-                <span className="text-2xl font-bold text-slate-900">{totalStores}</span>
+                <span className="stat-value">{totalStores.toLocaleString()}</span>
               </div>
-              <div className="w-px h-12 bg-slate-200 hidden md:block" />
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-1">
-                  <Tag className="w-4 h-4" /> Deals
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Tag className="w-4 h-4" />
+                  <span>Deals</span>
                 </div>
-                <span className="text-2xl font-bold text-slate-900">{totalDeals.toLocaleString()}</span>
+                <span className="stat-value">{totalDeals.toLocaleString()}</span>
               </div>
-              <div className="w-px h-12 bg-slate-200 hidden md:block" />
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-1">
-                  <Ticket className="w-4 h-4" /> Coupons
+              <div className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Ticket className="w-4 h-4" />
+                  <span>Coupons</span>
                 </div>
-                <span className="text-2xl font-bold text-slate-900">{totalCoupons.toLocaleString()}</span>
+                <span className="stat-value text-gradient-primary">{totalCoupons.toLocaleString()}</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      {/* Toolbar */}
+      <section className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            
-            <Suspense fallback={<div className="w-full md:w-96 h-11 bg-slate-100 animate-pulse rounded-xl" />}>
+            {/* Search */}
+            <Suspense fallback={<div className="w-full md:w-96 h-12 bg-muted animate-pulse rounded-xl" />}>
               <StoresSearchBar
                 placeholder="Search stores..."
                 className="md:w-96"
               />
             </Suspense>
 
-            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-              <Button variant="outline" size="sm" className="h-10 rounded-lg border-slate-200 text-slate-600 hover:text-primary hover:border-primary/50 gap-2 shrink-0">
+            {/* Filters & View */}
+            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 rounded-xl border-border/80 text-muted-foreground hover:text-primary hover:border-primary/50 gap-2 shrink-0"
+              >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filter
               </Button>
-              <div className="w-px h-6 bg-slate-200 mx-1 shrink-0" />
-              <Button variant="ghost" size="sm" className="h-10 rounded-lg text-slate-600 hover:text-primary hover:bg-primary/5 gap-2 shrink-0">
+              <div className="w-px h-6 bg-border mx-1 shrink-0" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
+              >
                 <MapPin className="w-4 h-4" />
                 Region
               </Button>
-              <Button variant="ghost" size="sm" className="h-10 rounded-lg text-slate-600 hover:text-primary hover:bg-primary/5 gap-2 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 shrink-0"
+              >
                 <TrendingUp className="w-4 h-4" />
                 Popular
               </Button>
-              <div className="ml-auto flex items-center gap-1 border rounded-lg p-1 border-slate-200 shrink-0 bg-slate-50">
-                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded bg-white text-slate-900 shadow-sm hover:bg-white">
-                   <LayoutGrid className="w-4 h-4" />
-                 </Button>
-                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-200/50">
-                   <List className="w-4 h-4" />
-                 </Button>
+              <div className="ml-auto flex items-center gap-1 p-1 rounded-xl border border-border/80 bg-muted/30 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg bg-card text-foreground shadow-sm hover:bg-card"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                >
+                  <List className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 py-8">
+      {/* Stores Grid */}
+      <section className="container mx-auto px-4 py-10">
         {stores.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {stores.map(store => (
-              <StoreCard key={store.id} store={store} locale={locale} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {stores.map(store => (
+                <StoreCard key={store.id} store={store} locale={locale} />
+              ))}
+            </div>
+            <div className="mt-12">
+              <StorePagination total={total} pageSize={pageSize} currentPage={currentPage} />
+            </div>
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6">
-              <Building2 className="w-12 h-12 text-slate-300" />
+            <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mb-6">
+              <Building2 className="w-10 h-10 text-muted-foreground/50" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No stores found</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
+            <h3 className="text-xl font-display font-bold text-foreground mb-2">No stores found</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
               We couldn&apos;t find any stores matching your criteria. Try adjusting your search or filters.
             </p>
-            <Button variant="outline" className="mt-6" asChild>
+            <Button variant="outline" className="mt-6 rounded-xl" asChild>
               <Link href={`/${locale}/stores`}>Clear all filters</Link>
             </Button>
           </div>
         )}
-
-        <StorePagination total={total} pageSize={pageSize} currentPage={currentPage} />
-      </div>
+      </section>
     </main>
   );
 }

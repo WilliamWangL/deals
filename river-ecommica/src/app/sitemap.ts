@@ -29,12 +29,16 @@ function buildCategoryPages(categories: Category[]): MetadataRoute.Sitemap {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [stores, deals, posts, categories] = await Promise.all([
+  const [storesResult, dealsResult, postsResult, categories] = await Promise.all([
     fetchStores(),
     fetchDeals(),
     fetchPosts(),
     fetchCategories(),
   ]);
+
+  const stores = storesResult.list;
+  const deals = dealsResult.list;
+  const posts = postsResult.list;
 
   const staticPages = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 1 },

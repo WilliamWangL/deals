@@ -2,10 +2,10 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Search, ShoppingBag, Tag, Ticket } from 'lucide-react';
+import { BookOpen, RefreshCw, Search, ShoppingBag, Tag, Ticket } from 'lucide-react';
 
 interface EmptyStateProps {
-  icon?: 'search' | 'bag' | 'tag' | 'ticket';
+  icon?: 'search' | 'bag' | 'tag' | 'ticket' | 'book';
   title: string;
   description?: string;
   action?: {
@@ -20,6 +20,7 @@ const icons = {
   bag: ShoppingBag,
   tag: Tag,
   ticket: Ticket,
+  book: BookOpen,
 };
 
 export function EmptyState({

@@ -12,14 +12,16 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const deals = await fetchDeals();
+  const { list: deals } = await fetchDeals();
   const locales = ['en', 'zh'];
-  
+
   return locales.flatMap(locale =>
-    deals.map(deal => ({
-      locale,
-      slug: deal.slug,
-    }))
+    deals
+      .filter(deal => deal.slug && typeof deal.slug === 'string')
+      .map(deal => ({
+        locale,
+        slug: deal.slug,
+      }))
   );
 }
 

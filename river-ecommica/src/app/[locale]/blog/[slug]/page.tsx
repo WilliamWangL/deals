@@ -10,14 +10,16 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const posts = await fetchPosts();
+  const { list: posts } = await fetchPosts();
   const locales = ['en', 'zh'];
-  
+
   return locales.flatMap(locale =>
-    posts.map(post => ({
-      locale,
-      slug: post.slug,
-    }))
+    posts
+      .filter(post => post.slug && typeof post.slug === 'string')
+      .map(post => ({
+        locale,
+        slug: post.slug,
+      }))
   );
 }
 
