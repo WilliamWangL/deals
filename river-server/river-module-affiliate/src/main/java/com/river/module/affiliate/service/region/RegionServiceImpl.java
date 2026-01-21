@@ -1,24 +1,22 @@
 package com.river.module.affiliate.service.region;
 
 import com.river.module.affiliate.controller.app.region.vo.RegionRespVO;
-import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.affiliate.dal.mysql.MerchantMapper;
-import com.river.module.coupon.dal.dataobject.CouponDO;
-import com.river.module.coupon.dal.dataobject.DealDO;
+import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.coupon.dal.mysql.CouponMapper;
+import com.river.module.coupon.dal.dataobject.CouponDO;
 import com.river.module.coupon.dal.mysql.DealMapper;
+import com.river.module.coupon.dal.dataobject.DealDO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.river.framework.common.util.region.RegionUtils.GLOBAL_CODE;
 
 /**
  * 地区查询服务实现
- * 使用 MyBatis Plus 查询，自动获得多租户支持
  */
 @Slf4j
 @Service
@@ -60,88 +58,76 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     public List<RegionRespVO> getAvailableRegions() {
-        Map<String, Integer> regionCounts = new HashMap<>();
+        Set<String> regionCodes = new HashSet<>();
 
-        // 使用 Mapper 查询，自动获得多租户支持（tenant_id 由 TenantDatabaseInterceptor 注入）
-        countRegionsFromMerchant(regionCounts);
-        countRegionsFromDeal(regionCounts);
-        countRegionsFromCoupon(regionCounts);
+        // 收集所有地区代码
+        collectRegionsFromMerchant(regionCodes);
+        collectRegionsFromDeal(regionCodes);
+        collectRegionsFromCoupon(regionCodes);
 
         // 转换为结果列表
         List<RegionRespVO> result = new ArrayList<>();
 
         // 添加 GLOBAL 选项到首位
-        int globalCount = regionCounts.getOrDefault(GLOBAL_CODE, 0);
-        int otherCount = regionCounts.entrySet().stream()
-            .filter(e -> !GLOBAL_CODE.equals(e.getKey()))
-            .mapToInt(Map.Entry::getValue)
-            .sum();
-        int totalGlobalCount = globalCount + otherCount;
-        result.add(new RegionRespVO(GLOBAL_CODE, "Global", totalGlobalCount));
+        result.add(new RegionRespVO(GLOBAL_CODE, "Global"));
 
-        // 添加各个国家，按数量降序排序
-        regionCounts.entrySet().stream()
-            .filter(e -> !GLOBAL_CODE.equals(e.getKey()))
-            .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-            .forEach(e -> {
-                String name = COUNTRY_NAMES.getOrDefault(e.getKey(), e.getKey());
-                result.add(new RegionRespVO(e.getKey(), name, e.getValue()));
+        // 添加各个国家，按字母顺序排序
+        regionCodes.stream()
+            .filter(code -> !GLOBAL_CODE.equals(code))
+            .sorted()
+            .forEach(code -> {
+                String name = COUNTRY_NAMES.getOrDefault(code, code);
+                result.add(new RegionRespVO(code, name));
             });
 
         return result;
     }
 
-    private void countRegionsFromMerchant(Map<String, Integer> regionCounts) {
+    /**
+     * 收集商家地区代码
+     */
+    private void collectRegionsFromMerchant(Set<String> regionCodes) {
         try {
-            List<MerchantDO> list = merchantMapper.selectList();
-            countRegions(list, regionCounts);
-        } catch (Exception e) {
-            log.warn("Failed to count regions from merchant table", e);
-        }
-    }
-
-    private void countRegionsFromDeal(Map<String, Integer> regionCounts) {
-        try {
-            List<DealDO> list = dealMapper.selectList();
-            countRegions(list, regionCounts);
-        } catch (Exception e) {
-            log.warn("Failed to count regions from deal table", e);
-        }
-    }
-
-    private void countRegionsFromCoupon(Map<String, Integer> regionCounts) {
-        try {
-            List<CouponDO> list = couponMapper.selectList();
-            countRegions(list, regionCounts);
-        } catch (Exception e) {
-            log.warn("Failed to count regions from coupon table", e);
-        }
-    }
-
-    private void countRegions(List<?> list, Map<String, Integer> regionCounts) {
-        for (Object obj : list) {
-            try {
-                java.lang.reflect.Method getRegions = obj.getClass().getMethod("getRegions");
-                Object regionsValue = getRegions.invoke(obj);
-                if (regionsValue == null) continue;
-                
-                String regions;
-                if (regionsValue instanceof List) {
-                    regions = String.join(",", (List<String>) regionsValue);
-                } else {
-                    regions = regionsValue.toString();
+            List<MerchantDO> list = merchantMapper.selectList(null);
+            for (MerchantDO merchant : list) {
+                if (merchant != null && merchant.getRegions() != null) {
+                    regionCodes.addAll(merchant.getRegions());
                 }
-                
-                if (regions.isBlank()) continue;
-                for (String code : regions.split(",")) {
-                    String trimmed = code.trim();
-                    if (!trimmed.isEmpty()) {
-                        regionCounts.merge(trimmed, 1, Integer::sum);
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("Failed to get regions from object: {}", obj, e);
             }
+        } catch (Exception e) {
+            log.warn("Failed to collect regions from merchant table", e);
+        }
+    }
+
+    /**
+     * 收集 Deal 地区代码
+     */
+    private void collectRegionsFromDeal(Set<String> regionCodes) {
+        try {
+            List<DealDO> list = dealMapper.selectList(null);
+            for (DealDO deal : list) {
+                if (deal != null && deal.getRegions() != null) {
+                    regionCodes.addAll(deal.getRegions());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to collect regions from deal table", e);
+        }
+    }
+
+    /**
+     * 收集 Coupon 地区代码
+     */
+    private void collectRegionsFromCoupon(Set<String> regionCodes) {
+        try {
+            List<CouponDO> list = couponMapper.selectList(null);
+            for (CouponDO coupon : list) {
+                if (coupon != null && coupon.getRegions() != null) {
+                    regionCodes.addAll(coupon.getRegions());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to collect regions from coupon table", e);
         }
     }
 }

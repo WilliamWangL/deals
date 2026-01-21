@@ -184,9 +184,9 @@ public class AdmitadSyncService {
 
         // 设置 Offer 的地区
         if (campaign.getRegions() != null && !campaign.getRegions().isEmpty()) {
-            String regions = campaign.getRegions().stream()
+            List<String> regions = campaign.getRegions().stream()
                 .map(AdmitadCampaign.Region::getRegion)
-                .collect(Collectors.joining(","));
+                .collect(Collectors.toList());
             offer.setRegions(regions);
         }
     }

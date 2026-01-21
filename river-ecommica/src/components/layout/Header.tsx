@@ -20,7 +20,7 @@ const NAV_ICONS: Record<string, React.ElementType> = {
 
 interface HeaderProps {
   currentRegion?: string
-  regions?: { code: string; name: string; count: number }[]
+  regions?: { code: string; name: string }[]
 }
 
 export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) {

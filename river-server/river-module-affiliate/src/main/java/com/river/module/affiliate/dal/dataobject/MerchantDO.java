@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * 商家/广告主 DO
  */
-@TableName("river_affiliate_merchant")
+@TableName(value = "river_affiliate_merchant", autoResultMap = true)
 @KeySequence("river_affiliate_merchant_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -38,33 +38,12 @@ public class AppCouponController {
     @Resource
     private MerchantCommonApi merchantApi;
 
-    @GetMapping("/list")
-    @Operation(summary = "获取优惠券列表")
-    public CommonResult<List<AppCouponRespVO>> getCouponList(
-            @RequestParam(value = "merchantId", required = false) Long merchantId,
-            @RequestParam(value = "verified", required = false) Boolean verified,
-            @RequestParam(value = "region", required = false) String region) {
-        List<CouponDO> list = couponService.getCouponListByRegion(region);
-        // 过滤逻辑
-        List<CouponDO> filtered = list.stream()
-                .filter(c -> merchantId == null || c.getMerchantId().equals(merchantId))
-                .filter(c -> verified == null || c.getVerified().equals(verified))
-                .toList();
-
-        return success(convertToAppVOList(filtered));
-    }
-
     @GetMapping("/page")
     @Operation(summary = "获取优惠券分页")
     public CommonResult<PageResult<AppCouponRespVO>> getCouponPage(
-            @Valid AppCouponPageReqVO pageReqVO,
-            @RequestParam(value = "region", required = false) String region) {
-        CouponPageReqVO adminPageReqVO = new CouponPageReqVO();
-        adminPageReqVO.setPageNo(pageReqVO.getPageNo());
-        adminPageReqVO.setPageSize(pageReqVO.getPageSize());
-        adminPageReqVO.setMerchantId(pageReqVO.getMerchantId());
-        adminPageReqVO.setVerified(pageReqVO.getVerified());
-        PageResult<CouponDO> pageResult = couponService.getCouponPageByRegion(adminPageReqVO, region);
+            @Valid AppCouponPageReqVO pageReqVO) {
+        CouponPageReqVO adminPageReqVO = BeanUtils.toBean(pageReqVO, CouponPageReqVO.class);
+        PageResult<CouponDO> pageResult = couponService.getCouponPage(adminPageReqVO);
 
         List<AppCouponRespVO> result = convertToAppVOList(pageResult.getList());
         return success(new PageResult<>(result, pageResult.getTotal()));

@@ -6,7 +6,7 @@ import { fetchAvailableRegions } from '@/lib/api'
 
 interface RegionData {
   currentRegion: string
-  regions: { code: string; name: string; count: number }[]
+  regions: { code: string; name: string }[]
 }
 
 export async function getRegionData(searchParams?: { region?: string }): Promise<RegionData> {
@@ -29,13 +29,13 @@ export async function getRegionData(searchParams?: { region?: string }): Promise
   )
 
   // 获取可用地区列表
-  let regions: { code: string; name: string; count: number }[] = []
+  let regions: { code: string; name: string }[] = []
   try {
     regions = await fetchAvailableRegions()
   } catch (error) {
     console.error('[Region] Failed to fetch regions:', error)
     // 降级为默认 GLOBAL
-    regions = [{ code: DEFAULT_REGION, name: 'Global', count: 0 }]
+    regions = [{ code: DEFAULT_REGION, name: 'Global' }]
   }
 
   return { currentRegion, regions }

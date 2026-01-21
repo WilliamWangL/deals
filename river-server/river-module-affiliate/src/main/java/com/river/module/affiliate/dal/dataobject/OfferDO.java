@@ -4,16 +4,19 @@ import com.river.framework.tenant.core.db.TenantBaseDO;
 import com.river.module.affiliate.enums.PayoutModelEnum;
 import com.river.module.affiliate.enums.OfferStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.river.framework.mybatis.core.type.StringListTypeHandler;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Offer/广告 DO
  */
-@TableName("river_affiliate_offer")
+@TableName(value="river_affiliate_offer",autoResultMap = true)
 @KeySequence("river_affiliate_offer_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -62,8 +65,9 @@ public class OfferDO extends TenantBaseDO {
     /** 状态 {@link OfferStatusEnum} */
     private Integer status;
 
-    /** 支持的地区（JSON 数组） */
-    private String regions;
+    /** 支持的地区（ISO 代码列表） */
+    @TableField(typeHandler = StringListTypeHandler.class)
+    private List<String> regions;
 
     /** 分类 ID 列表（JSON 数组） */
     private String categoryIds;

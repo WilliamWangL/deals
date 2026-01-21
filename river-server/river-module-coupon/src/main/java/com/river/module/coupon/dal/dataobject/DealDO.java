@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@TableName("river_coupon_deal")
+@TableName(value = "river_coupon_deal", autoResultMap = true)
 @KeySequence("river_coupon_deal_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)

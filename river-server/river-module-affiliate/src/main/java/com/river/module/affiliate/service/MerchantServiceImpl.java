@@ -86,11 +86,6 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public PageResult<MerchantDO> getMerchantPageByRegion(MerchantPageReqVO pageReqVO, String region) {
-        return merchantMapper.selectPageByRegion(pageReqVO, region);
-    }
-
-    @Override
     public List<MerchantDO> getMerchantListByRegion(String region) {
         List<MerchantDO> list = merchantMapper.selectList();
         return list.stream()

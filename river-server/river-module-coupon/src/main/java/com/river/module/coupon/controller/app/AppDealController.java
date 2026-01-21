@@ -39,33 +39,12 @@ public class AppDealController {
     @Resource
     private MerchantCommonApi merchantApi;
 
-    @GetMapping("/list")
-    @Operation(summary = "获取 Deal 列表")
-    public CommonResult<List<AppDealRespVO>> getDealList(
-            @RequestParam(value = "merchantId", required = false) Long merchantId,
-            @RequestParam(value = "featured", required = false) Boolean featured,
-            @RequestParam(value = "region", required = false) String region) {
-        List<DealDO> list = dealService.getDealListByRegion(region);
-        // 过滤逻辑
-        List<DealDO> filtered = list.stream()
-                .filter(d -> merchantId == null || d.getMerchantId().equals(merchantId))
-                .filter(d -> featured == null || d.getFeatured().equals(featured))
-                .toList();
-
-        return success(convertToAppVOList(filtered));
-    }
-
     @GetMapping("/page")
     @Operation(summary = "获取 Deal 分页")
     public CommonResult<PageResult<AppDealRespVO>> getDealPage(
-            @Valid AppDealPageReqVO pageReqVO,
-            @RequestParam(value = "region", required = false) String region) {
-        DealPageReqVO adminPageReqVO = new DealPageReqVO();
-        adminPageReqVO.setPageNo(pageReqVO.getPageNo());
-        adminPageReqVO.setPageSize(pageReqVO.getPageSize());
-        adminPageReqVO.setMerchantId(pageReqVO.getMerchantId());
-        adminPageReqVO.setFeatured(pageReqVO.getFeatured());
-        PageResult<DealDO> pageResult = dealService.getDealPageByRegion(adminPageReqVO, region);
+            @Valid AppDealPageReqVO pageReqVO) {
+        DealPageReqVO adminPageReqVO = BeanUtils.toBean(pageReqVO, DealPageReqVO.class);
+        PageResult<DealDO> pageResult = dealService.getDealPage(adminPageReqVO);
 
         List<AppDealRespVO> result = convertToAppVOList(pageResult.getList());
         return success(new PageResult<>(result, pageResult.getTotal()));

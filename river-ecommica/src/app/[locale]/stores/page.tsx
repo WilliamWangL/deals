@@ -46,7 +46,7 @@ export default async function StoresPage({
     pageNo: currentPage,
     pageSize,
     name: searchQuery || undefined,
-    region
+    regions: region ? [region] : undefined
   });
   const stores = storesResult.list || [];
   const total = storesResult.total || 0;

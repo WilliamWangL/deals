@@ -44,7 +44,7 @@ export default async function CouponsPage(props: {
     pageNo: currentPage,
     pageSize,
     verified: verifiedOnly ? true : undefined,
-    region
+    regions: region ? [region] : undefined
   });
 
   const displayCoupons = q
@@ -60,7 +60,7 @@ export default async function CouponsPage(props: {
   threeDaysFromNow.setDate(now.getDate() + 3);
 
   // Fetch all coupons for stats (without pagination)
-  const allCouponsResult = await fetchCoupons({ verified: verifiedOnly ? true : undefined, region });
+  const allCouponsResult = await fetchCoupons({ verified: verifiedOnly ? true : undefined, regions: region ? [region] : undefined });
   const allCouponsForStats = allCouponsResult.list;
   const totalCoupons = total;
   const verifiedCount = allCouponsForStats.filter(c => c.verified).length;

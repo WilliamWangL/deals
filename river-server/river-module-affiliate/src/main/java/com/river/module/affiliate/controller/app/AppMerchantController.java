@@ -1,7 +1,9 @@
 package com.river.module.affiliate.controller.app;
 
+import com.river.framework.common.enums.CommonStatusEnum;
 import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.pojo.PageResult;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.affiliate.controller.admin.merchant.vo.MerchantPageReqVO;
 import com.river.module.affiliate.controller.app.vo.AppMerchantPageReqVO;
 import com.river.module.affiliate.controller.app.vo.AppMerchantRespVO;
@@ -23,6 +25,7 @@ import java.util.Map;
 import jakarta.validation.Valid;
 
 import static com.river.framework.common.pojo.CommonResult.success;
+import static java.awt.SystemColor.info;
 
 @Tag(name = "用户 App - 商家")
 @RestController
@@ -48,14 +51,11 @@ public class AppMerchantController {
     @GetMapping("/page")
     @Operation(summary = "获取商家分页")
     public CommonResult<PageResult<AppMerchantRespVO>> getMerchantPage(
-            @Valid AppMerchantPageReqVO pageReqVO,
-            @RequestParam(value = "region", required = false) String region) {
-        // Convert to admin VO for service call
-        MerchantPageReqVO adminPageReqVO = new MerchantPageReqVO();
-        adminPageReqVO.setPageNo(pageReqVO.getPageNo());
-        adminPageReqVO.setPageSize(pageReqVO.getPageSize());
-        adminPageReqVO.setName(pageReqVO.getName());
-        PageResult<MerchantDO> pageResult = merchantService.getMerchantPageByRegion(adminPageReqVO, region);
+            @Valid AppMerchantPageReqVO pageReqVO) {
+        PageResult<MerchantDO> pageResult = merchantService.getMerchantPage(BeanUtils.toBean(pageReqVO,
+                MerchantPageReqVO.class,info->{
+                info.setStatus(CommonStatusEnum.ENABLE.getStatus());
+        }));
         return success(convertToAppVOPage(pageResult));
     }
 

@@ -168,6 +168,12 @@ logging:
     com.river.module.iot.dal.tdengine: DEBUG
     com.river.module.iot.service.rule: debug
     com.river.module.ai.dal.mysql: debug
+    com.river.module.affiliate.dal.mysql: debug
+    com.river.module.blog.dal.mysql: debug
+    com.river.module.campaign.dal.mysql: debug
+    com.river.module.coupon.dal.mysql: debug
+    com.river.module.stats.dal.mysql: debug
+    com.river.module.tracking.dal.mysql: debug
     org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
 
 debug: false

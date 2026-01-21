@@ -43,7 +43,7 @@ export default async function DealsPage({
   const dealsResult = await fetchDeals({
     pageNo: currentPage,
     pageSize,
-    region
+    regions: region ? [region] : undefined
   });
   const allDeals = dealsResult.list || [];
   const total = dealsResult.total || 0;

@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 用户 App - 商家分页 Request VO
  */
@@ -15,5 +17,8 @@ public class AppMerchantPageReqVO extends PageParam {
 
     @Schema(description = "商家名称（模糊查询）")
     private String name;
+
+    @Schema(description = "地区")
+    private List<String> regions;
 
 }

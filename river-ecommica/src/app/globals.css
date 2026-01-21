@@ -404,6 +404,26 @@
   animation-play-state: paused;
 }
 
+/* Slow spin animation for globe */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+/* Subtle bounce animation for flags */
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0) scale(1.1); }
+  50% { transform: translateY(-3px) scale(1.15); }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 0.6s ease-in-out;
+}
+
 /* Shimmer animation for deals page */
 @keyframes shimmer-bg {
   0% { background-position: -200% 0; }

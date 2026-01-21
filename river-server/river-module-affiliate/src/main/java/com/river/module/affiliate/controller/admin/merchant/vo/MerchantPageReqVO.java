@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Schema(description = "管理后台 - 商家分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -21,4 +23,7 @@ public class MerchantPageReqVO extends PageParam {
 
     @Schema(description = "状态")
     private Integer status;
+
+    @Schema(description = "地区")
+    private List<String> regions;
 }

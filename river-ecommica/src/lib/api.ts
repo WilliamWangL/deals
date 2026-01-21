@@ -28,13 +28,15 @@ function mapPostType(post: Record<string, unknown>): BlogPost {
   } as BlogPost
 }
 
-export async function fetchDeals(params?: { merchantId?: number; featured?: boolean; pageNo?: number; pageSize?: number; region?: string }): Promise<PageResult<Deal>> {
+export async function fetchDeals(params?: { merchantId?: number; featured?: boolean; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Deal>> {
   const url = new URL(`${API_BASE_URL}/coupon/deal/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
   if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
   if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize))
-  if (params?.region) url.searchParams.set('region', params.region)
+  if (params?.regions?.length) {
+    params.regions.forEach(r => url.searchParams.append('regions', r))
+  }
 
   const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch deals failed')
@@ -56,12 +58,14 @@ export interface PageResult<T> {
   list: T[];
 }
 
-export async function fetchStores(params?: { pageNo?: number; pageSize?: number; name?: string; region?: string }): Promise<PageResult<Store>> {
+export async function fetchStores(params?: { pageNo?: number; pageSize?: number; name?: string; regions?: string[] }): Promise<PageResult<Store>> {
   const url = new URL(`${API_BASE_URL}/affiliate/merchant/page`);
   if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo));
   if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize));
   if (params?.name) url.searchParams.set('name', params.name);
-  if (params?.region) url.searchParams.set('region', params.region);
+  if (params?.regions?.length) {
+    params.regions.forEach(r => url.searchParams.append('regions', r));
+  }
 
   const res = await fetchWithTenant(url.toString(), { cache: 'no-store' });
   if (!res.ok) throw new Error('Fetch stores failed');
@@ -78,13 +82,15 @@ export async function fetchStoreBySlug(slug: string): Promise<Store | null> {
   return json.data || null
 }
 
-export async function fetchCoupons(params?: { merchantId?: number; verified?: boolean; pageNo?: number; pageSize?: number; region?: string }): Promise<PageResult<Coupon>> {
+export async function fetchCoupons(params?: { merchantId?: number; verified?: boolean; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Coupon>> {
   const url = new URL(`${API_BASE_URL}/coupon/coupon/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.verified !== undefined) url.searchParams.set('verified', String(params.verified))
   if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
   if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize))
-  if (params?.region) url.searchParams.set('region', params.region)
+  if (params?.regions?.length) {
+    params.regions.forEach(r => url.searchParams.append('regions', r))
+  }
 
   const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
   if (!res.ok) throw new Error('Fetch coupons failed')
@@ -128,7 +134,6 @@ export async function fetchCategories(): Promise<Category[]> {
 export interface Region {
   code: string;
   name: string;
-  count: number;
 }
 
 export async function fetchAvailableRegions(): Promise<Region[]> {

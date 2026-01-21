@@ -24,21 +24,4 @@ public interface DealService {
 
     DealDO getDealBySlug(String slug);
 
-    /**
-     * 根据地区获得 Deal 分页
-     *
-     * @param pageReqVO 分页查询
-     * @param region 地区代码
-     * @return Deal 分页
-     */
-    PageResult<DealDO> getDealPageByRegion(DealPageReqVO pageReqVO, String region);
-
-    /**
-     * 根据地区获得 Deal 列表
-     *
-     * @param region 地区代码
-     * @return Deal 列表
-     */
-    List<DealDO> getDealListByRegion(String region);
-
 }

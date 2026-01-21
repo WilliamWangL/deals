@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.List;
+
 @Schema(description = "管理后台 - Deal 分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,4 +28,7 @@ public class DealPageReqVO extends PageParam {
 
     @Schema(description = "状态", example = "1")
     private Integer status;
+
+    @Schema(description = "地区列表（支持多地区查询）")
+    private List<String> regions;
 }

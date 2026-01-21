@@ -10,8 +10,6 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
-import com.river.framework.common.util.region.RegionUtils;
-
 import static com.river.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static com.river.module.coupon.enums.ErrorCodeConstants.*;
 
@@ -60,19 +58,6 @@ public class CouponServiceImpl implements CouponService {
         if (couponMapper.selectById(id) == null) {
             throw exception(COUPON_NOT_EXISTS);
         }
-    }
-
-    @Override
-    public PageResult<CouponDO> getCouponPageByRegion(CouponPageReqVO pageReqVO, String region) {
-        return couponMapper.selectPageByRegion(pageReqVO, region);
-    }
-
-    @Override
-    public List<CouponDO> getCouponListByRegion(String region) {
-        List<CouponDO> list = couponMapper.selectList();
-        return list.stream()
-            .filter(coupon -> RegionUtils.matchesRegion(coupon.getRegions(), region))
-            .toList();
     }
 
 }

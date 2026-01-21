@@ -19,7 +19,4 @@ public class RegionRespVO {
 
     @Schema(description = "国家名称", example = "Global")
     private String name;
-
-    @Schema(description = "数据数量", example = "45")
-    private Integer count;
 }
