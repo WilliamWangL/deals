@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.campaign.controller.admin.currency.vo.CurrencyPageReqVO;
 import com.river.module.campaign.controller.admin.currency.vo.CurrencyRespVO;
 import com.river.module.campaign.controller.admin.currency.vo.CurrencySaveReqVO;
-import com.river.module.campaign.convert.CurrencyConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.campaign.dal.dataobject.CurrencyDO;
 import com.river.module.campaign.service.CurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class CurrencyController {
     @Operation(summary = "创建货币")
     @PreAuthorize("@ss.hasPermission('campaign:currency:create')")
     public CommonResult<Long> createCurrency(@Valid @RequestBody CurrencySaveReqVO createReqVO) {
-        return success(currencyService.createCurrency(CurrencyConvert.INSTANCE.convert(createReqVO)));
+        return success(currencyService.createCurrency(BeanUtils.toBean(createReqVO, CurrencyDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新货币")
     @PreAuthorize("@ss.hasPermission('campaign:currency:update')")
     public CommonResult<Boolean> updateCurrency(@Valid @RequestBody CurrencySaveReqVO updateReqVO) {
-        currencyService.updateCurrency(CurrencyConvert.INSTANCE.convert(updateReqVO));
+        currencyService.updateCurrency(BeanUtils.toBean(updateReqVO, CurrencyDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class CurrencyController {
     @PreAuthorize("@ss.hasPermission('campaign:currency:query')")
     public CommonResult<CurrencyRespVO> getCurrency(@RequestParam("id") Long id) {
         CurrencyDO currency = currencyService.getCurrency(id);
-        return success(CurrencyConvert.INSTANCE.convert(currency));
+        return success(BeanUtils.toBean(currency, CurrencyRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class CurrencyController {
     @PreAuthorize("@ss.hasPermission('campaign:currency:query')")
     public CommonResult<List<CurrencyRespVO>> getCurrencyList() {
         List<CurrencyDO> list = currencyService.getCurrencyList();
-        return success(CurrencyConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, CurrencyRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class CurrencyController {
     @PreAuthorize("@ss.hasPermission('campaign:currency:query')")
     public CommonResult<PageResult<CurrencyRespVO>> getCurrencyPage(@Valid CurrencyPageReqVO pageReqVO) {
         PageResult<CurrencyDO> pageResult = currencyService.getCurrencyPage(pageReqVO);
-        return success(CurrencyConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, CurrencyRespVO.class));
     }
 }

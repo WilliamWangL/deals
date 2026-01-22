@@ -5,8 +5,8 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.affiliate.controller.admin.network.vo.AffiliateNetworkPageReqVO;
 import com.river.module.affiliate.controller.admin.network.vo.AffiliateNetworkRespVO;
 import com.river.module.affiliate.controller.admin.network.vo.AffiliateNetworkSaveReqVO;
-import com.river.module.affiliate.convert.AffiliateNetworkConvert;
 import com.river.module.affiliate.dal.dataobject.AffiliateNetworkDO;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.affiliate.dal.dataobject.NetworkCredentialDO;
 import com.river.module.affiliate.dal.mysql.NetworkCredentialMapper;
 import com.river.module.affiliate.service.AffiliateNetworkService;
@@ -45,14 +45,14 @@ public class AffiliateNetworkController {
     @Operation(summary = "创建联盟网络")
     @PreAuthorize("@ss.hasPermission('affiliate:network:create')")
     public CommonResult<Long> createNetwork(@Valid @RequestBody AffiliateNetworkSaveReqVO createReqVO) {
-        return success(networkService.createNetwork(AffiliateNetworkConvert.INSTANCE.convert(createReqVO)));
+        return success(networkService.createNetwork(BeanUtils.toBean(createReqVO, AffiliateNetworkDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新联盟网络")
     @PreAuthorize("@ss.hasPermission('affiliate:network:update')")
     public CommonResult<Boolean> updateNetwork(@Valid @RequestBody AffiliateNetworkSaveReqVO updateReqVO) {
-        networkService.updateNetwork(AffiliateNetworkConvert.INSTANCE.convert(updateReqVO));
+        networkService.updateNetwork(BeanUtils.toBean(updateReqVO, AffiliateNetworkDO.class));
         return success(true);
     }
 
@@ -71,7 +71,7 @@ public class AffiliateNetworkController {
     @PreAuthorize("@ss.hasPermission('affiliate:network:query')")
     public CommonResult<AffiliateNetworkRespVO> getNetwork(@RequestParam("id") Long id) {
         AffiliateNetworkDO network = networkService.getNetwork(id);
-        return success(AffiliateNetworkConvert.INSTANCE.convert(network));
+        return success(BeanUtils.toBean(network, AffiliateNetworkRespVO.class));
     }
 
     @GetMapping("/list")
@@ -79,7 +79,7 @@ public class AffiliateNetworkController {
     @PreAuthorize("@ss.hasPermission('affiliate:network:query')")
     public CommonResult<List<AffiliateNetworkRespVO>> getNetworkList() {
         List<AffiliateNetworkDO> list = networkService.getNetworkList();
-        return success(AffiliateNetworkConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, AffiliateNetworkRespVO.class));
     }
 
     @GetMapping("/page")
@@ -87,7 +87,7 @@ public class AffiliateNetworkController {
     @PreAuthorize("@ss.hasPermission('affiliate:network:query')")
     public CommonResult<PageResult<AffiliateNetworkRespVO>> getNetworkPage(@Valid AffiliateNetworkPageReqVO pageReqVO) {
         PageResult<AffiliateNetworkDO> pageResult = networkService.getNetworkPage(pageReqVO);
-        return success(AffiliateNetworkConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, AffiliateNetworkRespVO.class));
     }
 
     @PostMapping("/sync")

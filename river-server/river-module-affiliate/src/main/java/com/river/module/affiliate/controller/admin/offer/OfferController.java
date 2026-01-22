@@ -5,8 +5,8 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.affiliate.controller.admin.offer.vo.OfferPageReqVO;
 import com.river.module.affiliate.controller.admin.offer.vo.OfferRespVO;
 import com.river.module.affiliate.controller.admin.offer.vo.OfferSaveReqVO;
-import com.river.module.affiliate.convert.OfferConvert;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.affiliate.service.OfferService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,14 +34,14 @@ public class OfferController {
     @Operation(summary = "创建 Offer")
     @PreAuthorize("@ss.hasPermission('affiliate:offer:create')")
     public CommonResult<Long> createOffer(@Valid @RequestBody OfferSaveReqVO createReqVO) {
-        return success(offerService.createOffer(OfferConvert.INSTANCE.convert(createReqVO)));
+        return success(offerService.createOffer(BeanUtils.toBean(createReqVO, OfferDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新 Offer")
     @PreAuthorize("@ss.hasPermission('affiliate:offer:update')")
     public CommonResult<Boolean> updateOffer(@Valid @RequestBody OfferSaveReqVO updateReqVO) {
-        offerService.updateOffer(OfferConvert.INSTANCE.convert(updateReqVO));
+        offerService.updateOffer(BeanUtils.toBean(updateReqVO, OfferDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class OfferController {
     @PreAuthorize("@ss.hasPermission('affiliate:offer:query')")
     public CommonResult<OfferRespVO> getOffer(@RequestParam("id") Long id) {
         OfferDO offer = offerService.getOffer(id);
-        return success(OfferConvert.INSTANCE.convert(offer));
+        return success(BeanUtils.toBean(offer, OfferRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class OfferController {
     @PreAuthorize("@ss.hasPermission('affiliate:offer:query')")
     public CommonResult<List<OfferRespVO>> getOfferList() {
         List<OfferDO> list = offerService.getOfferList();
-        return success(OfferConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, OfferRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class OfferController {
     @PreAuthorize("@ss.hasPermission('affiliate:offer:query')")
     public CommonResult<PageResult<OfferRespVO>> getOfferPage(@Valid OfferPageReqVO pageReqVO) {
         PageResult<OfferDO> pageResult = offerService.getOfferPage(pageReqVO);
-        return success(OfferConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, OfferRespVO.class));
     }
 }

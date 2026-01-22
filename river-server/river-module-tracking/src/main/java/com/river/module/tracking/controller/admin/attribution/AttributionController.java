@@ -4,7 +4,7 @@ import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.pojo.PageResult;
 import com.river.module.tracking.controller.admin.attribution.vo.AttributionPageReqVO;
 import com.river.module.tracking.controller.admin.attribution.vo.AttributionRespVO;
-import com.river.module.tracking.convert.AttributionConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.tracking.dal.dataobject.AttributionDO;
 import com.river.module.tracking.service.AttributionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +33,7 @@ public class AttributionController {
     @PreAuthorize("@ss.hasPermission('tracking:attribution:query')")
     public CommonResult<AttributionRespVO> getAttribution(@RequestParam("id") Long id) {
         AttributionDO attribution = attributionService.getAttribution(id);
-        return success(AttributionConvert.INSTANCE.convert(attribution));
+        return success(BeanUtils.toBean(attribution, AttributionRespVO.class));
     }
 
     @GetMapping("/page")
@@ -41,7 +41,7 @@ public class AttributionController {
     @PreAuthorize("@ss.hasPermission('tracking:attribution:query')")
     public CommonResult<PageResult<AttributionRespVO>> getAttributionPage(@Valid AttributionPageReqVO pageReqVO) {
         PageResult<AttributionDO> pageResult = attributionService.getAttributionPage(pageReqVO);
-        return success(AttributionConvert.INSTANCE.convert(pageResult));
+        return success(BeanUtils.toBean(pageResult, AttributionRespVO.class));
     }
 
 }

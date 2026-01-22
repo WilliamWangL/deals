@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.blog.controller.admin.author.vo.AuthorPageReqVO;
 import com.river.module.blog.controller.admin.author.vo.AuthorRespVO;
 import com.river.module.blog.controller.admin.author.vo.AuthorSaveReqVO;
-import com.river.module.blog.convert.AuthorConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.blog.dal.dataobject.AuthorDO;
 import com.river.module.blog.service.AuthorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class AuthorController {
     @Operation(summary = "创建作者")
     @PreAuthorize("@ss.hasPermission('blog:author:create')")
     public CommonResult<Long> createAuthor(@Valid @RequestBody AuthorSaveReqVO createReqVO) {
-        return success(authorService.createAuthor(AuthorConvert.INSTANCE.convert(createReqVO)));
+        return success(authorService.createAuthor(BeanUtils.toBean(createReqVO, AuthorDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新作者")
     @PreAuthorize("@ss.hasPermission('blog:author:update')")
     public CommonResult<Boolean> updateAuthor(@Valid @RequestBody AuthorSaveReqVO updateReqVO) {
-        authorService.updateAuthor(AuthorConvert.INSTANCE.convert(updateReqVO));
+        authorService.updateAuthor(BeanUtils.toBean(updateReqVO, AuthorDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class AuthorController {
     @PreAuthorize("@ss.hasPermission('blog:author:query')")
     public CommonResult<AuthorRespVO> getAuthor(@RequestParam("id") Long id) {
         AuthorDO author = authorService.getAuthor(id);
-        return success(AuthorConvert.INSTANCE.convert(author));
+        return success(BeanUtils.toBean(author, AuthorRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class AuthorController {
     @PreAuthorize("@ss.hasPermission('blog:author:query')")
     public CommonResult<List<AuthorRespVO>> getAuthorList() {
         List<AuthorDO> list = authorService.getAuthorList();
-        return success(AuthorConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, AuthorRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class AuthorController {
     @PreAuthorize("@ss.hasPermission('blog:author:query')")
     public CommonResult<PageResult<AuthorRespVO>> getAuthorPage(@Valid AuthorPageReqVO pageReqVO) {
         PageResult<AuthorDO> pageResult = authorService.getAuthorPage(pageReqVO);
-        return success(AuthorConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, AuthorRespVO.class));
     }
 }

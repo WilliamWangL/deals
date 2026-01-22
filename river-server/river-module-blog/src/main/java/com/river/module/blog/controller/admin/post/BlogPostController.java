@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.blog.controller.admin.post.vo.PostPageReqVO;
 import com.river.module.blog.controller.admin.post.vo.PostRespVO;
 import com.river.module.blog.controller.admin.post.vo.PostSaveReqVO;
-import com.river.module.blog.convert.PostConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.blog.dal.dataobject.BlogPostDO;
 import com.river.module.blog.service.BlogPostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class BlogPostController {
     @Operation(summary = "创建文章")
     @PreAuthorize("@ss.hasPermission('blog:post:create')")
     public CommonResult<Long> createPost(@Valid @RequestBody PostSaveReqVO createReqVO) {
-        return success(blogPostService.createPost(PostConvert.INSTANCE.convert(createReqVO)));
+        return success(blogPostService.createPost(BeanUtils.toBean(createReqVO, BlogPostDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新文章")
     @PreAuthorize("@ss.hasPermission('blog:post:update')")
     public CommonResult<Boolean> updatePost(@Valid @RequestBody PostSaveReqVO updateReqVO) {
-        blogPostService.updatePost(PostConvert.INSTANCE.convert(updateReqVO));
+        blogPostService.updatePost(BeanUtils.toBean(updateReqVO, BlogPostDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class BlogPostController {
     @PreAuthorize("@ss.hasPermission('blog:post:query')")
     public CommonResult<PostRespVO> getPost(@RequestParam("id") Long id) {
        BlogPostDO post = blogPostService.getPost(id);
-        return success(PostConvert.INSTANCE.convert(post));
+        return success(BeanUtils.toBean(post, PostRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class BlogPostController {
     @PreAuthorize("@ss.hasPermission('blog:post:query')")
     public CommonResult<List<PostRespVO>> getPostList() {
         List<BlogPostDO> list = blogPostService.getPostList();
-        return success(PostConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, PostRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class BlogPostController {
     @PreAuthorize("@ss.hasPermission('blog:post:query')")
     public CommonResult<PageResult<PostRespVO>> getPostPage(@Valid PostPageReqVO pageReqVO) {
         PageResult<BlogPostDO> pageResult = blogPostService.getPostPage(pageReqVO);
-        return success(PostConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, PostRespVO.class));
     }
 }

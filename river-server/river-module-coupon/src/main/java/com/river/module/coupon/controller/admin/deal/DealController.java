@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.coupon.controller.admin.deal.vo.DealPageReqVO;
 import com.river.module.coupon.controller.admin.deal.vo.DealRespVO;
 import com.river.module.coupon.controller.admin.deal.vo.DealSaveReqVO;
-import com.river.module.coupon.convert.DealConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.coupon.dal.dataobject.DealDO;
 import com.river.module.coupon.service.DealService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class DealController {
     @Operation(summary = "创建 Deal")
     @PreAuthorize("@ss.hasPermission('coupon:deal:create')")
     public CommonResult<Long> createDeal(@Valid @RequestBody DealSaveReqVO createReqVO) {
-        return success(dealService.createDeal(DealConvert.INSTANCE.convert(createReqVO)));
+        return success(dealService.createDeal(BeanUtils.toBean(createReqVO, DealDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新 Deal")
     @PreAuthorize("@ss.hasPermission('coupon:deal:update')")
     public CommonResult<Boolean> updateDeal(@Valid @RequestBody DealSaveReqVO updateReqVO) {
-        dealService.updateDeal(DealConvert.INSTANCE.convert(updateReqVO));
+        dealService.updateDeal(BeanUtils.toBean(updateReqVO, DealDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class DealController {
     @PreAuthorize("@ss.hasPermission('coupon:deal:query')")
     public CommonResult<DealRespVO> getDeal(@RequestParam("id") Long id) {
         DealDO deal = dealService.getDeal(id);
-        return success(DealConvert.INSTANCE.convert(deal));
+        return success(BeanUtils.toBean(deal, DealRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class DealController {
     @PreAuthorize("@ss.hasPermission('coupon:deal:query')")
     public CommonResult<List<DealRespVO>> getDealList() {
         List<DealDO> list = dealService.getDealList();
-        return success(DealConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, DealRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class DealController {
     @PreAuthorize("@ss.hasPermission('coupon:deal:query')")
     public CommonResult<PageResult<DealRespVO>> getDealPage(@Valid DealPageReqVO pageReqVO) {
         PageResult<DealDO> pageResult = dealService.getDealPage(pageReqVO);
-        return success(DealConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, DealRespVO.class));
     }
 }

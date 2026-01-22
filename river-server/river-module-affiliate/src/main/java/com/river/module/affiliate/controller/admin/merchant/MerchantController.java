@@ -5,8 +5,8 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.affiliate.controller.admin.merchant.vo.MerchantPageReqVO;
 import com.river.module.affiliate.controller.admin.merchant.vo.MerchantRespVO;
 import com.river.module.affiliate.controller.admin.merchant.vo.MerchantSaveReqVO;
-import com.river.module.affiliate.convert.MerchantConvert;
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.affiliate.service.MerchantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,14 +34,14 @@ public class MerchantController {
     @Operation(summary = "创建商家")
     @PreAuthorize("@ss.hasPermission('affiliate:merchant:create')")
     public CommonResult<Long> createMerchant(@Valid @RequestBody MerchantSaveReqVO createReqVO) {
-        return success(merchantService.createMerchant(MerchantConvert.INSTANCE.convert(createReqVO)));
+        return success(merchantService.createMerchant(BeanUtils.toBean(createReqVO, MerchantDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新商家")
     @PreAuthorize("@ss.hasPermission('affiliate:merchant:update')")
     public CommonResult<Boolean> updateMerchant(@Valid @RequestBody MerchantSaveReqVO updateReqVO) {
-        merchantService.updateMerchant(MerchantConvert.INSTANCE.convert(updateReqVO));
+        merchantService.updateMerchant(BeanUtils.toBean(updateReqVO, MerchantDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class MerchantController {
     @PreAuthorize("@ss.hasPermission('affiliate:merchant:query')")
     public CommonResult<MerchantRespVO> getMerchant(@RequestParam("id") Long id) {
         MerchantDO merchant = merchantService.getMerchant(id);
-        return success(MerchantConvert.INSTANCE.convert(merchant));
+        return success(BeanUtils.toBean(merchant, MerchantRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class MerchantController {
     @PreAuthorize("@ss.hasPermission('affiliate:merchant:query')")
     public CommonResult<List<MerchantRespVO>> getMerchantList() {
         List<MerchantDO> list = merchantService.getMerchantList();
-        return success(MerchantConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, MerchantRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class MerchantController {
     @PreAuthorize("@ss.hasPermission('affiliate:merchant:query')")
     public CommonResult<PageResult<MerchantRespVO>> getMerchantPage(@Valid MerchantPageReqVO pageReqVO) {
         PageResult<MerchantDO> pageResult = merchantService.getMerchantPage(pageReqVO);
-        return success(MerchantConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, MerchantRespVO.class));
     }
 }

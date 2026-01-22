@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.campaign.controller.admin.trafficsource.vo.TrafficSourcePageReqVO;
 import com.river.module.campaign.controller.admin.trafficsource.vo.TrafficSourceRespVO;
 import com.river.module.campaign.controller.admin.trafficsource.vo.TrafficSourceSaveReqVO;
-import com.river.module.campaign.convert.TrafficSourceConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.campaign.dal.dataobject.TrafficSourceDO;
 import com.river.module.campaign.service.TrafficSourceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class TrafficSourceController {
     @Operation(summary = "创建流量来源")
     @PreAuthorize("@ss.hasPermission('campaign:traffic-source:create')")
     public CommonResult<Long> createTrafficSource(@Valid @RequestBody TrafficSourceSaveReqVO createReqVO) {
-        return success(trafficSourceService.createTrafficSource(TrafficSourceConvert.INSTANCE.convert(createReqVO)));
+        return success(trafficSourceService.createTrafficSource(BeanUtils.toBean(createReqVO, TrafficSourceDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新流量来源")
     @PreAuthorize("@ss.hasPermission('campaign:traffic-source:update')")
     public CommonResult<Boolean> updateTrafficSource(@Valid @RequestBody TrafficSourceSaveReqVO updateReqVO) {
-        trafficSourceService.updateTrafficSource(TrafficSourceConvert.INSTANCE.convert(updateReqVO));
+        trafficSourceService.updateTrafficSource(BeanUtils.toBean(updateReqVO, TrafficSourceDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class TrafficSourceController {
     @PreAuthorize("@ss.hasPermission('campaign:traffic-source:query')")
     public CommonResult<TrafficSourceRespVO> getTrafficSource(@RequestParam("id") Long id) {
         TrafficSourceDO trafficSource = trafficSourceService.getTrafficSource(id);
-        return success(TrafficSourceConvert.INSTANCE.convert(trafficSource));
+        return success(BeanUtils.toBean(trafficSource, TrafficSourceRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class TrafficSourceController {
     @PreAuthorize("@ss.hasPermission('campaign:traffic-source:query')")
     public CommonResult<List<TrafficSourceRespVO>> getTrafficSourceList() {
         List<TrafficSourceDO> list = trafficSourceService.getTrafficSourceList();
-        return success(TrafficSourceConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, TrafficSourceRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class TrafficSourceController {
     @PreAuthorize("@ss.hasPermission('campaign:traffic-source:query')")
     public CommonResult<PageResult<TrafficSourceRespVO>> getTrafficSourcePage(@Valid TrafficSourcePageReqVO pageReqVO) {
         PageResult<TrafficSourceDO> pageResult = trafficSourceService.getTrafficSourcePage(pageReqVO);
-        return success(TrafficSourceConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, TrafficSourceRespVO.class));
     }
 }

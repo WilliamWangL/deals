@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.campaign.controller.admin.adgroup.vo.AdGroupPageReqVO;
 import com.river.module.campaign.controller.admin.adgroup.vo.AdGroupRespVO;
 import com.river.module.campaign.controller.admin.adgroup.vo.AdGroupSaveReqVO;
-import com.river.module.campaign.convert.AdGroupConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.campaign.dal.dataobject.AdGroupDO;
 import com.river.module.campaign.service.AdGroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class AdGroupController {
     @Operation(summary = "创建广告组")
     @PreAuthorize("@ss.hasPermission('campaign:ad-group:create')")
     public CommonResult<Long> createAdGroup(@Valid @RequestBody AdGroupSaveReqVO createReqVO) {
-        return success(adGroupService.createAdGroup(AdGroupConvert.INSTANCE.convert(createReqVO)));
+        return success(adGroupService.createAdGroup(BeanUtils.toBean(createReqVO, AdGroupDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新广告组")
     @PreAuthorize("@ss.hasPermission('campaign:ad-group:update')")
     public CommonResult<Boolean> updateAdGroup(@Valid @RequestBody AdGroupSaveReqVO updateReqVO) {
-        adGroupService.updateAdGroup(AdGroupConvert.INSTANCE.convert(updateReqVO));
+        adGroupService.updateAdGroup(BeanUtils.toBean(updateReqVO, AdGroupDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class AdGroupController {
     @PreAuthorize("@ss.hasPermission('campaign:ad-group:query')")
     public CommonResult<AdGroupRespVO> getAdGroup(@RequestParam("id") Long id) {
         AdGroupDO adGroup = adGroupService.getAdGroup(id);
-        return success(AdGroupConvert.INSTANCE.convert(adGroup));
+        return success(BeanUtils.toBean(adGroup, AdGroupRespVO.class));
     }
 
     @GetMapping("/list-by-campaign")
@@ -69,7 +69,7 @@ public class AdGroupController {
     @PreAuthorize("@ss.hasPermission('campaign:ad-group:query')")
     public CommonResult<List<AdGroupRespVO>> getAdGroupListByCampaign(@RequestParam("campaignId") Long campaignId) {
         List<AdGroupDO> list = adGroupService.getAdGroupListByCampaignId(campaignId);
-        return success(AdGroupConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, AdGroupRespVO.class));
     }
 
     @GetMapping("/page")
@@ -77,6 +77,6 @@ public class AdGroupController {
     @PreAuthorize("@ss.hasPermission('campaign:ad-group:query')")
     public CommonResult<PageResult<AdGroupRespVO>> getAdGroupPage(@Valid AdGroupPageReqVO pageReqVO) {
         PageResult<AdGroupDO> pageResult = adGroupService.getAdGroupPage(pageReqVO);
-        return success(AdGroupConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, AdGroupRespVO.class));
     }
 }

@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageParam;
 import com.river.framework.common.pojo.PageResult;
 import com.river.framework.excel.core.util.ExcelUtils;
 import com.river.module.stats.controller.admin.daily.vo.*;
-import com.river.module.stats.convert.StatsConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.stats.dal.dataobject.DailyStatsDO;
 import com.river.module.stats.service.DailyStatsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +36,7 @@ public class DailyStatsController {
     @PreAuthorize("@ss.hasPermission('stats:daily:query')")
     public CommonResult<PageResult<DailyStatsRespVO>> getDailyStatsPage(@Valid @RequestBody DailyStatsPageReqVO pageReqVO) {
         PageResult<DailyStatsDO> pageResult = dailyStatsService.getDailyStatsPage(pageReqVO);
-        return success(StatsConvert.INSTANCE.convertToDailyPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, DailyStatsRespVO.class));
     }
 
     @GetMapping("/summary")
@@ -60,7 +60,7 @@ public class DailyStatsController {
                                        HttpServletResponse response) throws IOException {
         reqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
         PageResult<DailyStatsDO> pageResult = dailyStatsService.getDailyStatsPage(reqVO);
-        List<DailyStatsRespVO> list = StatsConvert.INSTANCE.convertToDailyList(pageResult.getList());
+        List<DailyStatsRespVO> list = BeanUtils.toBean(pageResult.getList(), DailyStatsRespVO.class);
         ExcelUtils.write(response, "日报统计.xls", "数据", DailyStatsRespVO.class, list);
     }
 

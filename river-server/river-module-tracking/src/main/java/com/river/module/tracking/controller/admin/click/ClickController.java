@@ -4,7 +4,7 @@ import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.pojo.PageResult;
 import com.river.module.tracking.controller.admin.click.vo.ClickPageReqVO;
 import com.river.module.tracking.controller.admin.click.vo.ClickRespVO;
-import com.river.module.tracking.convert.ClickConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.tracking.dal.dataobject.ClickDO;
 import com.river.module.tracking.service.ClickService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +33,7 @@ public class ClickController {
     @PreAuthorize("@ss.hasPermission('tracking:click:query')")
     public CommonResult<ClickRespVO> getClick(@RequestParam("clickId") String clickId) {
         ClickDO click = clickService.getClick(clickId);
-        return success(ClickConvert.INSTANCE.convert(click));
+        return success(BeanUtils.toBean(click, ClickRespVO.class));
     }
 
     @GetMapping("/page")
@@ -41,7 +41,7 @@ public class ClickController {
     @PreAuthorize("@ss.hasPermission('tracking:click:query')")
     public CommonResult<PageResult<ClickRespVO>> getClickPage(@Valid ClickPageReqVO pageReqVO) {
         PageResult<ClickDO> pageResult = clickService.getClickPage(pageReqVO);
-        return success(ClickConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, ClickRespVO.class));
     }
 
 }

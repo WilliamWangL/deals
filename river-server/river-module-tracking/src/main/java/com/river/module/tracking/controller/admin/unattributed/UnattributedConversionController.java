@@ -4,7 +4,7 @@ import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.pojo.PageResult;
 import com.river.module.tracking.controller.admin.unattributed.vo.UnattributedConversionPageReqVO;
 import com.river.module.tracking.controller.admin.unattributed.vo.UnattributedConversionRespVO;
-import com.river.module.tracking.convert.UnattributedConversionConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.tracking.dal.dataobject.UnattributedConversionDO;
 import com.river.module.tracking.service.UnattributedConversionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +33,7 @@ public class UnattributedConversionController {
     @PreAuthorize("@ss.hasPermission('tracking:unattributed:query')")
     public CommonResult<UnattributedConversionRespVO> getUnattributedConversion(@RequestParam("id") Long id) {
         UnattributedConversionDO unattributedConversion = unattributedConversionService.getUnattributedConversion(id);
-        return success(UnattributedConversionConvert.INSTANCE.convert(unattributedConversion));
+        return success(BeanUtils.toBean(unattributedConversion, UnattributedConversionRespVO.class));
     }
 
     @GetMapping("/page")
@@ -41,7 +41,7 @@ public class UnattributedConversionController {
     @PreAuthorize("@ss.hasPermission('tracking:unattributed:query')")
     public CommonResult<PageResult<UnattributedConversionRespVO>> getUnattributedConversionPage(@Valid UnattributedConversionPageReqVO pageReqVO) {
         PageResult<UnattributedConversionDO> pageResult = unattributedConversionService.getUnattributedConversionPage(pageReqVO);
-        return success(UnattributedConversionConvert.INSTANCE.convert(pageResult));
+        return success(BeanUtils.toBean(pageResult, UnattributedConversionRespVO.class));
     }
 
 }

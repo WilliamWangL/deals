@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.campaign.controller.admin.landingpage.vo.LandingPagePageReqVO;
 import com.river.module.campaign.controller.admin.landingpage.vo.LandingPageRespVO;
 import com.river.module.campaign.controller.admin.landingpage.vo.LandingPageSaveReqVO;
-import com.river.module.campaign.convert.LandingPageConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.campaign.dal.dataobject.LandingPageDO;
 import com.river.module.campaign.service.LandingPageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class LandingPageController {
     @Operation(summary = "创建落地页")
     @PreAuthorize("@ss.hasPermission('campaign:landing-page:create')")
     public CommonResult<Long> createLandingPage(@Valid @RequestBody LandingPageSaveReqVO createReqVO) {
-        return success(landingPageService.createLandingPage(LandingPageConvert.INSTANCE.convert(createReqVO)));
+        return success(landingPageService.createLandingPage(BeanUtils.toBean(createReqVO, LandingPageDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新落地页")
     @PreAuthorize("@ss.hasPermission('campaign:landing-page:update')")
     public CommonResult<Boolean> updateLandingPage(@Valid @RequestBody LandingPageSaveReqVO updateReqVO) {
-        landingPageService.updateLandingPage(LandingPageConvert.INSTANCE.convert(updateReqVO));
+        landingPageService.updateLandingPage(BeanUtils.toBean(updateReqVO, LandingPageDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class LandingPageController {
     @PreAuthorize("@ss.hasPermission('campaign:landing-page:query')")
     public CommonResult<LandingPageRespVO> getLandingPage(@RequestParam("id") Long id) {
         LandingPageDO landingPage = landingPageService.getLandingPage(id);
-        return success(LandingPageConvert.INSTANCE.convert(landingPage));
+        return success(BeanUtils.toBean(landingPage, LandingPageRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class LandingPageController {
     @PreAuthorize("@ss.hasPermission('campaign:landing-page:query')")
     public CommonResult<List<LandingPageRespVO>> getLandingPageList() {
         List<LandingPageDO> list = landingPageService.getLandingPageList();
-        return success(LandingPageConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, LandingPageRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class LandingPageController {
     @PreAuthorize("@ss.hasPermission('campaign:landing-page:query')")
     public CommonResult<PageResult<LandingPageRespVO>> getLandingPagePage(@Valid LandingPagePageReqVO pageReqVO) {
         PageResult<LandingPageDO> pageResult = landingPageService.getLandingPagePage(pageReqVO);
-        return success(LandingPageConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, LandingPageRespVO.class));
     }
 }

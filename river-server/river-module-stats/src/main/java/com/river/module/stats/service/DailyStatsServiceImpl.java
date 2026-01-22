@@ -4,7 +4,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.stats.controller.admin.daily.vo.DailyStatsPageReqVO;
 import com.river.module.stats.controller.admin.daily.vo.DailyStatsSummaryRespVO;
 import com.river.module.stats.controller.admin.daily.vo.DailyStatsTrendRespVO;
-import com.river.module.stats.convert.StatsConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.stats.dal.dataobject.DailyStatsDO;
 import com.river.module.stats.dal.mysql.DailyStatsMapper;
 import jakarta.annotation.Resource;
@@ -79,7 +79,7 @@ public class DailyStatsServiceImpl implements DailyStatsService {
                 reqVO.getDimensionId(),
                 reqVO.getStartDate(),
                 reqVO.getEndDate());
-        return StatsConvert.INSTANCE.convertToDailyTrendList(stats);
+        return BeanUtils.toBean(stats, DailyStatsTrendRespVO.class);
     }
 
 }

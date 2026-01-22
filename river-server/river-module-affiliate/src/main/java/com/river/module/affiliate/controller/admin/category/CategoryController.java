@@ -4,8 +4,8 @@ import com.river.framework.common.pojo.CommonResult;
 import com.river.module.affiliate.controller.admin.category.vo.CategoryListReqVO;
 import com.river.module.affiliate.controller.admin.category.vo.CategoryRespVO;
 import com.river.module.affiliate.controller.admin.category.vo.CategorySaveReqVO;
-import com.river.module.affiliate.convert.CategoryConvert;
 import com.river.module.affiliate.dal.dataobject.CategoryDO;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.affiliate.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,14 +33,14 @@ public class CategoryController {
     @Operation(summary = "创建分类")
     @PreAuthorize("@ss.hasPermission('affiliate:category:create')")
     public CommonResult<Long> createCategory(@Valid @RequestBody CategorySaveReqVO createReqVO) {
-        return success(categoryService.createCategory(CategoryConvert.INSTANCE.convert(createReqVO)));
+        return success(categoryService.createCategory(BeanUtils.toBean(createReqVO, CategoryDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新分类")
     @PreAuthorize("@ss.hasPermission('affiliate:category:update')")
     public CommonResult<Boolean> updateCategory(@Valid @RequestBody CategorySaveReqVO updateReqVO) {
-        categoryService.updateCategory(CategoryConvert.INSTANCE.convert(updateReqVO));
+        categoryService.updateCategory(BeanUtils.toBean(updateReqVO, CategoryDO.class));
         return success(true);
     }
 
@@ -59,7 +59,7 @@ public class CategoryController {
     @PreAuthorize("@ss.hasPermission('affiliate:category:query')")
     public CommonResult<CategoryRespVO> getCategory(@RequestParam("id") Long id) {
         CategoryDO category = categoryService.getCategory(id);
-        return success(CategoryConvert.INSTANCE.convert(category));
+        return success(BeanUtils.toBean(category, CategoryRespVO.class));
     }
 
     @GetMapping("/list")
@@ -67,6 +67,6 @@ public class CategoryController {
     @PreAuthorize("@ss.hasPermission('affiliate:category:query')")
     public CommonResult<List<CategoryRespVO>> getCategoryList(@Valid CategoryListReqVO listReqVO) {
         List<CategoryDO> list = categoryService.getCategoryList(listReqVO);
-        return success(CategoryConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, CategoryRespVO.class));
     }
 }

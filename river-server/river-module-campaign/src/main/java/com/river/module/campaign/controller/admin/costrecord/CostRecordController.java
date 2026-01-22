@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.campaign.controller.admin.costrecord.vo.CostRecordPageReqVO;
 import com.river.module.campaign.controller.admin.costrecord.vo.CostRecordRespVO;
 import com.river.module.campaign.controller.admin.costrecord.vo.CostRecordSaveReqVO;
-import com.river.module.campaign.convert.CostRecordConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.campaign.dal.dataobject.CostRecordDO;
 import com.river.module.campaign.service.CostRecordService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,14 +32,14 @@ public class CostRecordController {
     @Operation(summary = "创建成本记录")
     @PreAuthorize("@ss.hasPermission('campaign:cost-record:create')")
     public CommonResult<Long> createCostRecord(@Valid @RequestBody CostRecordSaveReqVO createReqVO) {
-        return success(costRecordService.createCostRecord(CostRecordConvert.INSTANCE.convert(createReqVO)));
+        return success(costRecordService.createCostRecord(BeanUtils.toBean(createReqVO, CostRecordDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新成本记录")
     @PreAuthorize("@ss.hasPermission('campaign:cost-record:update')")
     public CommonResult<Boolean> updateCostRecord(@Valid @RequestBody CostRecordSaveReqVO updateReqVO) {
-        costRecordService.updateCostRecord(CostRecordConvert.INSTANCE.convert(updateReqVO));
+        costRecordService.updateCostRecord(BeanUtils.toBean(updateReqVO, CostRecordDO.class));
         return success(true);
     }
 
@@ -58,7 +58,7 @@ public class CostRecordController {
     @PreAuthorize("@ss.hasPermission('campaign:cost-record:query')")
     public CommonResult<CostRecordRespVO> getCostRecord(@RequestParam("id") Long id) {
         CostRecordDO costRecord = costRecordService.getCostRecord(id);
-        return success(CostRecordConvert.INSTANCE.convert(costRecord));
+        return success(BeanUtils.toBean(costRecord, CostRecordRespVO.class));
     }
 
     @GetMapping("/page")
@@ -66,6 +66,6 @@ public class CostRecordController {
     @PreAuthorize("@ss.hasPermission('campaign:cost-record:query')")
     public CommonResult<PageResult<CostRecordRespVO>> getCostRecordPage(@Valid CostRecordPageReqVO pageReqVO) {
         PageResult<CostRecordDO> pageResult = costRecordService.getCostRecordPage(pageReqVO);
-        return success(CostRecordConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, CostRecordRespVO.class));
     }
 }

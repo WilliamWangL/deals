@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.coupon.controller.admin.coupon.vo.CouponPageReqVO;
 import com.river.module.coupon.controller.admin.coupon.vo.CouponRespVO;
 import com.river.module.coupon.controller.admin.coupon.vo.CouponSaveReqVO;
-import com.river.module.coupon.convert.CouponConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.coupon.dal.dataobject.CouponDO;
 import com.river.module.coupon.service.CouponService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class CouponController {
     @Operation(summary = "创建优惠券")
     @PreAuthorize("@ss.hasPermission('coupon:coupon:create')")
     public CommonResult<Long> createCoupon(@Valid @RequestBody CouponSaveReqVO createReqVO) {
-        return success(couponService.createCoupon(CouponConvert.INSTANCE.convert(createReqVO)));
+        return success(couponService.createCoupon(BeanUtils.toBean(createReqVO, CouponDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新优惠券")
     @PreAuthorize("@ss.hasPermission('coupon:coupon:update')")
     public CommonResult<Boolean> updateCoupon(@Valid @RequestBody CouponSaveReqVO updateReqVO) {
-        couponService.updateCoupon(CouponConvert.INSTANCE.convert(updateReqVO));
+        couponService.updateCoupon(BeanUtils.toBean(updateReqVO, CouponDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class CouponController {
     @PreAuthorize("@ss.hasPermission('coupon:coupon:query')")
     public CommonResult<CouponRespVO> getCoupon(@RequestParam("id") Long id) {
         CouponDO coupon = couponService.getCoupon(id);
-        return success(CouponConvert.INSTANCE.convert(coupon));
+        return success(BeanUtils.toBean(coupon, CouponRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class CouponController {
     @PreAuthorize("@ss.hasPermission('coupon:coupon:query')")
     public CommonResult<List<CouponRespVO>> getCouponList() {
         List<CouponDO> list = couponService.getCouponList();
-        return success(CouponConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, CouponRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class CouponController {
     @PreAuthorize("@ss.hasPermission('coupon:coupon:query')")
     public CommonResult<PageResult<CouponRespVO>> getCouponPage(@Valid CouponPageReqVO pageReqVO) {
         PageResult<CouponDO> pageResult = couponService.getCouponPage(pageReqVO);
-        return success(CouponConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, CouponRespVO.class));
     }
 }

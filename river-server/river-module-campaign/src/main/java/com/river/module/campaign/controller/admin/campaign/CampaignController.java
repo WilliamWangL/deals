@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.campaign.controller.admin.campaign.vo.CampaignPageReqVO;
 import com.river.module.campaign.controller.admin.campaign.vo.CampaignRespVO;
 import com.river.module.campaign.controller.admin.campaign.vo.CampaignSaveReqVO;
-import com.river.module.campaign.convert.CampaignConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.campaign.dal.dataobject.CampaignDO;
 import com.river.module.campaign.service.CampaignService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class CampaignController {
     @Operation(summary = "创建 Campaign")
     @PreAuthorize("@ss.hasPermission('campaign:campaign:create')")
     public CommonResult<Long> createCampaign(@Valid @RequestBody CampaignSaveReqVO createReqVO) {
-        return success(campaignService.createCampaign(CampaignConvert.INSTANCE.convert(createReqVO)));
+        return success(campaignService.createCampaign(BeanUtils.toBean(createReqVO, CampaignDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新 Campaign")
     @PreAuthorize("@ss.hasPermission('campaign:campaign:update')")
     public CommonResult<Boolean> updateCampaign(@Valid @RequestBody CampaignSaveReqVO updateReqVO) {
-        campaignService.updateCampaign(CampaignConvert.INSTANCE.convert(updateReqVO));
+        campaignService.updateCampaign(BeanUtils.toBean(updateReqVO, CampaignDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class CampaignController {
     @PreAuthorize("@ss.hasPermission('campaign:campaign:query')")
     public CommonResult<CampaignRespVO> getCampaign(@RequestParam("id") Long id) {
         CampaignDO campaign = campaignService.getCampaign(id);
-        return success(CampaignConvert.INSTANCE.convert(campaign));
+        return success(BeanUtils.toBean(campaign, CampaignRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class CampaignController {
     @PreAuthorize("@ss.hasPermission('campaign:campaign:query')")
     public CommonResult<List<CampaignRespVO>> getCampaignList() {
         List<CampaignDO> list = campaignService.getCampaignList();
-        return success(CampaignConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, CampaignRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class CampaignController {
     @PreAuthorize("@ss.hasPermission('campaign:campaign:query')")
     public CommonResult<PageResult<CampaignRespVO>> getCampaignPage(@Valid CampaignPageReqVO pageReqVO) {
         PageResult<CampaignDO> pageResult = campaignService.getCampaignPage(pageReqVO);
-        return success(CampaignConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, CampaignRespVO.class));
     }
 }

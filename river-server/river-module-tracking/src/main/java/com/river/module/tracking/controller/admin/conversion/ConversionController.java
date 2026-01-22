@@ -4,7 +4,7 @@ import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.pojo.PageResult;
 import com.river.module.tracking.controller.admin.conversion.vo.ConversionPageReqVO;
 import com.river.module.tracking.controller.admin.conversion.vo.ConversionRespVO;
-import com.river.module.tracking.convert.ConversionConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.tracking.dal.dataobject.ConversionDO;
 import com.river.module.tracking.service.ConversionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +33,7 @@ public class ConversionController {
     @PreAuthorize("@ss.hasPermission('tracking:conversion:query')")
     public CommonResult<ConversionRespVO> getConversion(@RequestParam("id") Long id) {
         ConversionDO conversion = conversionService.getConversion(id);
-        return success(ConversionConvert.INSTANCE.convert(conversion));
+        return success(BeanUtils.toBean(conversion, ConversionRespVO.class));
     }
 
     @GetMapping("/page")
@@ -41,7 +41,7 @@ public class ConversionController {
     @PreAuthorize("@ss.hasPermission('tracking:conversion:query')")
     public CommonResult<PageResult<ConversionRespVO>> getConversionPage(@Valid ConversionPageReqVO pageReqVO) {
         PageResult<ConversionDO> pageResult = conversionService.getConversionPage(pageReqVO);
-        return success(ConversionConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, ConversionRespVO.class));
     }
 
     @PutMapping("/update-status")

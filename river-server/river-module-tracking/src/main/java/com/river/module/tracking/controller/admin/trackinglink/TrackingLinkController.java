@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.tracking.controller.admin.trackinglink.vo.TrackingLinkPageReqVO;
 import com.river.module.tracking.controller.admin.trackinglink.vo.TrackingLinkRespVO;
 import com.river.module.tracking.controller.admin.trackinglink.vo.TrackingLinkSaveReqVO;
-import com.river.module.tracking.convert.TrackingLinkConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.tracking.dal.dataobject.TrackingLinkDO;
 import com.river.module.tracking.service.TrackingLinkService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class TrackingLinkController {
     @Operation(summary = "创建追踪链接")
     @PreAuthorize("@ss.hasPermission('tracking:link:create')")
     public CommonResult<Long> createTrackingLink(@Valid @RequestBody TrackingLinkSaveReqVO createReqVO) {
-        return success(trackingLinkService.createTrackingLink(TrackingLinkConvert.INSTANCE.convert(createReqVO)));
+        return success(trackingLinkService.createTrackingLink(BeanUtils.toBean(createReqVO, TrackingLinkDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新追踪链接")
     @PreAuthorize("@ss.hasPermission('tracking:link:update')")
     public CommonResult<Boolean> updateTrackingLink(@Valid @RequestBody TrackingLinkSaveReqVO updateReqVO) {
-        trackingLinkService.updateTrackingLink(TrackingLinkConvert.INSTANCE.convert(updateReqVO));
+        trackingLinkService.updateTrackingLink(BeanUtils.toBean(updateReqVO, TrackingLinkDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class TrackingLinkController {
     @PreAuthorize("@ss.hasPermission('tracking:link:query')")
     public CommonResult<TrackingLinkRespVO> getTrackingLink(@RequestParam("id") Long id) {
         TrackingLinkDO trackingLink = trackingLinkService.getTrackingLink(id);
-        return success(TrackingLinkConvert.INSTANCE.convert(trackingLink));
+        return success(BeanUtils.toBean(trackingLink, TrackingLinkRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class TrackingLinkController {
     @PreAuthorize("@ss.hasPermission('tracking:link:query')")
     public CommonResult<List<TrackingLinkRespVO>> getTrackingLinkList() {
         List<TrackingLinkDO> list = trackingLinkService.getTrackingLinkList();
-        return success(TrackingLinkConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, TrackingLinkRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,7 +76,7 @@ public class TrackingLinkController {
     @PreAuthorize("@ss.hasPermission('tracking:link:query')")
     public CommonResult<PageResult<TrackingLinkRespVO>> getTrackingLinkPage(@Valid TrackingLinkPageReqVO pageReqVO) {
         PageResult<TrackingLinkDO> pageResult = trackingLinkService.getTrackingLinkPage(pageReqVO);
-        return success(TrackingLinkConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, TrackingLinkRespVO.class));
     }
 
 }

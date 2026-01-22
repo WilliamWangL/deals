@@ -5,7 +5,7 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.blog.controller.admin.tag.vo.TagPageReqVO;
 import com.river.module.blog.controller.admin.tag.vo.TagRespVO;
 import com.river.module.blog.controller.admin.tag.vo.TagSaveReqVO;
-import com.river.module.blog.convert.TagConvert;
+import com.river.framework.common.util.object.BeanUtils;
 import com.river.module.blog.dal.dataobject.TagDO;
 import com.river.module.blog.service.TagService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +34,14 @@ public class TagController {
     @Operation(summary = "创建标签")
     @PreAuthorize("@ss.hasPermission('blog:tag:create')")
     public CommonResult<Long> createTag(@Valid @RequestBody TagSaveReqVO createReqVO) {
-        return success(tagService.createTag(TagConvert.INSTANCE.convert(createReqVO)));
+        return success(tagService.createTag(BeanUtils.toBean(createReqVO, TagDO.class)));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新标签")
     @PreAuthorize("@ss.hasPermission('blog:tag:update')")
     public CommonResult<Boolean> updateTag(@Valid @RequestBody TagSaveReqVO updateReqVO) {
-        tagService.updateTag(TagConvert.INSTANCE.convert(updateReqVO));
+        tagService.updateTag(BeanUtils.toBean(updateReqVO, TagDO.class));
         return success(true);
     }
 
@@ -60,7 +60,7 @@ public class TagController {
     @PreAuthorize("@ss.hasPermission('blog:tag:query')")
     public CommonResult<TagRespVO> getTag(@RequestParam("id") Long id) {
         TagDO tag = tagService.getTag(id);
-        return success(TagConvert.INSTANCE.convert(tag));
+        return success(BeanUtils.toBean(tag, TagRespVO.class));
     }
 
     @GetMapping("/list")
@@ -68,7 +68,7 @@ public class TagController {
     @PreAuthorize("@ss.hasPermission('blog:tag:query')")
     public CommonResult<List<TagRespVO>> getTagList() {
         List<TagDO> list = tagService.getTagList();
-        return success(TagConvert.INSTANCE.convertList(list));
+        return success(BeanUtils.toBean(list, TagRespVO.class));
     }
 
     @GetMapping("/page")
@@ -76,6 +76,6 @@ public class TagController {
     @PreAuthorize("@ss.hasPermission('blog:tag:query')")
     public CommonResult<PageResult<TagRespVO>> getTagPage(@Valid TagPageReqVO pageReqVO) {
         PageResult<TagDO> pageResult = tagService.getTagPage(pageReqVO);
-        return success(TagConvert.INSTANCE.convertPage(pageResult));
+        return success(BeanUtils.toBean(pageResult, TagRespVO.class));
     }
 }

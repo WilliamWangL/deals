@@ -22,91 +22,128 @@ mvn test -Dtest=TestClassName              # 单个测试类
 mvn test -Dtest=TestClassName#methodName   # 单个测试方法
 ```
 
-## 项目架构
-
-### 模块结构
+## 模块架构
 
 ```
 river-server/
-├── river-framework/           # 技术组件（基础框架）
-│   ├── river-common/          # 公共工具类、枚举、常量
-│   ├── river-spring-boot-starter-mybatis/     # MyBatis Plus 扩展
-│   ├── river-spring-boot-starter-redis/       # Redis/Redisson 封装
-│   ├── river-spring-boot-starter-web/         # Web MVC 全局异常、日志
-│   ├── river-spring-boot-starter-security/    # 安全认证
-│   ├── river-spring-boot-starter-biz-tenant/  # 多租户
-│   ├── river-spring-boot-starter-biz-data-permission/  # 数据权限
-│   ├── river-spring-boot-starter-biz-ip/      # IP 地理位置
-│   ├── river-spring-boot-starter-excel/       # Excel 导入导出
-│   ├── river-spring-boot-starter-job/         # 定时任务
-│   ├── river-spring-boot-starter-mq/          # 消息队列
-│   ├── river-spring-boot-starter-protection/  # 保护限流
-│   ├── river-spring-boot-starter-test/        # 测试工具
-│   └── river-spring-boot-starter-websocket/   # WebSocket
+├── river-framework/           # 技术组件（基础框架，禁止修改）
 ├── river-server/              # 主启动模块
 ├── river-dependencies/        # 依赖管理 BOM
-├── river-module-system/       # 系统模块（用户、角色、权限、字典）
-├── river-module-infra/        # 基础设施模块（文件、任务、配置）
-├── river-module-affiliate/    # 联盟营销模块（商家、Offer、分类）
-├── river-module-tracking/     # 跟踪追踪模块（点击、转化）
+├── river-module-system/       # 系统模块（禁止修改）
+├── river-module-infra/        # 基础设施模块（禁止修改）
+├── river-module-affiliate/    # 联盟营销模块
+├── river-module-tracking/     # 跟踪追踪模块
 ├── river-module-coupon/       # 优惠券模块
 ├── river-module-blog/         # 博客模块
-├── river-module-campaign/     # 营销活动模块（流量源、成本记录）
+├── river-module-campaign/     # 营销活动模块
 └── river-module-stats/        # 统计模块
 ```
 
 ### 业务模块结构
 
-每个业务模块（如 river-module-affiliate）采用单模块结构：
-
 ```
 river-module-{name}/
-└── src/main/java/
-    └── com/river/module/{name}/
-        ├── api/                # 跨模块 API 接口（供其他模块调用）
-        ├── controller/         # REST Controller（HTTP API）
-        │   ├── admin/          # 管理后台接口（/admin-api/）
-        │   └── app/            # 公开接口（/app-api/，需 @PermitAll）
-        ├── convert/            # MapStruct 转换器
-        ├── dal/                # 数据访问层
-        │   ├── dataobject/     # DO (数据库实体)
-        │   └── mysql/          # MyBatis Mapper
-        ├── enums/              # 枚举定义
-        ├── framework/          # 模块级配置
-        └── service/            # 业务逻辑层
-            ├── {Service}Service.java        # 服务接口
-            ├── {Service}ServiceImpl.java    # 服务实现
-            └── ...
+└── src/main/java/com/river/module/{name}/
+    ├── api/                # 跨模块 API 接口
+    ├── controller/         # REST Controller
+    │   ├── admin/          # 管理后台接口（/admin-api/）
+    │   └── app/            # 公开接口（/app-api/）
+    ├── dal/                # 数据访问层
+    │   ├── dataobject/     # DO (数据库实体)
+    │   └── mysql/          # MyBatis Mapper
+    ├── enums/              # 枚举定义
+    ├── framework/          # 模块级配置
+    └── service/            # 业务逻辑层
 ```
 
 ## 代码规范
 
-### 包命名约定
+### 命名约定
 
-| 包 | 说明 |
-|----|------|
-| `controller` | HTTP API 层，返回 `CommonResult<T>` |
-| `convert` | MapStruct 转换器，DO/VO/DTO 互转 |
-| `dal.dataobject` | 数据库实体（DO），对应数据库表 |
-| `dal.mysql` | MyBatis Mapper 接口 |
-| `service` | 业务逻辑层 |
+| 类型 | 命名规则 | 示例 |
+|------|----------|------|
+| DO | `{Entity}DO` | `MerchantDO`, `CouponDO` |
+| VO | `{Entity}{Action}RespVO` / `{Entity}{Action}ReqVO` | `MerchantRespVO`, `MerchantCreateReqVO` |
+| Service 接口 | `{Entity}Service` | `MerchantService` |
+| Service 实现 | `{Entity}ServiceImpl` | `MerchantServiceImpl` |
+| Mapper | `{Entity}Mapper` | `MerchantMapper` |
+| Controller | `{Entity}Controller` | `MerchantController` |
 
-### API 路径约定
+### 对象转换
 
-| 路径前缀 | 说明 |
-|----------|------|
-| `/admin-api/` | 管理后台接口（需要认证） |
-| `/app-api/` | 公开接口（站点调用，部分需要认证） |
+使用 `BeanUtils` 进行对象转换，禁止使用 MapStruct Convert：
 
-### 数据库表约定
+| 场景 | 方法 |
+|------|------|
+| 单对象转换 | `BeanUtils.toBean(source, TargetClass.class)` |
+| 列表转换 | `BeanUtils.toBean(list, TargetClass.class)` |
+| 分页转换 | `BeanUtils.toBean(pageResult, TargetClass.class)` |
+| 带自定义处理 | `BeanUtils.toBean(source, TargetClass.class, vo -> { ... })` |
 
-- 新业务模块表前缀：`river_`
-- 框架表前缀：`system_`、`infra_`
-- 多租户：业务表必须包含 `tenant_id` 字段
-- 软删除：使用 `deleted` 字段（0=未删除，1=已删除），禁止硬删除
-- 字典：枚举类型优先使用系统字典 API
+### API 设计规范
 
-### 标准表结构
+| 操作 | HTTP 方法 | 路径模式 | 方法命名 | 权限命名 |
+|------|-----------|----------|----------|----------|
+| 创建 | POST | `/create` | `create{Entity}` | `{module}:{entity}:create` |
+| 更新 | PUT | `/update` | `update{Entity}` | `{module}:{entity}:update` |
+| 删除 | DELETE | `/delete` | `delete{Entity}` | `{module}:{entity}:delete` |
+| 查询单个 | GET | `/get` | `get{Entity}` | `{module}:{entity}:query` |
+| 查询列表 | GET | `/list` | `get{Entity}List` | `{module}:{entity}:query` |
+| 分页查询 | GET | `/page` | `get{Entity}Page` | `{module}:{entity}:query` |
+| 导出 | GET | `/export-excel` | `export{Entity}Excel` | `{module}:{entity}:export` |
+
+**路径前缀**：
+- `/admin-api/{module}/{entity}/` — 管理后台接口（需认证）
+- `/app-api/{module}/{entity}/` — 公开接口（部分需 `@PermitAll`）
+
+### 错误处理规范
+
+**错误码分段**（模块内自行分配，避免冲突）：
+
+| 模块 | 错误码范围 |
+|------|------------|
+| system | 1-001-000-000 ~ 1-001-999-999 |
+| infra | 1-002-000-000 ~ 1-002-999-999 |
+| affiliate | 1-010-000-000 ~ 1-010-999-999 |
+| tracking | 1-011-000-000 ~ 1-011-999-999 |
+| coupon | 1-012-000-000 ~ 1-012-999-999 |
+| blog | 1-013-000-000 ~ 1-013-999-999 |
+| campaign | 1-014-000-000 ~ 1-014-999-999 |
+| stats | 1-015-000-000 ~ 1-015-999-999 |
+
+**异常抛出**：
+
+```java
+// 业务异常使用 ServiceException
+throw exception(MERCHANT_NOT_EXISTS);
+
+// ErrorCode 定义在模块的 enums/ErrorCodeConstants.java
+ErrorCode MERCHANT_NOT_EXISTS = new ErrorCode(1_010_001_000, "商家不存在");
+```
+
+## 数据库规范
+
+### 表结构约定
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| id | int8 | 是 | 主键（雪花算法） |
+| creator | varchar(64) | 否 | 创建人 |
+| create_time | timestamp | 是 | 创建时间 |
+| updater | varchar(64) | 否 | 更新人 |
+| update_time | timestamp | 是 | 更新时间 |
+| deleted | int2 | 是 | 软删除标记（0=未删除，1=已删除） |
+| tenant_id | int8 | 是 | 租户 ID（业务表必填） |
+
+**表前缀**：
+- 新业务模块：`river_`
+- 框架表：`system_`、`infra_`
+
+**索引命名**：
+- 唯一索引：`uk_{table}_{column}`
+- 普通索引：`idx_{table}_{column}`
+
+### 标准表结构示例
 
 ```sql
 CREATE TABLE river_example (
@@ -131,23 +168,18 @@ CREATE TABLE river_example (
 | `application-local.yaml` | 本地开发环境（默认激活） |
 | `application-dev.yaml` | 开发服务器环境 |
 
-## 数据库
-
-- **类型**: PostgreSQL 17
-- **连接**: `localhost:5432/river`
-- **账号**: `postgres / 123456`（本地）
-- **MCP 查询**: 使用 `mcp__postgres__query` 工具执行 SQL
-
 ## 测试规范
 
 - 单元测试使用 Spring Boot Test
 - 测试配置文件：`application-unit-test.yaml`
 - Mapper 测试需 `@SqlTest` 注解
+- TDD 流程：先写测试 → 看失败 → 再实现
 
 ## 重要注意事项
 
-1. **遵循现有模式** - 创建新代码前先查看类似模块（如 river-module-affiliate）
-2. **TDD 流程** - 先写测试 → 看失败 → 再实现
-3. **未明确要求不得 commit** - 不要主动创建 Git 提交
-4. **禁止硬删除** - 始终使用软删除
-5. **多租户** - 业务表必须包含 `tenant_id` 字段
+1. **遵循现有模式** — 创建新代码前先查看类似模块（如 river-module-affiliate）
+2. **TDD 流程** — 先写测试 → 看失败 → 再实现
+3. **未明确要求不得 commit** — 不要主动创建 Git 提交
+4. **软删除** — 禁止硬删除，使用 `deleted` 字段
+5. **多租户** — 业务表必须包含 `tenant_id` 字段
+6. **禁止修改基础平台** — river-framework、river-module-system、river-module-infra 未经用户明确要求不得修改
