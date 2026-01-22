@@ -1,10 +1,9 @@
 package com.river.module.tracking.dal.dataobject;
 
-import com.river.framework.mybatis.core.dataobject.BaseDO;
-import com.river.module.tracking.enums.TrackingLinkStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import lombok.*;
 
 @TableName("river_tracking_link")
@@ -15,28 +14,41 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrackingLinkDO extends BaseDO {
+public class TrackingLinkDO extends TenantBaseDO {
 
     @TableId
     private Long id;
 
-    private Long offerId;
+    /** 目标类型: 1=商家, 2=Offer, 3=Deal, 4=优惠券 */
+    private Integer targetType;
 
+    /** 目标实体 ID */
+    private Long targetId;
+
+    /** 短链接标识 */
     private String slug;
 
+    /** 追加参数后的完整追踪链接 */
+    private String trackingUrl;
+
+    /** 预设 Sub1 */
     private String presetSub1;
 
+    /** 预设 Sub2 */
     private String presetSub2;
 
+    /** 预设 Sub3 */
     private String presetSub3;
 
+    /** 预设 Sub4 */
     private String presetSub4;
 
+    /** 预设 Sub5 */
     private String presetSub5;
 
+    /** UTM 参数 */
     private String utmParams;
 
-    /** {@link TrackingLinkStatusEnum} */
+    /** 状态: 0=禁用, 1=启用 */
     private Integer status;
-
 }
