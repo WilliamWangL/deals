@@ -60,7 +60,9 @@
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
       <el-table-column label="点击ID" prop="clickId" width="260">
         <template #default="scope">
-          <span class="font-mono text-blue-600">{{ scope.row.clickId }}</span>
+          <el-link :underline="false" type="primary" @click="handleView(scope.row)" class="font-mono">
+            {{ scope.row.clickId }}
+          </el-link>
         </template>
       </el-table-column>
       <el-table-column label="Offer" prop="offerId" width="150">
@@ -117,9 +119,11 @@
       <el-descriptions-item label="点击ID" :span="2">
         <span class="font-mono">{{ currentDetail.clickId }}</span>
       </el-descriptions-item>
-      <el-descriptions-item label="Offer ID">{{ currentDetail.offerId }}</el-descriptions-item>
-      <el-descriptions-item label="Campaign ID">
-        {{ currentDetail.campaignId || '-' }}
+      <el-descriptions-item label="Offer">
+        {{ getOfferName(currentDetail.offerId) }}
+      </el-descriptions-item>
+      <el-descriptions-item label="Campaign">
+        {{ currentDetail.campaignId ? getCampaignName(currentDetail.campaignId) : '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="Landing Page ID">
         {{ currentDetail.landingPageId || '-' }}
@@ -155,6 +159,8 @@
 <script setup lang="ts">
 import { dateFormatter } from '@/utils/formatTime'
 import { ClickApi } from '@/api/river/tracking'
+import { OfferApi } from '@/api/river/affiliate'
+import { CampaignApi } from '@/api/river/campaign'
 
 defineOptions({ name: 'TrackingClick' })
 
@@ -164,6 +170,7 @@ const loading = ref(true) // 列表的加载中
 const total = ref(0) // 列表的总页数
 const list = ref([]) // 列表的数据
 const offerList = ref([]) // Offer列表
+const campaignList = ref([]) // Campaign列表
 const detailVisible = ref(false) // 详情弹窗
 const currentDetail = ref<any>(null) // 当前详情数据
 
@@ -180,6 +187,12 @@ const queryFormRef = ref() // 搜索的表单
 const getOfferName = (id: number) => {
   const offer = offerList.value.find((o) => o.id === id)
   return offer?.name || `ID: ${id}`
+}
+
+/** 获取Campaign名称 */
+const getCampaignName = (id: number) => {
+  const campaign = campaignList.value.find((c) => c.id === id)
+  return campaign?.name || `ID: ${id}`
 }
 
 /** 格式化日期 */
@@ -206,10 +219,15 @@ const getList = async () => {
   }
 }
 
-/** 获取Offer列表 - 需要从affiliate模块获取 */
+/** 获取Offer列表 */
 const getOfferList = async () => {
-  // TODO: 调用 Offer API
-  offerList.value = []
+  offerList.value = await OfferApi.getOfferList()
+}
+
+/** 获取Campaign列表 */
+const getCampaignList = async () => {
+  const data = await CampaignApi.getCampaignPage({ pageNo: 1, pageSize: 200 })
+  campaignList.value = data.list || []
 }
 
 /** 搜索按钮操作 */
@@ -234,6 +252,7 @@ const handleView = (row: any) => {
 onMounted(() => {
   getList()
   getOfferList()
+  getCampaignList()
 })
 </script>
 

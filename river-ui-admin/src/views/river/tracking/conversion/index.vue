@@ -96,9 +96,9 @@
       <el-table-column label="外部转化ID" prop="externalConversionId" width="180" show-overflow-tooltip />
       <el-table-column label="点击ID" prop="clickId" width="200" show-overflow-tooltip>
         <template #default="scope">
-          <span v-if="scope.row.clickId" class="font-mono text-blue-600">
+          <el-link v-if="scope.row.clickId" :underline="false" type="primary" @click="handleClickDetail(scope.row.clickId)" class="font-mono">
             {{ scope.row.clickId }}
-          </span>
+          </el-link>
           <span v-else class="text-gray-400">-</span>
         </template>
       </el-table-column>
@@ -165,19 +165,23 @@
 
   <!-- 详情弹窗 -->
   <el-dialog v-model="detailVisible" title="转化详情" width="800px">
-    <el-descriptions :column="2" border v-if="currentDetail">
-      <el-descriptions-item label="ID">{{ currentDetail.id }}</el-descriptions-item>
-      <el-descriptions-item label="网络代码">{{ currentDetail.networkCode }}</el-descriptions-item>
-      <el-descriptions-item label="外部转化ID" :span="2">{{ currentDetail.externalConversionId }}</el-descriptions-item>
+    <el-descriptions :column="3" border v-if="currentDetail">
+      <el-descriptions-item label="转化ID">{{ currentDetail.id }}</el-descriptions-item>
       <el-descriptions-item label="点击ID" :span="2">
-        <span v-if="currentDetail.clickId" class="font-mono">{{ currentDetail.clickId }}</span>
+        <el-link v-if="currentDetail.clickId" :underline="false" type="primary" @click="handleClickDetail(currentDetail.clickId!)" class="font-mono">
+          {{ currentDetail.clickId }}
+        </el-link>
         <span v-else>-</span>
       </el-descriptions-item>
+      <el-descriptions-item label="外部转化ID">{{ currentDetail.externalConversionId || '-' }}</el-descriptions-item>
       <el-descriptions-item label="转化类型">
         <dict-tag :type="DICT_TYPE.CONVERSION_TYPE" :value="currentDetail.conversionType" />
       </el-descriptions-item>
       <el-descriptions-item label="状态">
-        <dict-tag :type="DICT_TYPE.CONVERSION_STATUS" :value="currentDetail.status" />
+        <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="currentDetail.status" />
+      </el-descriptions-item>
+      <el-descriptions-item label="订单金额">
+        {{ currentDetail.currency }} {{ currentDetail.orderAmount?.toFixed(2) || '0.00' }}
       </el-descriptions-item>
       <el-descriptions-item label="佣金">
         {{ currentDetail.currency }} {{ currentDetail.commission?.toFixed(4) || '0.0000' }}
@@ -185,7 +189,7 @@
       <el-descriptions-item label="转化时间">
         {{ formatDate(currentDetail.conversionTime) }}
       </el-descriptions-item>
-      <el-descriptions-item label="网络负载" :span="2">
+      <el-descriptions-item label="网络负载" :span="3">
         <pre class="bg-gray-50 p-2 rounded text-xs overflow-auto max-h-40">{{ currentDetail.networkPayload || '-' }}</pre>
       </el-descriptions-item>
     </el-descriptions>
@@ -193,11 +197,29 @@
       <el-button @click="detailVisible = false">关 闭</el-button>
     </template>
   </el-dialog>
+
+  <!-- 点击详情弹窗 -->
+  <el-dialog v-model="clickDetailVisible" title="点击详情" width="800px">
+    <el-descriptions :column="2" border v-if="currentClickDetail.id">
+      <el-descriptions-item label="点击ID" :span="2">
+        <span class="font-mono text-blue-600">{{ currentClickDetail.clickId }}</span>
+      </el-descriptions-item>
+      <el-descriptions-item label="Offer ID">{{ currentClickDetail.offerId || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="Sub ID">{{ currentClickDetail.subId || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间" :span="2">
+        {{ currentClickDetail.createTime ? dateFormatter(currentClickDetail.createTime) : '-' }}
+      </el-descriptions-item>
+    </el-descriptions>
+    <template #footer>
+      <el-button @click="clickDetailVisible = false">关 闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { dateFormatter } from '@/utils/formatTime'
 import { ConversionApi, ConversionVO } from '@/api/river/tracking'
+import { ClickApi } from '@/api/river/tracking'
 import ConversionForm from './ConversionForm.vue'
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
@@ -263,6 +285,19 @@ const openForm = (type: string, id?: number) => {
 const handleView = async (row: ConversionVO) => {
   currentDetail.value = row
   detailVisible.value = true
+}
+
+/** 点击详情弹窗 */
+const clickDetailVisible = ref(false)
+const currentClickDetail = ref<any>({})
+const handleClickDetail = async (clickId: string) => {
+  try {
+    const data = await ClickApi.getClick(clickId)
+    currentClickDetail.value = data
+    clickDetailVisible.value = true
+  } catch {
+    message.error('获取点击详情失败')
+  }
 }
 
 /** 导出按钮操作 */

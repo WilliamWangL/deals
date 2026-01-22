@@ -89,7 +89,13 @@
   <!-- 列表 -->
   <ContentWrap>
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
-      <el-table-column label="ID" prop="id" width="80" />
+      <el-table-column label="ID" prop="id" width="80">
+        <template #default="scope">
+          <el-link :underline="false" type="primary" @click="handleDetail(scope.row)">
+            {{ scope.row.id }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="封面" prop="coverImage" width="100">
         <template #default="scope">
           <el-image
@@ -172,6 +178,42 @@
 
   <!-- 表单弹窗：添加/修改 -->
   <PostForm ref="formRef" @success="getList" :author-list="authorList" />
+
+  <!-- 详情弹窗 -->
+  <el-dialog v-model="detailVisible" title="文章详情" width="700px">
+    <el-descriptions :column="2" border v-if="currentDetail.id">
+      <el-descriptions-item label="ID">{{ currentDetail.id }}</el-descriptions-item>
+      <el-descriptions-item label="标题">{{ currentDetail.title || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="作者">{{ getAuthorName(currentDetail.authorId) }}</el-descriptions-item>
+      <el-descriptions-item label="分类">{{ getCategoryName(currentDetail.categoryId) }}</el-descriptions-item>
+      <el-descriptions-item label="标签" :span="2">
+        <template v-if="currentDetail.tagIds && currentDetail.tagIds.length">
+          <el-tag v-for="tagId in currentDetail.tagIds" :key="tagId" size="small" class="mr-2">
+            {{ getTagName(tagId) }}
+          </el-tag>
+        </template>
+        <span v-else>-</span>
+      </el-descriptions-item>
+      <el-descriptions-item label="状态">
+        <dict-tag :type="DICT_TYPE.BLOG_POST_STATUS" :value="currentDetail.status" />
+      </el-descriptions-item>
+      <el-descriptions-item label="推荐">
+        <el-tag v-if="currentDetail.featured" type="danger" size="small">推荐</el-tag>
+        <span v-else>-</span>
+      </el-descriptions-item>
+      <el-descriptions-item label="浏览量">{{ currentDetail.viewCount || 0 }}</el-descriptions-item>
+      <el-descriptions-item label="发布时间">
+        {{ currentDetail.publishedAt ? dateFormatter(currentDetail.publishedAt) : '-' }}
+      </el-descriptions-item>
+      <el-descriptions-item label="摘要" :span="2">{{ currentDetail.summary || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间" :span="2">
+        {{ currentDetail.createTime ? dateFormatter(currentDetail.createTime) : '-' }}
+      </el-descriptions-item>
+    </el-descriptions>
+    <template #footer>
+      <el-button @click="detailVisible = false">关 闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -234,6 +276,14 @@ const handleQuery = () => {
 const resetQuery = () => {
   queryFormRef.value.resetFields()
   handleQuery()
+}
+
+/** 详情操作 */
+const detailVisible = ref(false)
+const currentDetail = ref({} as PostVO)
+const handleDetail = (row: PostVO) => {
+  currentDetail.value = row
+  detailVisible.value = true
 }
 
 /** 添加/修改操作 */

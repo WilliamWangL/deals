@@ -20,6 +20,9 @@ public interface DailyStatsMapper extends BaseMapperX<DailyStatsDO> {
         return selectPage(reqVO, new LambdaQueryWrapperX<DailyStatsDO>()
                 .eqIfPresent(DailyStatsDO::getDimensionType, reqVO.getDimensionType())
                 .eqIfPresent(DailyStatsDO::getDimensionId, reqVO.getDimensionId())
+                .eqIfPresent(DailyStatsDO::getOfferId, reqVO.getOfferId())
+                .eqIfPresent(DailyStatsDO::getCampaignId, reqVO.getCampaignId())
+                .eqIfPresent(DailyStatsDO::getTrafficSourceId, reqVO.getTrafficSourceId())
                 .geIfPresent(DailyStatsDO::getDate, reqVO.getStartDate())
                 .leIfPresent(DailyStatsDO::getDate, reqVO.getEndDate())
                 .orderByDesc(DailyStatsDO::getDate));

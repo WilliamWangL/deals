@@ -96,7 +96,13 @@
       :stripe="true"
       :show-overflow-tooltip="true"
     >
-      <el-table-column label="编号" align="center" prop="id" width="80" />
+      <el-table-column label="编号" align="center" prop="id" width="80">
+        <template #default="scope">
+          <el-link :underline="false" type="primary" @click="handleDetail(scope.row)">
+            {{ scope.row.id }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="优惠码" align="center" prop="code" width="150">
         <template #default="scope">
           <el-tag class="cursor-copy" @click="copyCode(scope.row.code)">{{ scope.row.code }}</el-tag>
@@ -176,6 +182,41 @@
 
   <!-- 表单弹窗：添加/修改 -->
   <CouponForm ref="formRef" @success="getList" :merchant-list="merchantList" />
+
+  <!-- 详情弹窗 -->
+  <el-dialog v-model="detailVisible" title="优惠券详情" width="600px">
+    <el-descriptions :column="2" border v-if="currentDetail.id">
+      <el-descriptions-item label="ID">{{ currentDetail.id }}</el-descriptions-item>
+      <el-descriptions-item label="名称">{{ currentDetail.name || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="商家">{{ getMerchantName(currentDetail.merchantId) }}</el-descriptions-item>
+      <el-descriptions-item label="类型">
+        <dict-tag :type="DICT_TYPE.COUPON_TYPE" :value="currentDetail.type" />
+      </el-descriptions-item>
+      <el-descriptions-item label="代码">
+        <el-link v-if="currentDetail.code" :underline="false" type="primary" @click="copyCode(currentDetail.code)">
+          {{ currentDetail.code }}
+        </el-link>
+        <span v-else>-</span>
+      </el-descriptions-item>
+      <el-descriptions-item label="折扣">
+        <template v-if="currentDetail.discountType === 1">{{ currentDetail.discountValue }}%</template>
+        <template v-else-if="currentDetail.discountType === 2">${{ currentDetail.discountValue }}</template>
+        <template v-else>-</template>
+      </el-descriptions-item>
+      <el-descriptions-item label="有效期">
+        {{ currentDetail.startTime && currentDetail.endTime ? formatDateStr(currentDetail.startTime) + ' 至 ' + formatDateStr(currentDetail.endTime) : '-' }}
+      </el-descriptions-item>
+      <el-descriptions-item label="状态">
+        <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="currentDetail.status" />
+      </el-descriptions-item>
+      <el-descriptions-item label="创建时间">
+        {{ currentDetail.createTime ? dateFormatter(currentDetail.createTime) : '-' }}
+      </el-descriptions-item>
+    </el-descriptions>
+    <template #footer>
+      <el-button @click="detailVisible = false">关 闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -251,6 +292,14 @@ const copyCode = async (code: string) => {
 const handleQuery = () => {
   queryParams.pageNo = 1
   getList()
+}
+
+/** 详情操作 */
+const detailVisible = ref(false)
+const currentDetail = ref({} as CouponVO)
+const handleDetail = (row: CouponVO) => {
+  currentDetail.value = row
+  detailVisible.value = true
 }
 
 /** 重置按钮操作 */

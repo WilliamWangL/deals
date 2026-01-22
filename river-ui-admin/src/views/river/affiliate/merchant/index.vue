@@ -80,7 +80,13 @@
       :stripe="true"
       :show-overflow-tooltip="true"
     >
-      <el-table-column label="编号" align="center" prop="id" />
+      <el-table-column label="编号" align="center" prop="id" width="80">
+        <template #default="scope">
+          <el-link :underline="false" type="primary" @click="handleDetail(scope.row)">
+            {{ scope.row.id }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="商家名称" align="center" prop="name" />
       <el-table-column label="联盟网络" align="center" prop="networkId">
         <template #default="scope">
@@ -131,6 +137,32 @@
 
   <!-- 表单弹窗：添加/修改 -->
   <MerchantForm ref="formRef" @success="getList" :network-list="networkList" />
+
+  <!-- 详情弹窗 -->
+  <el-dialog v-model="detailVisible" title="商家详情" width="600px">
+    <el-descriptions :column="2" border v-if="currentDetail.id">
+      <el-descriptions-item label="ID">{{ currentDetail.id }}</el-descriptions-item>
+      <el-descriptions-item label="名称">{{ currentDetail.name || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="联盟网络">{{ getNetworkName(currentDetail.networkId) }}</el-descriptions-item>
+      <el-descriptions-item label="状态">
+        <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="currentDetail.status" />
+      </el-descriptions-item>
+      <el-descriptions-item label="域名">{{ currentDetail.domain || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="评级">
+        <el-rate v-model="currentDetail.rating" disabled show-score score-template="{value}" />
+      </el-descriptions-item>
+      <el-descriptions-item label="联系人">{{ currentDetail.contactName || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="邮箱">{{ currentDetail.contactEmail || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="联系电话">{{ currentDetail.contactPhone || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="备注">{{ currentDetail.remark || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间">
+        {{ currentDetail.createTime ? dateFormatter(currentDetail.createTime) : '-' }}
+      </el-descriptions-item>
+    </el-descriptions>
+    <template #footer>
+      <el-button @click="detailVisible = false">关 闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -181,6 +213,14 @@ const getNetworkList = async () => {
 const getNetworkName = (networkId: number) => {
   const network = networkList.value.find((n) => n.id === networkId)
   return network ? network.name : '-'
+}
+
+/** 详情操作 */
+const detailVisible = ref(false)
+const currentDetail = ref({} as MerchantVO)
+const handleDetail = (row: MerchantVO) => {
+  currentDetail.value = row
+  detailVisible.value = true
 }
 
 /** 搜索按钮操作 */

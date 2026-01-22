@@ -29,4 +29,13 @@ public class DailyStatsPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate endDate;
 
+    @Schema(description = "Offer ID（用于筛选）", example = "1")
+    private Long offerId;
+
+    @Schema(description = "Campaign ID（用于筛选）", example = "1")
+    private Long campaignId;
+
+    @Schema(description = "流量来源 ID（用于筛选）", example = "1")
+    private Long trafficSourceId;
+
 }

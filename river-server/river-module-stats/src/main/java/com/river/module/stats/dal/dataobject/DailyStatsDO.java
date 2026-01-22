@@ -35,6 +35,15 @@ public class DailyStatsDO extends BaseDO {
     /** 维度 ID */
     private Long dimensionId;
 
+    /** 原始 Offer ID（用于筛选） */
+    private Long offerId;
+
+    /** 原始 Campaign ID（用于筛选） */
+    private Long campaignId;
+
+    /** 原始流量来源 ID（用于筛选） */
+    private Long trafficSourceId;
+
     /** 点击数 */
     private Integer clicks;
 

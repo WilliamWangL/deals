@@ -8,6 +8,53 @@
       :inline="true"
       label-width="80px"
     >
+      <el-form-item label="Offer" prop="offerId">
+        <el-select
+          v-model="queryParams.offerId"
+          placeholder="全部"
+          clearable
+          filterable
+          class="!w-160px"
+        >
+          <el-option
+            v-for="item in offerOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Campaign" prop="campaignId">
+        <el-select
+          v-model="queryParams.campaignId"
+          placeholder="全部"
+          clearable
+          filterable
+          class="!w-160px"
+        >
+          <el-option
+            v-for="item in campaignOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="流量来源" prop="trafficSourceId">
+        <el-select
+          v-model="queryParams.trafficSourceId"
+          placeholder="全部"
+          clearable
+          class="!w-160px"
+        >
+          <el-option
+            v-for="item in trafficSourceOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="维度类型" prop="dimensionType">
         <el-select
           v-model="queryParams.dimensionType"
@@ -140,6 +187,48 @@
           </div>
         </el-card>
       </el-col>
+      <!-- 新增：转化率 -->
+      <el-col :xs="24" :sm="12" :md="4" :lg="4">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon" style="background: #f0f9eb">
+              <Icon icon="ep:percentage" color="#67c23a" :size="24" />
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ summary.totalClicks > 0 ? (summary.totalConversions / summary.totalClicks * 100).toFixed(2) + '%' : '0.00%' }}</div>
+              <div class="stat-label">转化率</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <!-- 新增：平均订单价值 -->
+      <el-col :xs="24" :sm="12" :md="4" :lg="4">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon" style="background: #ecf5ff">
+              <Icon icon="ep:shopping-cart" color="#409eff" :size="24" />
+            </div>
+            <div class="stat-info">
+              <div class="stat-value text-blue-600">${{ summary.totalConversions > 0 ? (summary.totalRevenue / summary.totalConversions).toFixed(2) : '0.00' }}</div>
+              <div class="stat-label">AOV</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <!-- 新增：每次点击收益 -->
+      <el-col :xs="24" :sm="12" :md="4" :lg="4">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon" style="background: #fdf6ec">
+              <Icon icon="ep:coin" color="#e6a23c" :size="24" />
+            </div>
+            <div class="stat-info">
+              <div class="stat-value text-orange-600">${{ summary.totalClicks > 0 ? (summary.totalRevenue / summary.totalClicks).toFixed(4) : '0.0000' }}</div>
+              <div class="stat-label">EPC</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
     </el-row>
   </ContentWrap>
 
@@ -245,6 +334,9 @@ const dimensionOptions = ref<any[]>([])
 const dateRange = ref<string[]>([])
 const chartRef = ref<HTMLDivElement>()
 const exportLoading = ref(false)
+const offerOptions = ref<any[]>([])
+const campaignOptions = ref<any[]>([])
+const trafficSourceOptions = ref<any[]>([])
 
 const summary = ref({
   totalClicks: 0,
@@ -263,7 +355,10 @@ const queryParams = reactive({
   dimensionType: undefined as number | undefined,
   dimensionId: undefined as number | undefined,
   startDate: undefined as string | undefined,
-  endDate: undefined as string | undefined
+  endDate: undefined as string | undefined,
+  offerId: undefined as number | undefined,
+  campaignId: undefined as number | undefined,
+  trafficSourceId: undefined as number | undefined
 })
 const queryFormRef = ref()
 
@@ -297,6 +392,22 @@ const formatMoney = (amount: number) => {
 const formatDate = (date: string) => {
   if (!date) return '-'
   return date.substring(0, 10)
+}
+
+/** 加载筛选选项 */
+const loadFilterOptions = async () => {
+  try {
+    const [offerRes, campaignRes, trafficRes] = await Promise.all([
+      OfferApi.getOfferList(),
+      CampaignApi.getCampaignPage({ pageNo: 1, pageSize: 200 }),
+      TrafficSourceApi.getTrafficSourceList()
+    ])
+    offerOptions.value = offerRes || []
+    campaignOptions.value = (campaignRes?.list || []).map((item: any) => ({ id: item.id, name: item.name }))
+    trafficSourceOptions.value = trafficRes || []
+  } catch (error) {
+    console.error('Failed to load filter options:', error)
+  }
 }
 
 /** 维度类型切换 */
@@ -496,6 +607,7 @@ onMounted(() => {
   ]
 
   initChart()
+  loadFilterOptions()
   getList()
 })
 

@@ -89,7 +89,13 @@
   <!-- 列表 -->
   <ContentWrap>
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
-      <el-table-column label="ID" prop="id" width="80" />
+      <el-table-column label="ID" prop="id" width="80">
+        <template #default="scope">
+          <el-link :underline="false" type="primary" @click="handleDetail(scope.row)">
+            {{ scope.row.id }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="名称" prop="name" min-width="200" />
       <el-table-column label="流量来源" prop="trafficSourceId" width="150">
         <template #default="scope">
@@ -161,6 +167,34 @@
 
   <!-- 表单弹窗：添加/修改 -->
   <CampaignForm ref="formRef" @success="getList" :traffic-source-list="trafficSourceList" :landing-page-list="landingPageList" />
+
+  <!-- 详情弹窗 -->
+  <el-dialog v-model="detailVisible" title="广告活动详情" width="700px">
+    <el-descriptions :column="2" border v-if="currentDetail">
+      <el-descriptions-item label="ID">{{ currentDetail.id }}</el-descriptions-item>
+      <el-descriptions-item label="名称">{{ currentDetail.name || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="流量来源">{{ getTrafficSourceName(currentDetail.trafficSourceId) }}</el-descriptions-item>
+      <el-descriptions-item label="类型">
+        <dict-tag :type="DICT_TYPE.CAMPAIGN_TYPE" :value="currentDetail.type" />
+      </el-descriptions-item>
+      <el-descriptions-item label="日预算">
+        {{ currentDetail.budgetDaily ? `$${currentDetail.budgetDaily.toFixed(2)}` : '-' }}
+      </el-descriptions-item>
+      <el-descriptions-item label="总预算">
+        {{ currentDetail.budgetTotal ? `$${currentDetail.budgetTotal.toFixed(2)}` : '-' }}
+      </el-descriptions-item>
+      <el-descriptions-item label="外部ID" :span="2">{{ currentDetail.externalCampaignId || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="状态" :span="2">
+        <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="currentDetail.status" />
+      </el-descriptions-item>
+      <el-descriptions-item label="创建时间" :span="2">
+        {{ currentDetail.createTime ? dateFormatter(currentDetail.createTime) : '-' }}
+      </el-descriptions-item>
+    </el-descriptions>
+    <template #footer>
+      <el-button @click="detailVisible = false">关 闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
