@@ -1,8 +1,8 @@
 package com.river.module.tracking.dal.dataobject;
 
-import com.river.framework.mybatis.core.dataobject.BaseDO;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.river.framework.tenant.core.db.TenantBaseDO;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,37 +14,56 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClickDO extends BaseDO {
+public class ClickDO extends TenantBaseDO {
 
     @TableId
     private String clickId;
 
-    private Long offerId;
+    /** 目标类型: 1=商家, 2=Offer, 3=Deal, 4=优惠券 */
+    private Integer targetType;
 
+    /** 目标实体 ID */
+    private Long targetId;
+
+    /** 商家 ID（冗余字段，便于统计） */
+    private Long merchantId;
+
+    /** 活动 ID */
     private Long campaignId;
 
+    /** 落地页 ID */
     private Long landingPageId;
 
+    /** Sub ID 1 */
     private String sub1;
 
+    /** Sub ID 2 */
     private String sub2;
 
+    /** Sub ID 3 */
     private String sub3;
 
+    /** Sub ID 4 */
     private String sub4;
 
+    /** Sub ID 5 */
     private String sub5;
 
+    /** IP 地址 */
     private String ip;
 
+    /** User Agent */
     private String userAgent;
 
+    /** 来源页 */
     private String referer;
 
+    /** 设备类型 */
     private String deviceType;
 
+    /** 国家 */
     private String country;
 
+    /** 点击时间 */
     private LocalDateTime clickTime;
-
 }
