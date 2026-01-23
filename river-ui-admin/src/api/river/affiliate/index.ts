@@ -52,14 +52,14 @@ export const AffiliateNetworkApi = {
     return await request.download({ url: `/affiliate/network/export-excel`, params })
   },
 
-  // 同步 Deal 数据
-  syncDeals: async (params: { networkId?: string; code?: string }) => {
-    return await request.post({ url: `/affiliate/network/sync-deals`, params })
+  // 同步数据（Merchant + Offer）
+  syncData: async (params: { networkId?: string; code?: string }) => {
+    return await request.post({ url: `/affiliate/network/sync-data`, params })
   },
 
-  // 同步 Coupon 数据
-  syncCouponsOnly: async (params: { networkId?: string; code?: string }) => {
-    return await request.post({ url: `/affiliate/network/sync-coupons-only`, params })
+  // 同步优惠（Coupon + Deal）
+  syncCoupons: async (params: { networkId?: string; code?: string }) => {
+    return await request.post({ url: `/affiliate/network/sync-coupons`, params })
   }
 }
 

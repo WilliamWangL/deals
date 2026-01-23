@@ -845,27 +845,26 @@ public class AdmitadSyncService {
     }
 
     /**
-     * 同步 Deal 数据（通过 code 调用）
+     * 同步数据（Merchant + Offer，通过 code 调用）
      * @param networkCode 联盟网络编码
      * @return 同步结果
      */
-    public AffiliateNetworkController.SyncResult syncDeals(String networkCode) {
-        // 根据 code 查找凭证
+    public AffiliateNetworkController.SyncResult syncData(String networkCode) {
         NetworkCredentialDO credential = getEnabledCredentialByNetworkCode(networkCode);
         if (credential == null) {
             return AffiliateNetworkController.SyncResult.error("No enabled credentials found for network: " + networkCode);
         }
-        // 执行同步
-        syncCoupons(credential);
+        // 执行同步（Merchant + Offer）
+        syncCampaigns(credential);
         Map<String, Object> stats = new HashMap<>();
-        stats.put("deals", lastSyncDeals);
-        stats.put("coupons", lastSyncCoupons);
+        stats.put("merchants", lastSyncMerchants);
+        stats.put("offers", lastSyncOffers);
         stats.put("failed", lastSyncFailed);
-        return AffiliateNetworkController.SyncResult.success("Deal sync completed", stats);
+        return AffiliateNetworkController.SyncResult.success("Data sync completed", stats);
     }
 
     /**
-     * 同步 Coupon 数据（通过 code 调用）
+     * 同步优惠券和Deal数据（通过 code 调用）
      * @param networkCode 联盟网络编码
      * @return 同步结果
      */

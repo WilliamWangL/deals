@@ -227,20 +227,15 @@ const handleExport = async () => {
   }
 }
 
-/** 同步数据按钮操作（Merchant + Offer + Deal + Coupon） */
+/** 同步数据按钮操作（Merchant + Offer） */
 const handleSyncData = async () => {
   try {
-    // 同步的二次确认
-    await message.confirm('确认要同步数据吗？此操作将同步商家、Offer、Deal 和 Coupon，可能需要较长时间。')
-    // 发起同步
+    await message.confirm('确认要同步商家和Offer数据吗？此操作可能需要较长时间。')
     syncDealsLoading.value = true
-    // 调用 sync-deals 接口（包含 syncCampaigns + syncCoupons）
-    await AffiliateNetworkApi.syncDeals({ code: 'admitad' })
-    message.success('数据同步任务已启动，请稍后查看同步结果')
-    // 刷新列表
+    await AffiliateNetworkApi.syncData({ code: 'admitad' })
+    message.success('商家和Offer同步任务已启动')
     await getList()
   } catch {
-    // 用户取消或错误
   } finally {
     syncDealsLoading.value = false
   }
@@ -249,17 +244,12 @@ const handleSyncData = async () => {
 /** 同步优惠按钮操作（Coupon + Deal） */
 const handleSyncCoupons = async () => {
   try {
-    // 同步的二次确认
-    await message.confirm('确认要同步优惠吗？此操作将同步 Coupon 和 Deal，可能需要较长时间。')
-    // 发起同步
+    await message.confirm('确认要同步优惠数据吗？此操作将同步Coupon和Deal，可能需要较长时间。')
     syncCouponsLoading.value = true
-    // 调用 sync-coupons-only 接口
-    await AffiliateNetworkApi.syncCouponsOnly({ code: 'admitad' })
-    message.success('优惠同步任务已启动，请稍后查看同步结果')
-    // 刷新列表
+    await AffiliateNetworkApi.syncCoupons({ code: 'admitad' })
+    message.success('优惠同步任务已启动')
     await getList()
   } catch {
-    // 用户取消或错误
   } finally {
     syncCouponsLoading.value = false
   }
