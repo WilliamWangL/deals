@@ -50,6 +50,16 @@ export const AffiliateNetworkApi = {
   // 导出联盟网络 Excel
   exportAffiliateNetwork: async (params) => {
     return await request.download({ url: `/affiliate/network/export-excel`, params })
+  },
+
+  // 同步 Deal 数据
+  syncDeals: async (params: { networkId?: string; code?: string }) => {
+    return await request.post({ url: `/affiliate/network/sync-deals`, params })
+  },
+
+  // 同步 Coupon 数据
+  syncCouponsOnly: async (params: { networkId?: string; code?: string }) => {
+    return await request.post({ url: `/affiliate/network/sync-coupons-only`, params })
   }
 }
 
