@@ -1,8 +1,10 @@
 {
-  "active_plan": "/Users/apple/Projects/shixiaohe/river-ad-workspace/.sisyphus/plans/admin-ui-optimization.md",
-  "started_at": "2026-01-21T20:12:54.798Z",
-  "session_ids": [
-    "ses_41f953d8bffeyTIipx87NHe1WT"
-  ],
-  "plan_name": "admin-ui-optimization"
+  "active_plan": "/Users/apple/Projects/shixiaohe/river-ad-workspace/.sisyphus/plans/agents-recursive-design.md",
+  "plan_name": "agents-recursive-design",
+  "sessions": 1,
+  "completed": 20,
+  "total": 20,
+  "status": "complete",
+  "started_at": "2026-01-23T02:16:31.767Z",
+  "session_ids": ["ses_4175c7101ffeET3yErPiHQxsEn"]
 }
