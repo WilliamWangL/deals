@@ -235,4 +235,4 @@ max_line_length = 100
 1. **遵循现有模式**：创建新代码前先查看类似模块
 2. **未明确要求不得 commit**：不要主动创建 Git 提交
 3. **类型安全**：禁止使用 `as any` 等类型错误抑制
-4. **前端 UI/UX 变更**：样式、布局、动画等视觉变更使用 `frontend-design ` skill 处理
+4. **前端 UI/UX 变更**：样式、布局、动画等视觉变更使用 `frontend-design` skill 处理

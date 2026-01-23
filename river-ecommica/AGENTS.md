@@ -274,4 +274,4 @@ const eslintConfig = defineConfig([
 2. **未明确要求不得 commit**：不要主动创建 Git 提交
 3. **类型安全**：禁止使用 `as any` 等类型错误抑制
 4. **国际化**：使用 `next-intl` 管理多语言
-5. **前端 UI/UX 变更**：样式、布局、动画等视觉变更使用 `frontend-design ` skill 处理
+5. **前端 UI/UX 变更**：样式、布局、动画等视觉变更使用 `frontend-design` skill 处理
