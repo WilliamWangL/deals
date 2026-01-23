@@ -52,21 +52,10 @@
 
 ### 常用命令
 
-#### Docker PostgreSQL 本地部署
+#### PostgreSQL 连接
 
-```bash
-# 启动容器
-docker run -d --name river-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_DB=river_ad \
-  -v river_postgres_data:/var/lib/postgresql/data \
-  -p 5432:5432 postgres:17
-
-# 连接: psql -h localhost -U postgres -d river_ad
-# 常用命令: \dt 列表, \d table 结构, \x on 展开
-```
-
+**连接:** psql -h localhost -U postgres -d river
+**常用命令:** \dt 列表, \d table 结构, \x on 展开
 **数据库配置**（见 `application-local.yaml`）：
 - URL: `jdbc:postgresql://localhost:5432/river?prepareThreshold=0`
 - 用户名/密码: `postgres` / `123456`
