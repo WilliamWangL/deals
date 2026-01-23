@@ -56,10 +56,10 @@
           type="warning"
           plain
           :loading="syncDealsLoading"
-          @click="handleSyncDeals"
+          @click="handleSyncData"
           v-hasPermi="['affiliate:network:sync']"
         >
-          <Icon icon="ep:refresh" class="mr-5px" /> 同步Deal
+          <Icon icon="ep:refresh" class="mr-5px" /> 同步数据
         </el-button>
         <el-button
           type="success"
@@ -68,15 +68,7 @@
           @click="handleSyncCoupons"
           v-hasPermi="['affiliate:network:sync']"
         >
-          <Icon icon="ep:refresh" class="mr-5px" /> 同步Coupon
-        </el-button>
-        <el-button
-          type="info"
-          plain
-          @click="handleSyncAll"
-          v-hasPermi="['affiliate:network:sync']"
-        >
-          <Icon icon="ep:refresh" class="mr-5px" /> 全部同步
+          <Icon icon="ep:refresh" class="mr-5px" /> 同步优惠
         </el-button>
         <el-button
           type="success"
@@ -235,16 +227,16 @@ const handleExport = async () => {
   }
 }
 
-/** 同步Deal按钮操作 */
-const handleSyncDeals = async () => {
+/** 同步数据按钮操作（Merchant + Offer + Deal + Coupon） */
+const handleSyncData = async () => {
   try {
     // 同步的二次确认
-    await message.confirm('确认要同步 Deal 数据吗？此操作可能需要较长时间。')
+    await message.confirm('确认要同步数据吗？此操作将同步商家、Offer、Deal 和 Coupon，可能需要较长时间。')
     // 发起同步
     syncDealsLoading.value = true
-    // 默认使用 code 参数，可扩展为选择特定网络
+    // 调用 sync-deals 接口（包含 syncCampaigns + syncCoupons）
     await AffiliateNetworkApi.syncDeals({ code: 'admitad' })
-    message.success('Deal 同步任务已启动，请稍后查看同步结果')
+    message.success('数据同步任务已启动，请稍后查看同步结果')
     // 刷新列表
     await getList()
   } catch {
@@ -254,43 +246,21 @@ const handleSyncDeals = async () => {
   }
 }
 
-/** 同步Coupon按钮操作 */
+/** 同步优惠按钮操作（Coupon + Deal） */
 const handleSyncCoupons = async () => {
   try {
     // 同步的二次确认
-    await message.confirm('确认要同步 Coupon 数据吗？此操作可能需要较长时间。')
+    await message.confirm('确认要同步优惠吗？此操作将同步 Coupon 和 Deal，可能需要较长时间。')
     // 发起同步
     syncCouponsLoading.value = true
-    // 默认使用 code 参数，可扩展为选择特定网络
+    // 调用 sync-coupons-only 接口
     await AffiliateNetworkApi.syncCouponsOnly({ code: 'admitad' })
-    message.success('Coupon 同步任务已启动，请稍后查看同步结果')
+    message.success('优惠同步任务已启动，请稍后查看同步结果')
     // 刷新列表
     await getList()
   } catch {
     // 用户取消或错误
   } finally {
-    syncCouponsLoading.value = false
-  }
-}
-
-/** 全部同步按钮操作 */
-const handleSyncAll = async () => {
-  try {
-    // 同步的二次确认
-    await message.confirm('确认要执行全量同步吗？此操作将同步商家、Offer、Deal 和 Coupon 数据，可能需要较长时间。')
-    // 发起同步（先同步商家和 Offer）
-    syncDealsLoading.value = true
-    await AffiliateNetworkApi.syncDeals({ code: 'admitad' })
-    // 再同步 Coupon
-    syncCouponsLoading.value = true
-    await AffiliateNetworkApi.syncCouponsOnly({ code: 'admitad' })
-    message.success('全量同步任务已启动，请稍后查看同步结果')
-    // 刷新列表
-    await getList()
-  } catch {
-    // 用户取消或错误
-  } finally {
-    syncDealsLoading.value = false
     syncCouponsLoading.value = false
   }
 }
