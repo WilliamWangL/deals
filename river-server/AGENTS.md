@@ -52,7 +52,43 @@
 
 ### 常用命令
 
+#### Docker PostgreSQL 本地部署
+
 ```bash
+# 启动 PostgreSQL 容器
+docker run -d \
+  --name river-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_DB=river_ad \
+  -v river_postgres_data:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  postgres:15
+
+# 连接数据库
+psql -h localhost -U postgres -d river_ad
+
+# 或使用 docker exec
+docker exec -it river-postgres psql -U postgres -d river_ad
+
+# 常用 psql 命令
+# \c river_ad          # 切换数据库
+# \dt                  # 列出所有表
+# \d table_name        # 查看表结构
+# \x on                # 展开显示
+# SELECT * FROM table; # 查询数据
+
+# 重启容器
+docker restart river-postgres
+
+# 停止容器
+docker stop river-postgres
+
+# 删除容器（保留数据卷）
+docker rm river-postgres
+```
+
+#### 后端服务
 cd river-server
 
 # 编译项目
