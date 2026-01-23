@@ -61,7 +61,7 @@ docker run -d --name river-postgres \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_DB=river_ad \
   -v river_postgres_data:/var/lib/postgresql/data \
-  -p 5432:5432 postgres:15
+  -p 5432:5432 postgres:17
 
 # 连接: psql -h localhost -U postgres -d river_ad
 # 常用命令: \dt 列表, \d table 结构, \x on 展开
