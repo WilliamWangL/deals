@@ -46,6 +46,11 @@ public class AffiliateNetworkServiceImpl implements AffiliateNetworkService {
     }
 
     @Override
+    public AffiliateNetworkDO getNetworkByCode(String code) {
+        return networkMapper.selectOne(AffiliateNetworkDO::getCode, code);
+    }
+
+    @Override
     public List<AffiliateNetworkDO> getNetworkList() {
         return networkMapper.selectList();
     }

@@ -59,10 +59,15 @@ function CountdownTimer({ endTime }: { endTime: string }) {
   if (!timeLeft) return null;
 
   return (
-    <span className={cn(
-      "inline-flex items-center gap-1 text-[11px] font-semibold",
-      isUrgent ? "text-rose-600" : "text-amber-600"
-    )}>
+    <span
+      role="timer"
+      aria-live="off"
+      aria-label="Deal countdown timer"
+      className={cn(
+        "inline-flex items-center gap-1 text-[11px] font-semibold",
+        isUrgent ? "text-rose-600" : "text-amber-600"
+      )}
+    >
       <Clock className={cn("w-3 h-3", isUrgent && "animate-pulse")} />
       {timeLeft}
     </span>

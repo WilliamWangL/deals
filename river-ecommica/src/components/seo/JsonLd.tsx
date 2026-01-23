@@ -108,6 +108,37 @@ export function generateBreadcrumbJsonLd(items: { name: string; url: string }[])
   };
 }
 
+export function generateWebSiteJsonLd() {
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Ecommica',
+      url: BASE_URL,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${BASE_URL}/deals?q={search_terms_string}`
+        },
+        'query-input': 'required name=search_terms_string'
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Ecommica',
+      url: BASE_URL,
+      logo: `${BASE_URL}/logo.png`,
+      sameAs: [
+        'https://twitter.com/ecommica',
+        'https://facebook.com/ecommica',
+        'https://instagram.com/ecommica'
+      ]
+    }
+  ];
+}
+
 interface JsonLdProps {
   data: object;
 }

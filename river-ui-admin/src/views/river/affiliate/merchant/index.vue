@@ -1,4 +1,7 @@
 <template>
+  <!-- 同步状态 -->
+  <SyncStatus />
+
   <ContentWrap>
     <!-- 搜索工作栏 -->
     <el-form
@@ -66,6 +69,15 @@
           v-hasPermi="['affiliate:merchant:export']"
         >
           <Icon icon="ep:download" class="mr-5px" /> 导出
+        </el-button>
+        <el-button
+          type="warning"
+          plain
+          :loading="syncing"
+          @click="handleSync"
+          v-hasPermi="['affiliate:merchant:sync']"
+        >
+          <Icon icon="ep:refresh" class="mr-5px" /> 同步
         </el-button>
       </el-form-item>
     </el-form>
@@ -171,6 +183,7 @@ import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
 import { MerchantApi, MerchantVO, AffiliateNetworkApi } from '@/api/river/affiliate'
 import MerchantForm from './MerchantForm.vue'
+import SyncStatus from '@/views/river/affiliate/components/SyncStatus.vue'
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 商家 列表 */
@@ -192,6 +205,7 @@ const queryParams = reactive({
 })
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中
+const syncing = ref(false) // 同步的加载中
 
 /** 查询列表 */
 const getList = async () => {
@@ -267,6 +281,28 @@ const handleExport = async () => {
   } catch {
   } finally {
     exportLoading.value = false
+  }
+}
+
+/** 同步按钮操作 */
+const handleSync = async () => {
+  syncing.value = true
+  try {
+    // TODO: Replace with actual API call
+    // const { data } = await request.post('/admin-api/affiliate/sync-all?code=admitad')
+    // if (data.success) {
+    //   message.success(data.message || '同步成功')
+    //   await getList() // Refresh list
+    // }
+    
+    // Mock sync
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    message.success('同步成功')
+    await getList()
+  } catch {
+    message.error('同步失败')
+  } finally {
+    syncing.value = false
   }
 }
 

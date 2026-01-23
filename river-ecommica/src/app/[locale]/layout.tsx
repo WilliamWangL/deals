@@ -31,7 +31,14 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://deals.ecommica.com',
     siteName: 'Ecommica',
-  }
+  },
+  alternates: {
+    canonical: 'https://deals.ecommica.com',
+    languages: {
+      'en': 'https://deals.ecommica.com',
+      'zh': 'https://deals.ecommica.com/zh',
+    },
+  },
 };
 
 export default async function LocaleLayout({

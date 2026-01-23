@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { fetchDeals, fetchDealBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { JsonLd, generateDealJsonLd } from '@/components/seo/JsonLd';
+import { JsonLd, generateDealJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -49,8 +50,20 @@ export default async function DealDetailPage({ params }: Props) {
 
   const trackingUrl = deal.gotoUrl || '#';
 
+  const breadcrumbs = [
+    { label: 'Deals', href: `/${locale}/deals` },
+    { label: deal.title, href: `/${locale}/deals/${deal.slug}` }
+  ];
+
+  const breadcrumbJsonLdItems = breadcrumbs.map(item => ({
+    name: item.label,
+    url: item.href
+  }));
+
   return (
     <>
+      <Breadcrumbs items={breadcrumbs} />
+      <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
       <JsonLd data={generateDealJsonLd(deal)} />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">

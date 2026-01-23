@@ -30,6 +30,7 @@ import {
   Users,
   type LucideIcon
 } from 'lucide-react';
+import { JsonLd, generateWebSiteJsonLd } from '@/components/seo/JsonLd';
 
 const IconMap: Record<string, LucideIcon> = {
   Laptop,
@@ -73,6 +74,7 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={generateWebSiteJsonLd()} />
       {/* ============================================
           HERO SECTION - Premium Dark Theme
           ============================================ */}

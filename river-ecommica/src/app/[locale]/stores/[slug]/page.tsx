@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { fetchStores, fetchStoreBySlug, fetchDeals } from '@/lib/api';
 import DealCard from '@/components/deal/DealCard';
 import { Badge } from '@/components/ui/badge';
-import { JsonLd, generateStoreJsonLd } from '@/components/seo/JsonLd';
+import { JsonLd, generateStoreJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function StoreDetailPage({ params }: Props) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const store = await fetchStoreBySlug(slug);
 
   if (!store) {
@@ -48,9 +49,23 @@ export default async function StoreDetailPage({ params }: Props) {
 
   const { list: deals } = await fetchDeals({ merchantId: store.id });
 
+  const breadcrumbs = [
+    { name: 'Home', url: `/${locale}` },
+    { name: 'Stores', url: `/${locale}/stores` },
+    { name: store.name, url: `/${locale}/stores/${store.slug}` }
+  ];
+
+  const breadcrumbItems = [
+    { label: 'Home', href: `/${locale}` },
+    { label: 'Stores', href: `/${locale}/stores` },
+    { label: store.name, href: `/${locale}/stores/${store.slug}` }
+  ];
+
   return (
     <>
       <JsonLd data={generateStoreJsonLd(store)} />
+      <JsonLd data={generateBreadcrumbJsonLd(breadcrumbs)} />
+      <Breadcrumbs items={breadcrumbItems} />
       <main className="container mx-auto px-4 py-8">
       <section className="mb-8 flex items-start gap-6">
         <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center relative">

@@ -9,6 +9,7 @@ import com.river.module.affiliate.dal.dataobject.OfferDO;
 import com.river.module.affiliate.dal.mysql.CategoryMapper;
 import com.river.module.affiliate.dal.mysql.CategoryMappingMapper;
 import com.river.module.affiliate.dal.mysql.MerchantMapper;
+import com.river.module.affiliate.dal.mysql.NetworkCredentialMapper;
 import com.river.module.affiliate.dal.mysql.OfferMapper;
 import com.river.module.affiliate.enums.PayoutModelEnum;
 import com.river.module.coupon.dal.dataobject.CouponDO;
@@ -27,12 +28,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.river.framework.common.biz.tracking.TrackingLinkCommonApi;
 import com.river.framework.common.biz.tracking.dto.TrackingLinkCreateReqDTO;
+import com.river.module.affiliate.controller.admin.network.AffiliateNetworkController;
 
 @Slf4j
 @Service
@@ -68,10 +71,43 @@ public class AdmitadSyncService {
     @Resource
     private TrackingLinkCommonApi trackingLinkCommonApi;
 
+    @Resource
+    private NetworkCredentialMapper credentialMapper;
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    // Sync statistics tracking
+    private volatile int lastSyncMerchants = 0;
+    private volatile int lastSyncOffers = 0;
+    private volatile int lastSyncCoupons = 0;
+    private volatile int lastSyncDeals = 0;
+    private volatile int lastSyncFailed = 0;
+    private volatile LocalDateTime lastSyncTime = null;
+
+    /**
+     * Get last sync statistics
+     */
+    public Map<String, Object> getLastSyncStats() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("merchants", lastSyncMerchants);
+        stats.put("offers", lastSyncOffers);
+        stats.put("coupons", lastSyncCoupons);
+        stats.put("deals", lastSyncDeals);
+        stats.put("failed", lastSyncFailed);
+        stats.put("lastSyncTime", lastSyncTime);
+        return stats;
+    }
+
     public void syncCampaigns(NetworkCredentialDO credential) {
+        // Reset statistics at start
+        this.lastSyncMerchants = 0;
+        this.lastSyncOffers = 0;
+        this.lastSyncCoupons = 0;
+        this.lastSyncDeals = 0;
+        this.lastSyncFailed = 0;
+        this.lastSyncTime = LocalDateTime.now();
+
         int offset = 0;
         int limit = 100;
         int totalSynced = 0;
@@ -86,7 +122,9 @@ public class AdmitadSyncService {
                 try {
                     syncSingleCampaign(credential.getNetworkId(), campaign);
                     totalSynced++;
+                    this.lastSyncMerchants++;
                 } catch (Exception e) {
+                    this.lastSyncFailed++;
                     log.error("Failed to sync campaign {}: {}", campaign.getId(), e.getMessage());
                 }
             }
@@ -121,6 +159,7 @@ public class AdmitadSyncService {
         if (campaign.getActions() != null) {
             for (AdmitadCampaign.Action action : campaign.getActions()) {
                 OfferDO offer = syncOffer(networkId, merchant.getId(), campaign, action);
+                this.lastSyncOffers++;
                 if (firstOfferId == null) {
                     firstOfferId = offer.getId();
                 }
@@ -335,9 +374,16 @@ public class AdmitadSyncService {
      * 根据 species 字段分流到 Coupon 或 Deal 表
      */
     public void syncCoupons(NetworkCredentialDO credential) {
+        // Reset statistics at start (offers may be synced from campaigns)
+        this.lastSyncCoupons = 0;
+        this.lastSyncDeals = 0;
+        this.lastSyncFailed = 0;
+        this.lastSyncTime = LocalDateTime.now();
+
         Long websiteId = extractWebsiteId(credential);
         if (websiteId == null) {
             log.error("No websiteId found in credential {}", credential.getId());
+            this.lastSyncFailed++;
             return;
         }
 
@@ -357,11 +403,14 @@ public class AdmitadSyncService {
                     if ("promocode".equalsIgnoreCase(coupon.getSpecies())) {
                         syncSingleCoupon(credential.getNetworkId(), coupon);
                         couponCount++;
+                        this.lastSyncCoupons++;
                     } else {
                         syncSingleDeal(credential.getNetworkId(), coupon);
                         dealCount++;
+                        this.lastSyncDeals++;
                     }
                 } catch (Exception e) {
+                    this.lastSyncFailed++;
                     log.error("Failed to sync coupon {}: {}", coupon.getId(), e.getMessage());
                 }
             }
@@ -649,9 +698,10 @@ public class AdmitadSyncService {
                 trackingUrl = generateMerchantTrackingUrl(merchant);
             }
 
+            // trackingUrl 已通过上述逻辑生成，确保不为 null
+            // 如果仍为 null，记录警告并继续尝试创建（使用空 URL）
             if (trackingUrl == null) {
-                log.debug("Skip creating tracking link for merchant {}: no tracking URL available", merchant.getId());
-                return;
+                log.warn("No tracking URL available for merchant {}, attempting to create with generated URL", merchant.getId());
             }
 
             // 使用 Merchant 的 slug 作为 TrackingLink 的 slug
@@ -675,8 +725,20 @@ public class AdmitadSyncService {
      */
     private void createOrUpdateOfferTrackingLink(OfferDO offer) {
         try {
-            if (offer.getGotoUrl() == null) {
-                log.debug("Skip creating tracking link for offer {}: no goto URL available", offer.getId());
+            // 获取或生成 tracking URL
+            String trackingUrl = offer.getGotoUrl();
+            if (trackingUrl == null) {
+                // 生成默认追踪 URL，使用 merchant 的 external_id
+                MerchantDO merchant = merchantMapper.selectById(offer.getMerchantId());
+                if (merchant != null && merchant.getExternalId() != null) {
+                    trackingUrl = String.format(
+                        "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
+                        merchant.getExternalId());
+                }
+            }
+
+            if (trackingUrl == null) {
+                log.warn("Cannot create tracking link for offer {}: no tracking URL available", offer.getId());
                 return;
             }
 
@@ -686,7 +748,7 @@ public class AdmitadSyncService {
             reqDTO.setTargetType(TARGET_TYPE_OFFER);
             reqDTO.setTargetId(offer.getId());
             reqDTO.setSlug(slug);
-            reqDTO.setTrackingUrl(offer.getGotoUrl());
+            reqDTO.setTrackingUrl(trackingUrl);
 
             trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
             log.debug("Created/updated tracking link for offer={}", offer.getId());
@@ -700,8 +762,20 @@ public class AdmitadSyncService {
      */
     private void createOrUpdateCouponTrackingLink(CouponDO coupon) {
         try {
-            if (coupon.getGotoUrl() == null) {
-                log.debug("Skip creating tracking link for coupon {}: no goto URL available", coupon.getId());
+            // 获取或生成 tracking URL
+            String trackingUrl = coupon.getGotoUrl();
+            if (trackingUrl == null && coupon.getMerchantId() != null) {
+                // 生成默认追踪 URL，使用 merchant 的 external_id
+                MerchantDO merchant = merchantMapper.selectById(coupon.getMerchantId());
+                if (merchant != null && merchant.getExternalId() != null) {
+                    trackingUrl = String.format(
+                        "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
+                        merchant.getExternalId());
+                }
+            }
+
+            if (trackingUrl == null) {
+                log.warn("Cannot create tracking link for coupon {}: no tracking URL available", coupon.getId());
                 return;
             }
 
@@ -711,7 +785,7 @@ public class AdmitadSyncService {
             reqDTO.setTargetType(TARGET_TYPE_COUPON);
             reqDTO.setTargetId(coupon.getId());
             reqDTO.setSlug(slug);
-            reqDTO.setTrackingUrl(coupon.getGotoUrl());
+            reqDTO.setTrackingUrl(trackingUrl);
 
             trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
             log.debug("Created/updated tracking link for coupon={}", coupon.getId());
@@ -725,8 +799,20 @@ public class AdmitadSyncService {
      */
     private void createOrUpdateDealTrackingLink(DealDO deal) {
         try {
-            if (deal.getGotoUrl() == null) {
-                log.debug("Skip creating tracking link for deal {}: no goto URL available", deal.getId());
+            // 获取或生成 tracking URL
+            String trackingUrl = deal.getGotoUrl();
+            if (trackingUrl == null && deal.getMerchantId() != null) {
+                // 生成默认追踪 URL，使用 merchant 的 external_id
+                MerchantDO merchant = merchantMapper.selectById(deal.getMerchantId());
+                if (merchant != null && merchant.getExternalId() != null) {
+                    trackingUrl = String.format(
+                        "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
+                        merchant.getExternalId());
+                }
+            }
+
+            if (trackingUrl == null) {
+                log.warn("Cannot create tracking link for deal {}: no tracking URL available", deal.getId());
                 return;
             }
 
@@ -737,7 +823,7 @@ public class AdmitadSyncService {
             reqDTO.setTargetType(TARGET_TYPE_DEAL);
             reqDTO.setTargetId(deal.getId());
             reqDTO.setSlug(slug);
-            reqDTO.setTrackingUrl(deal.getGotoUrl());
+            reqDTO.setTrackingUrl(trackingUrl);
 
             trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
             log.debug("Created/updated tracking link for deal={}", deal.getId());
@@ -756,6 +842,54 @@ public class AdmitadSyncService {
                 merchant.getExternalId());
         }
         return null;
+    }
+
+    /**
+     * 同步 Deal 数据（通过 code 调用）
+     * @param networkCode 联盟网络编码
+     * @return 同步结果
+     */
+    public AffiliateNetworkController.SyncResult syncDeals(String networkCode) {
+        // 根据 code 查找凭证
+        NetworkCredentialDO credential = getEnabledCredentialByNetworkCode(networkCode);
+        if (credential == null) {
+            return AffiliateNetworkController.SyncResult.error("No enabled credentials found for network: " + networkCode);
+        }
+        // 执行同步
+        syncCoupons(credential);
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("deals", lastSyncDeals);
+        stats.put("coupons", lastSyncCoupons);
+        stats.put("failed", lastSyncFailed);
+        return AffiliateNetworkController.SyncResult.success("Deal sync completed", stats);
+    }
+
+    /**
+     * 同步 Coupon 数据（通过 code 调用）
+     * @param networkCode 联盟网络编码
+     * @return 同步结果
+     */
+    public AffiliateNetworkController.SyncResult syncCouponsOnly(String networkCode) {
+        NetworkCredentialDO credential = getEnabledCredentialByNetworkCode(networkCode);
+        if (credential == null) {
+            return AffiliateNetworkController.SyncResult.error("No enabled credentials found for network: " + networkCode);
+        }
+        syncCoupons(credential);
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("coupons", lastSyncCoupons);
+        stats.put("deals", lastSyncDeals);
+        stats.put("failed", lastSyncFailed);
+        return AffiliateNetworkController.SyncResult.success("Coupon sync completed", stats);
+    }
+
+    /**
+     * 根据 network code 获取启用的凭证
+     * @param networkCode 联盟网络编码
+     * @return 凭证对象，不存在返回 null
+     */
+    private NetworkCredentialDO getEnabledCredentialByNetworkCode(String networkCode) {
+        List<NetworkCredentialDO> credentials = credentialMapper.selectEnabledByNetworkCode(networkCode);
+        return credentials.isEmpty() ? null : credentials.get(0);
     }
 
 }

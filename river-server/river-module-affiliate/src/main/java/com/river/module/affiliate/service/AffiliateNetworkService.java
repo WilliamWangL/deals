@@ -43,6 +43,13 @@ public interface AffiliateNetworkService {
     AffiliateNetworkDO getNetwork(Long id);
 
     /**
+     * 根据 code 获取联盟网络
+     * @param code 联盟编码
+     * @return 联盟网络实体，不存在返回 null
+     */
+    AffiliateNetworkDO getNetworkByCode(String code);
+
+    /**
      * 获得联盟网络列表
      *
      * @return 联盟网络列表
