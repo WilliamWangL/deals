@@ -1,8 +1,44 @@
-# AGENTS.md - river-ecommica
+# River Ecommica - AI Agent 开发规范
 
-本文件为 river-ecommica（Next.js 优惠聚合站点）开发指南，供 AI Agent 使用。
+> 本文档继承自 [项目通用规范](../AGENTS.md)。
+> 
+> 如未特别说明，遵循项目通用规范的所有约定。
 
-## 常用命令
+## 特有规范
+
+本文档记录前端站点子项目特有的开发规范。
+
+### 技术栈分类
+
+| 分类 | 模式 | 说明 |
+|------|------|------|
+| 框架 | Next.js + React | 前端框架 |
+| 样式 | Tailwind CSS 类型 | 原子化 CSS |
+| 国际化 | next-intl 模式 | 国际化方案 |
+| 状态管理 | React Hooks 模式 | 状态管理 |
+
+### 国际化模式
+
+#### 目录结构
+
+国际化资源位于 `src/` 目录下：
+
+```
+src/
+├── app/
+│   └── [locale]/     # 国际化路由
+├── i18n/             # 国际化配置
+└── messages/         # 翻译文件
+```
+
+#### 使用方式
+
+- 使用 App Router 的 `[locale]` 动态路由
+- 翻译文件组织在 `messages/` 目录
+- 通过 `next-intl` 的 useTranslations hook 获取翻译
+- 页面组件通过 params 获取 locale 参数
+
+### 常用命令
 
 ```bash
 cd river-ecommica
@@ -20,7 +56,7 @@ pnpm start
 pnpm lint
 ```
 
-## TypeScript 配置
+### TypeScript 配置
 
 ```json
 {
@@ -34,16 +70,16 @@ pnpm lint
 }
 ```
 
-## 代码风格
+### 代码风格
 
-### 组件约定
+#### 组件约定
 
 - 使用 App Router（`src/app/`）
 - Server Components 默认
 - 使用 `next-intl` 进行国际化
 - 使用 Tailwind CSS 4 进行样式
 
-### 命名规范
+#### 命名规范
 
 | 类型 | 规范 | 示例 |
 |------|------|------|
@@ -51,7 +87,7 @@ pnpm lint
 | 工具函数 | camelCase | `formatDate.ts` |
 | hooks | use 前缀 | `usePagination.ts` |
 
-### 导入顺序
+#### 导入顺序
 
 1. Node.js 内置
 2. React 相关
@@ -59,7 +95,7 @@ pnpm lint
 4. 项目内部组件/工具
 5. 相对导入
 
-### Tailwind CSS 规范
+#### Tailwind CSS 规范
 
 - 使用 `@tailwindcss/postcss`
 - 通过 `tailwind-merge` 合并类名
@@ -74,7 +110,7 @@ function cn(...inputs: (string | undefined | null | false)[]) {
 }
 ```
 
-### 类型安全（硬性禁止）
+#### 类型安全（硬性禁止）
 
 ```typescript
 // 禁止
@@ -84,7 +120,7 @@ as any
 catch(e) {}  // 空捕获块
 ```
 
-## 项目结构
+### 项目结构
 
 ```
 src/
@@ -110,9 +146,9 @@ src/
 └── middleware.ts     # 中间件
 ```
 
-## 分页规范
+### 分页规范
 
-### 分页常量
+#### 分页常量
 
 所有分页配置使用 `src/constants/pagination.ts` 中的枚举常量，禁止硬编码：
 
@@ -125,7 +161,7 @@ const pageNo = PAGINATION.DEFAULT_PAGE;         // 1
 const pageRange = PAGINATION.PAGE_RANGE;        // 5
 ```
 
-### 分页配置
+#### 分页配置
 
 | 常量 | 值 | 说明 |
 |------|-----|------|
@@ -136,7 +172,7 @@ const pageRange = PAGINATION.PAGE_RANGE;        // 5
 | `PAGINATION.DEFAULT_PAGE` | 1 | 默认页码 |
 | `PAGINATION.PAGE_RANGE` | 5 | 分页组件显示的页码数量 |
 
-### 分页组件
+#### 分页组件
 
 各模块使用对应的分页组件：
 
@@ -147,7 +183,7 @@ import { CouponPagination } from '@/components/coupon/CouponPagination';
 import { BlogPagination } from '@/components/blog/BlogPagination';
 ```
 
-### API 返回格式
+#### API 返回格式
 
 ```typescript
 interface PageResult<T> {
@@ -162,14 +198,14 @@ const { list: items, total } = await fetchStores({
 });
 ```
 
-### URL 参数
+#### URL 参数
 
 分页状态同步到 URL 查询参数：
 
 - `?page=2` - 第 2 页
 - `?page=3&q=keyword` - 第 3 页 + 搜索关键词
 
-### 页面中使用分页
+#### 页面中使用分页
 
 ```tsx
 export default async function StoresPage({
@@ -206,7 +242,7 @@ export default async function StoresPage({
 }
 ```
 
-## ESLint 配置
+### ESLint 配置
 
 使用 `eslint-config-next` 作为基础配置：
 
@@ -222,7 +258,7 @@ const eslintConfig = defineConfig([
 ]);
 ```
 
-## 技术栈
+### 技术栈
 
 | 技术 | 版本 |
 |------|------|
@@ -232,10 +268,10 @@ const eslintConfig = defineConfig([
 | Tailwind CSS | 4 |
 | next-intl | 4.7.0 |
 
-## 重要注意事项
+### 重要注意事项
 
 1. **遵循现有模式**：创建新代码前先查看类似组件
 2. **未明确要求不得 commit**：不要主动创建 Git 提交
 3. **类型安全**：禁止使用 `as any` 等类型错误抑制
 4. **国际化**：使用 `next-intl` 管理多语言
-5. **前端 UI/UX 变更**：样式、布局、动画等视觉变更委托给 `frontend-ui-ux-engineer` agent 处理
+5. **前端 UI/UX 变更**：样式、布局、动画等视觉变更使用 `frontend-design ` skill 处理

@@ -1,6 +1,46 @@
-# AGENTS.md - river-ui-admin
+# River UI Admin - AI Agent 开发规范
 
-本文件为 river-ui-admin（Vue 3 管理后台）开发指南，供 AI Agent 使用。
+> 本文档继承自 [项目通用规范](../AGENTS.md)。
+> 
+> 如未特别说明，遵循项目通用规范的所有约定。
+
+## 特有规范
+
+本文档记录管理前端子项目特有的开发规范。
+
+## 技术栈分类
+
+| 分类 | 模式 | 说明 |
+|------|------|------|
+| 框架 | Vue3 + TypeScript | 前端框架 |
+| UI 组件 | Element Plus 类型 | UI 组件库 |
+| 状态管理 | Pinia 模式 | 状态管理 |
+| 样式 | SCSS + scoped | 样式方案 |
+
+## API 调用模式
+
+### API 模块组织
+
+API 按业务模块组织在 `src/api/` 目录下：
+
+```
+src/api/
+├── river/        # River 业务模块 API
+│   ├── affiliate/
+│   ├── campaign/
+│   ├── coupon/
+│   ├── blog/
+│   ├── stats/
+│   └── tracking/
+├── system/       # 系统模块 API
+└── infra/        # 基础设施 API
+```
+
+### 调用方式
+
+- 使用 TypeScript 类型定义请求和响应
+- 遵循项目已有的 API 封装模式
+- 路径别名：`@/*` → `src/*`
 
 ## 常用命令
 
@@ -143,9 +183,56 @@ indent_size = 2
 max_line_length = 100
 ```
 
+## 禁止重复造轮子清单
+
+> **禁止重复造轮子**：使用模式描述，而非列出具体组件名。
+
+### 基础组件（src/components/）
+
+| 功能模式 | 组件模式 | 说明 |
+|----------|----------|------|
+| 按钮 | XButton 类型 | 基础按钮组件 |
+| 表格 | Table 类型 | 增强表格（分页、选择、搜索） |
+| 上传 | UploadFile 类型 | 文件/图片上传 |
+| 选择器 | SelectForm 类型 | 用户/部门选择器 |
+| 图标 | Icon 类型 | 图标选择与展示 |
+| 编辑器 | Editor 类型 | 富文本编辑器 |
+| 图表 | Echart 类型 | ECharts 封装 |
+| JSON | JsonEditor 类型 | JSON 编辑器 |
+| 表单设计 | FormCreate 类型 | 动态表单设计器 |
+| 流程设计 | bpmnProcessDesigner 类型 | BPMN 流程设计器 |
+| 装饰组件 | Card/ContentWrap 类型 | 布局装饰组件 |
+
+### Hooks（src/hooks/web/）
+
+| 功能模式 | Hook 模式 | 说明 |
+|----------|-----------|------|
+| 表格操作 | useTable 模式 | 表格 CRUD 操作 |
+| 表单操作 | useForm 模式 | 表单处理 |
+| CRUD 模式 | useCrudSchemas 模式 | CRUD 模式生成 |
+| 标签页 | useTagsView 模式 | 标签页管理 |
+| 缓存 | useCache 模式 | 缓存操作 |
+| 水印 | useWatermark 模式 | 水印功能 |
+| 引导 | useGuide 模式 | 新手引导 |
+| 验证 | useValidator 模式 | 表单验证 |
+
+### 工具函数（src/utils/）
+
+| 功能模式 | 工具模式 | 说明 |
+|----------|----------|------|
+| 字典 | dict.ts 模式 | 字典数据处理 |
+| 树形 | tree.ts 模式 | 树结构操作 |
+| 加密 | encrypt.ts 模式 | 加密解密 |
+| 路由 | routerHelper.ts 模式 | 路由处理 |
+| 权限 | permission.ts 模式 | 权限检查 |
+| 下载 | download.ts 模式 | 文件下载 |
+| 格式化 | formatTime.ts 模式 | 时间格式化 |
+| 校验 | formRules.ts 模式 | 表单校验规则 |
+| 日期 | dateUtil.ts 模式 | 日期操作 |
+
 ## 重要注意事项
 
 1. **遵循现有模式**：创建新代码前先查看类似模块
 2. **未明确要求不得 commit**：不要主动创建 Git 提交
 3. **类型安全**：禁止使用 `as any` 等类型错误抑制
-4. **前端 UI/UX 变更**：样式、布局、动画等视觉变更委托给 `frontend-ui-ux-engineer` agent 处理
+4. **前端 UI/UX 变更**：样式、布局、动画等视觉变更使用 `frontend-design ` skill 处理
