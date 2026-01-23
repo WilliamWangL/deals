@@ -2,7 +2,6 @@ package com.river.module.tracking.service;
 
 import com.river.framework.common.exception.ServiceException;
 import com.river.framework.test.core.ut.BaseMockitoUnitTest;
-import com.river.module.affiliate.service.OfferService;
 import com.river.module.tracking.dal.dataobject.ClickDO;
 import com.river.module.tracking.dal.mysql.ClickMapper;
 import com.river.module.tracking.dal.mysql.TrackingLinkMapper;
@@ -29,16 +28,14 @@ class ClickServiceImplTest extends BaseMockitoUnitTest {
     @Mock
     private TrackingLinkMapper trackingLinkMapper;
 
-    @Mock
-    private OfferService offerService;
-
     @Test
     void testGetClick_Success() {
         // Given
         String clickId = "ABC123456789";
         ClickDO expectedClick = new ClickDO();
         expectedClick.setClickId(clickId);
-        expectedClick.setOfferId(1L);
+        expectedClick.setTargetType(2);
+        expectedClick.setTargetId(1L);
         when(clickMapper.selectByClickId(eq(clickId))).thenReturn(expectedClick);
 
         // When
@@ -47,7 +44,8 @@ class ClickServiceImplTest extends BaseMockitoUnitTest {
         // Then
         assertNotNull(result);
         assertEquals(clickId, result.getClickId());
-        assertEquals(1L, result.getOfferId());
+        assertEquals(2, result.getTargetType());
+        assertEquals(1L, result.getTargetId());
         verify(clickMapper).selectByClickId(eq(clickId));
     }
 
@@ -70,7 +68,8 @@ class ClickServiceImplTest extends BaseMockitoUnitTest {
         // Given
         ClickDO click = new ClickDO();
         click.setClickId("ABC123456789");
-        click.setOfferId(1L);
+        click.setTargetType(2);
+        click.setTargetId(1L);
         when(clickMapper.insert(any(ClickDO.class))).thenReturn(1);
 
         // When

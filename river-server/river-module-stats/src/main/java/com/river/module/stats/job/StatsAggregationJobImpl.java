@@ -97,7 +97,7 @@ public class StatsAggregationJobImpl implements StatsAggregationJob {
         // 2. 聚合转化
         Map<Long, Integer> conversionsMap = new HashMap<>();
         Map<Long, BigDecimal> revenueMap = new HashMap<>();
-        aggregateConversionsToDimension(date, ClickDO::getOfferId, conversionsMap, revenueMap);
+        aggregateConversionsToDimension(date, click -> click.getTargetId(), conversionsMap, revenueMap);
 
         // 3. 保存
         saveStats(date, DimensionTypeEnum.OFFER.getType(),
@@ -157,7 +157,7 @@ public class StatsAggregationJobImpl implements StatsAggregationJob {
         // 3. 聚合转化
         Map<Long, Integer> conversionsMap = new HashMap<>();
         Map<Long, BigDecimal> revenueMap = new HashMap<>();
-        aggregateConversionsWithMapping(date, ClickDO::getOfferId, offerMap,
+        aggregateConversionsWithMapping(date, click -> click.getTargetId(), offerMap,
                 OfferDO::getMerchantId, conversionsMap, revenueMap);
 
         // 4. 保存
@@ -179,7 +179,7 @@ public class StatsAggregationJobImpl implements StatsAggregationJob {
         // 3. 聚合转化
         Map<Long, Integer> conversionsMap = new HashMap<>();
         Map<Long, BigDecimal> revenueMap = new HashMap<>();
-        aggregateConversionsWithMapping(date, ClickDO::getOfferId, offerMap,
+        aggregateConversionsWithMapping(date, click -> click.getTargetId(), offerMap,
                 this::getFirstCategoryId, conversionsMap, revenueMap);
 
         // 4. 保存

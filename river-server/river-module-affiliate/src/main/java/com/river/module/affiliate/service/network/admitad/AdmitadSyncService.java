@@ -31,9 +31,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.river.framework.common.biz.tracking.TrackingLinkCommonApi;
+import com.river.framework.common.biz.tracking.dto.TrackingLinkCreateReqDTO;
+
 @Slf4j
 @Service
 public class AdmitadSyncService {
+
+    /** 目标类型常量 */
+    private static final int TARGET_TYPE_MERCHANT = 1;
+    private static final int TARGET_TYPE_OFFER = 2;
+    private static final int TARGET_TYPE_DEAL = 3;
+    private static final int TARGET_TYPE_COUPON = 4;
 
     @Resource
     private AdmitadClient admitadClient;
@@ -55,6 +64,9 @@ public class AdmitadSyncService {
 
     @Resource
     private DealMapper dealMapper;
+
+    @Resource
+    private TrackingLinkCommonApi trackingLinkCommonApi;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -104,11 +116,26 @@ public class AdmitadSyncService {
             merchantMapper.insert(merchant);
         }
 
+        // 同步 Offers 并记录第一个 Offer ID
+        Long firstOfferId = null;
         if (campaign.getActions() != null) {
             for (AdmitadCampaign.Action action : campaign.getActions()) {
-                syncOffer(networkId, merchant.getId(), campaign, action);
+                OfferDO offer = syncOffer(networkId, merchant.getId(), campaign, action);
+                if (firstOfferId == null) {
+                    firstOfferId = offer.getId();
+                }
             }
         }
+
+        // 设置默认 Offer ID（如果还没有设置）
+        if (merchant.getDefaultOfferId() == null && firstOfferId != null) {
+            merchant.setDefaultOfferId(firstOfferId);
+            merchantMapper.updateById(merchant);
+            log.info("Set default_offer_id={} for merchant={}", firstOfferId, merchant.getId());
+        }
+
+        // 创建或更新 Merchant 的 TrackingLink
+        createOrUpdateMerchantTrackingLink(merchant);
     }
 
     private MerchantDO createMerchant(Long networkId, AdmitadCampaign campaign) {
@@ -142,17 +169,24 @@ public class AdmitadSyncService {
         }
     }
 
-    private void syncOffer(Long networkId, Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
+    private OfferDO syncOffer(Long networkId, Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
         String externalId = campaign.getId() + "_" + action.getId();
         OfferDO existingOffer = offerMapper.selectByMerchantAndExternalId(merchantId, externalId);
 
+        OfferDO offer;
         if (existingOffer != null) {
-            updateOffer(existingOffer, campaign, action);
-            offerMapper.updateById(existingOffer);
+            offer = existingOffer;
+            updateOffer(offer, campaign, action);
+            offerMapper.updateById(offer);
         } else {
-            OfferDO offer = createOffer(networkId, merchantId, campaign, action);
+            offer = createOffer(networkId, merchantId, campaign, action);
             offerMapper.insert(offer);
         }
+
+        // 创建或更新 Offer 的 TrackingLink
+        createOrUpdateOfferTrackingLink(offer);
+
+        return offer;
     }
 
     private OfferDO createOffer(Long networkId, Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
@@ -174,7 +208,7 @@ public class AdmitadSyncService {
         String trackingUrl = String.format(
             "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
             campaign.getId());
-        offer.setTrackingUrlTemplate(trackingUrl);
+        offer.setGotoUrl(trackingUrl);
 
         // 设置 Offer 的分类（继承自 Campaign）
         if (campaign.getCategories() != null && !campaign.getCategories().isEmpty()) {
@@ -360,9 +394,11 @@ public class AdmitadSyncService {
         if (existingCoupon != null) {
             updateCoupon(existingCoupon, networkId, merchantId, admitadCoupon);
             couponMapper.updateById(existingCoupon);
+            createOrUpdateCouponTrackingLink(existingCoupon);
         } else {
             CouponDO coupon = createCoupon(networkId, merchantId, admitadCoupon);
             couponMapper.insert(coupon);
+            createOrUpdateCouponTrackingLink(coupon);
         }
     }
 
@@ -429,9 +465,11 @@ public class AdmitadSyncService {
         if (existingDeal != null) {
             updateDeal(existingDeal, networkId, merchantId, admitadCoupon);
             dealMapper.updateById(existingDeal);
+            createOrUpdateDealTrackingLink(existingDeal);
         } else {
             DealDO deal = createDeal(networkId, merchantId, admitadCoupon);
             dealMapper.insert(deal);
+            createOrUpdateDealTrackingLink(deal);
         }
     }
 
@@ -590,6 +628,134 @@ public class AdmitadSyncService {
 
         return mappedCategoryIds.isEmpty() ? null :
             mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+    }
+
+    /**
+     * 创建或更新 Merchant 的 TrackingLink
+     */
+    private void createOrUpdateMerchantTrackingLink(MerchantDO merchant) {
+        try {
+            // 构建追踪 URL
+            String trackingUrl;
+            if (merchant.getDefaultOfferId() != null) {
+                // 如果有默认 Offer，使用 Offer 的 goto_url
+                OfferDO defaultOffer = offerMapper.selectById(merchant.getDefaultOfferId());
+                if (defaultOffer != null && defaultOffer.getGotoUrl() != null) {
+                    trackingUrl = defaultOffer.getGotoUrl();
+                } else {
+                    trackingUrl = generateMerchantTrackingUrl(merchant);
+                }
+            } else {
+                trackingUrl = generateMerchantTrackingUrl(merchant);
+            }
+
+            if (trackingUrl == null) {
+                log.debug("Skip creating tracking link for merchant {}: no tracking URL available", merchant.getId());
+                return;
+            }
+
+            // 使用 Merchant 的 slug 作为 TrackingLink 的 slug
+            String slug = merchant.getSlug() != null ? merchant.getSlug() : "m-" + merchant.getId();
+
+            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
+            reqDTO.setTargetType(TARGET_TYPE_MERCHANT);
+            reqDTO.setTargetId(merchant.getId());
+            reqDTO.setSlug(slug);
+            reqDTO.setTrackingUrl(trackingUrl);
+
+            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
+            log.debug("Created/updated tracking link for merchant={}", merchant.getId());
+        } catch (Exception e) {
+            log.error("Failed to create/update tracking link for merchant {}: {}", merchant.getId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 创建或更新 Offer 的 TrackingLink
+     */
+    private void createOrUpdateOfferTrackingLink(OfferDO offer) {
+        try {
+            if (offer.getGotoUrl() == null) {
+                log.debug("Skip creating tracking link for offer {}: no goto URL available", offer.getId());
+                return;
+            }
+
+            String slug = "offer-" + offer.getId();
+
+            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
+            reqDTO.setTargetType(TARGET_TYPE_OFFER);
+            reqDTO.setTargetId(offer.getId());
+            reqDTO.setSlug(slug);
+            reqDTO.setTrackingUrl(offer.getGotoUrl());
+
+            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
+            log.debug("Created/updated tracking link for offer={}", offer.getId());
+        } catch (Exception e) {
+            log.error("Failed to create/update tracking link for offer {}: {}", offer.getId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 创建或更新 Coupon 的 TrackingLink
+     */
+    private void createOrUpdateCouponTrackingLink(CouponDO coupon) {
+        try {
+            if (coupon.getGotoUrl() == null) {
+                log.debug("Skip creating tracking link for coupon {}: no goto URL available", coupon.getId());
+                return;
+            }
+
+            String slug = "coupon-" + coupon.getId();
+
+            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
+            reqDTO.setTargetType(TARGET_TYPE_COUPON);
+            reqDTO.setTargetId(coupon.getId());
+            reqDTO.setSlug(slug);
+            reqDTO.setTrackingUrl(coupon.getGotoUrl());
+
+            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
+            log.debug("Created/updated tracking link for coupon={}", coupon.getId());
+        } catch (Exception e) {
+            log.error("Failed to create/update tracking link for coupon {}: {}", coupon.getId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 创建或更新 Deal 的 TrackingLink
+     */
+    private void createOrUpdateDealTrackingLink(DealDO deal) {
+        try {
+            if (deal.getGotoUrl() == null) {
+                log.debug("Skip creating tracking link for deal {}: no goto URL available", deal.getId());
+                return;
+            }
+
+            // 优先使用 deal 的 slug
+            String slug = deal.getSlug() != null ? deal.getSlug() : "deal-" + deal.getId();
+
+            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
+            reqDTO.setTargetType(TARGET_TYPE_DEAL);
+            reqDTO.setTargetId(deal.getId());
+            reqDTO.setSlug(slug);
+            reqDTO.setTrackingUrl(deal.getGotoUrl());
+
+            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
+            log.debug("Created/updated tracking link for deal={}", deal.getId());
+        } catch (Exception e) {
+            log.error("Failed to create/update tracking link for deal {}: {}", deal.getId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 生成 Merchant 的追踪 URL
+     */
+    private String generateMerchantTrackingUrl(MerchantDO merchant) {
+        // 根据 merchant 的 external_id 生成 Admitad 追踪链接
+        if (merchant.getExternalId() != null) {
+            return String.format("https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
+                merchant.getExternalId());
+        }
+        return null;
     }
 
 }

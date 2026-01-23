@@ -4,7 +4,9 @@ import request from '@/config/axios'
 
 export interface ClickVO {
   clickId: string
-  offerId: number
+  targetType: number
+  targetId: number
+  merchantId: number
   campaignId: number
   landingPageId: number
   sub1: string
@@ -28,6 +30,21 @@ export const ClickApi = {
   getClick: async (clickId: string) => {
     return await request.get({ url: `/tracking/click/get?clickId=` + clickId })
   }
+}
+
+// ==================== 点击分页查询参数 ====================
+
+export interface ClickPageReqVO {
+  pageNo: number
+  pageSize: number
+  targetType?: number
+  targetId?: number
+  merchantId?: number
+  campaignId?: number
+  sub1?: string
+  ip?: string
+  country?: string
+  clickTime?: string[]
 }
 
 // ==================== 转化记录 ====================
@@ -65,7 +82,8 @@ export const ConversionApi = {
 
 export interface TrackingLinkVO {
   id: number
-  offerId: number
+  targetType: number
+  targetId: number
   slug: string
   presetSub1: string
   presetSub2: string
@@ -75,6 +93,17 @@ export interface TrackingLinkVO {
   utmParams: string
   status: number
   createTime: Date
+}
+
+// ==================== 追踪链接分页查询参数 ====================
+
+export interface TrackingLinkPageReqVO {
+  pageNo: number
+  pageSize: number
+  targetType?: number
+  targetId?: number
+  slug?: string
+  status?: number
 }
 
 export const TrackingLinkApi = {

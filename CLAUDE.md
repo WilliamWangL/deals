@@ -22,12 +22,6 @@ River 广告平台是一个广告联盟管理系统 monorepo，包含三个子�
 | river-ui-admin | `river-ui-admin/CLAUDE.md` | 前端架构、组件规范、API 调用模式 |
 | river-ecommica | `river-ecommica/CLAUDE.md` | Next.js 架构、国际化、SEO 规范 |
 
-## MCP 工具
-
-| 工具 | 用途 |
-|------|------|
-| `mcp__postgres__query` | 执行 PostgreSQL 查询（数据库：`localhost:5432/river`） |
-
 ## 基础平台能力
 
 > **重要**：优先复用框架工具类和基础服务，禁止重复造轮子。
@@ -115,3 +109,4 @@ River 广告平台是一个广告联盟管理系统 monorepo，包含三个子�
 6. **禁止重复造轮子** — 优先使用 river-common 工具类和 system/infra 服务
 7. **字典数据** — 枚举类型优先使用系统字典 API (`/system/dict-data/type/{dictType}`)
 8. **API 路径一致** — 前端 API 路径与后端 Controller 路径保持一致
+9. **禁止硬编码** — 禁止硬编码，使用常量、枚举等。

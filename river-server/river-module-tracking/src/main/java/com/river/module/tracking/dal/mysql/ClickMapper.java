@@ -20,7 +20,9 @@ public interface ClickMapper extends BaseMapperX<ClickDO> {
 
     default PageResult<ClickDO> selectPage(ClickPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<ClickDO>()
-                .eqIfPresent(ClickDO::getOfferId, reqVO.getOfferId())
+                .eqIfPresent(ClickDO::getTargetType, reqVO.getTargetType())
+                .eqIfPresent(ClickDO::getTargetId, reqVO.getTargetId())
+                .eqIfPresent(ClickDO::getMerchantId, reqVO.getMerchantId())
                 .eqIfPresent(ClickDO::getCampaignId, reqVO.getCampaignId())
                 .likeIfPresent(ClickDO::getSub1, reqVO.getSub1())
                 .likeIfPresent(ClickDO::getIp, reqVO.getIp())
@@ -49,8 +51,18 @@ public interface ClickMapper extends BaseMapperX<ClickDO> {
         return selectClicksGroupByDimension(date, "campaign_id");
     }
 
+    default List<Map<String, Object>> selectClicksGroupByTarget(LocalDate date, Integer targetType) {
+        QueryWrapper<ClickDO> wrapper = new QueryWrapper<>();
+        wrapper.select("target_id as targetId", "COUNT(*) as clicks")
+                .apply("DATE(click_time) = {0}", date)
+                .eq("target_type", targetType)
+                .isNotNull("target_id")
+                .groupBy("target_id");
+        return selectMaps(wrapper);
+    }
+
     default List<Map<String, Object>> selectClicksGroupByOffer(LocalDate date) {
-        return selectClicksGroupByDimension(date, "offer_id");
+        return selectClicksGroupByTarget(date, 2); // target_type=2 为 Offer
     }
 
     default List<Map<String, Object>> selectClicksGroupByLandingPage(LocalDate date) {

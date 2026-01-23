@@ -8,21 +8,29 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item label="Offer" prop="offerId">
+      <el-form-item label="目标类型" prop="targetType">
         <el-select
-          v-model="queryParams.offerId"
-          placeholder="请选择Offer"
+          v-model="queryParams.targetType"
+          placeholder="请选择类型"
           clearable
-          filterable
-          class="!w-240px"
+          class="!w-120px"
         >
           <el-option
-            v-for="offer in offerList"
-            :key="offer.id"
-            :label="offer.name"
-            :value="offer.id"
+            v-for="dict in targetTypeOptions"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="目标ID" prop="targetId">
+        <el-input
+          v-model="queryParams.targetId"
+          placeholder="请输入目标ID"
+          clearable
+          @keyup.enter="handleQuery"
+          class="!w-240px"
+        />
       </el-form-item>
       <el-form-item label="Slug" prop="slug">
         <el-input
@@ -85,11 +93,14 @@
           <el-tag type="primary" size="small">{{ scope.row.slug }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Offer" prop="offerId" width="200">
+      <el-table-column label="目标类型" prop="targetType" width="100">
         <template #default="scope">
-          {{ getOfferName(scope.row.offerId) }}
+          <el-tag :type="getTargetTypeTag(scope.row.targetType)" size="small">
+            {{ getTargetTypeName(scope.row.targetType) }}
+          </el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="目标ID" prop="targetId" width="100" />
       <el-table-column label="预设Sub1" prop="presetSub1" width="120" show-overflow-tooltip />
       <el-table-column label="预设Sub2" prop="presetSub2" width="120" show-overflow-tooltip />
       <el-table-column label="预设Sub3" prop="presetSub3" width="120" show-overflow-tooltip />
@@ -150,7 +161,7 @@
   </ContentWrap>
 
   <!-- 表单弹窗：添加/修改 -->
-  <TrackingLinkForm ref="formRef" @success="getList" :offer-list="offerList" />
+  <TrackingLinkForm ref="formRef" @success="getList" />
 </template>
 
 <script setup lang="ts">
@@ -167,22 +178,41 @@ const { t } = useI18n() // 国际化
 const loading = ref(true) // 列表的加载中
 const total = ref(0) // 列表的总页数
 const list = ref([]) // 列表的数据
-const offerList = ref([]) // Offer列表
+
+// 目标类型选项
+const targetTypeOptions = [
+  { value: 1, label: '商家' },
+  { value: 2, label: 'Offer' },
+  { value: 3, label: 'Deal' },
+  { value: 4, label: '优惠券' }
+]
 
 const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,
-  offerId: undefined,
+  targetType: undefined,
+  targetId: undefined,
   slug: undefined,
   status: undefined
 })
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中
 
-/** 获取Offer名称 */
-const getOfferName = (id: number) => {
-  const offer = offerList.value.find((o) => o.id === id)
-  return offer?.name || `ID: ${id}`
+/** 获取目标类型名称 */
+const getTargetTypeName = (type: number) => {
+  const item = targetTypeOptions.find(o => o.value === type)
+  return item?.label || `类型${type}`
+}
+
+/** 获取目标类型标签样式 */
+const getTargetTypeTag = (type: number) => {
+  const map: Record<number, string> = {
+    1: 'warning',  // 商家 - 橙色
+    2: 'success',  // Offer - 绿色
+    3: 'primary',  // Deal - 蓝色
+    4: 'info'      // 优惠券 - 灰色
+  }
+  return map[type] || 'info'
 }
 
 /** 截断UTM参数显示 */
@@ -201,12 +231,6 @@ const getList = async () => {
   } finally {
     loading.value = false
   }
-}
-
-/** 获取Offer列表 */
-const getOfferList = async () => {
-  // 这里需要调用 Offer API，暂时使用空数组
-  // 实际应该从 affiliate 模块获取
 }
 
 /** 搜索按钮操作 */
@@ -269,6 +293,5 @@ const handleExport = async () => {
 /** 初始化 **/
 onMounted(() => {
   getList()
-  getOfferList()
 })
 </script>

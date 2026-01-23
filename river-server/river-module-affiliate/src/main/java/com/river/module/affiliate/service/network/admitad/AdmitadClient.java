@@ -85,6 +85,73 @@ public class AdmitadClient {
         return List.of();
     }
 
+    /**
+     * 生成 Deeplink（通过 Admitad API）
+     * 尝试多种 API 格式
+     *
+     * @param credential 凭证
+     * @param campaignId 活动 ID
+     * @param subid      子 ID（可选）
+     * @return 生成的 deeplink
+     */
+    public String generateDeeplink(NetworkCredentialDO credential, Long campaignId, String subid) {
+        String token = getValidToken(credential);
+
+        // 获取 website_id
+        Map<String, String> creds = parseCredentials(credential.getCredentials());
+        String websiteId = creds.get("websiteId");
+
+        // 尝试不同的 API 格式
+        String[][] urlFormats = {
+            // 格式 1: POST with campaign_id only
+            {String.format("%s/deeplink/%d/", BASE_URL, campaignId), "POST", "{}"},
+            // 格式 2: POST with subid
+            {String.format("%s/deeplink/%d/subid/%s/", BASE_URL, campaignId, subid != null ? subid : "123"), "POST", "{}"},
+            // 格式 3: GET format
+            {String.format("%s/deeplink/%d/?subid=%s", BASE_URL, campaignId, subid != null ? subid : "123"), "GET", null},
+            // 格式 4: POST with campaign_id and website_id
+            {String.format("%s/deeplink/%d/?w=%s", BASE_URL, campaignId, websiteId), "POST", "{}"},
+        };
+
+        for (String[] format : urlFormats) {
+            String url = format[0];
+            String method = format[1];
+            String body = format[2];
+
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(token);
+                if ("POST".equals(method)) {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                }
+
+                HttpEntity<?> entity;
+                if ("POST".equals(method)) {
+                    entity = new HttpEntity<>(body, headers);
+                } else {
+                    entity = new HttpEntity<>(headers);
+                }
+
+                log.info("Trying deeplink API: {} {}", method, url);
+                ResponseEntity<DeeplinkResponse> response = restTemplate.exchange(
+                    url, "POST".equals(method) ? HttpMethod.POST : HttpMethod.GET,
+                    entity, DeeplinkResponse.class);
+
+                if (response.getBody() != null && response.getBody().getProducts() != null
+                    && !response.getBody().getProducts().isEmpty()) {
+                    String deeplink = response.getBody().getProducts().get(0).getDeeplink();
+                    log.info("Generated deeplink for campaign {} using {}: {}", campaignId, url, deeplink);
+                    return deeplink;
+                }
+            } catch (Exception e) {
+                log.info("Failed format {} ({}) for campaign {}: {}", url, method, campaignId, e.getMessage());
+            }
+        }
+
+        log.error("Failed to generate deeplink for campaign {} using all formats", campaignId);
+        return null;
+    }
+
     private synchronized String getValidToken(NetworkCredentialDO credential) {
         Long credentialId = credential.getId();
         TokenCache cache = tokenCacheMap.get(credentialId);
@@ -195,6 +262,16 @@ public class AdmitadClient {
             private int offset;
             private int limit;
             private int count;
+        }
+    }
+
+    @Data
+    public static class DeeplinkResponse {
+        private List<DeeplinkProduct> products;
+
+        @Data
+        public static class DeeplinkProduct {
+            private String deeplink;
         }
     }
 

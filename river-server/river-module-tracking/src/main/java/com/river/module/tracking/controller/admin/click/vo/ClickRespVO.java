@@ -12,8 +12,14 @@ public class ClickRespVO {
     @Schema(description = "点击 ID", example = "01HXYZ...")
     private String clickId;
 
-    @Schema(description = "Offer ID", example = "1")
-    private Long offerId;
+    @Schema(description = "目标类型", example = "2")
+    private Integer targetType;
+
+    @Schema(description = "目标 ID", example = "1")
+    private Long targetId;
+
+    @Schema(description = "商家 ID", example = "1")
+    private Long merchantId;
 
     @Schema(description = "Campaign ID", example = "1")
     private Long campaignId;

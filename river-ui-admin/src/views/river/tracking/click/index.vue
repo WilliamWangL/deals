@@ -8,21 +8,38 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item label="Offer" prop="offerId">
+      <el-form-item label="目标类型" prop="targetType">
         <el-select
-          v-model="queryParams.offerId"
-          placeholder="请选择Offer"
+          v-model="queryParams.targetType"
+          placeholder="请选择类型"
           clearable
-          filterable
-          class="!w-180px"
+          class="!w-120px"
         >
           <el-option
-            v-for="offer in offerList"
-            :key="offer.id"
-            :label="offer.name"
-            :value="offer.id"
+            v-for="dict in targetTypeOptions"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="目标ID" prop="targetId">
+        <el-input
+          v-model.number="queryParams.targetId"
+          placeholder="请输入目标ID"
+          clearable
+          @keyup.enter="handleQuery"
+          class="!w-140px"
+        />
+      </el-form-item>
+      <el-form-item label="商家ID" prop="merchantId">
+        <el-input
+          v-model.number="queryParams.merchantId"
+          placeholder="请输入商家ID"
+          clearable
+          @keyup.enter="handleQuery"
+          class="!w-120px"
+        />
       </el-form-item>
       <el-form-item label="点击ID" prop="clickId">
         <el-input
@@ -65,11 +82,15 @@
           </el-link>
         </template>
       </el-table-column>
-      <el-table-column label="Offer" prop="offerId" width="150">
+      <el-table-column label="目标类型" prop="targetType" width="100">
         <template #default="scope">
-          {{ getOfferName(scope.row.offerId) }}
+          <el-tag :type="getTargetTypeTag(scope.row.targetType)" size="small">
+            {{ getTargetTypeName(scope.row.targetType) }}
+          </el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="目标ID" prop="targetId" width="100" />
+      <el-table-column label="商家ID" prop="merchantId" width="100" />
       <el-table-column label="IP地址" prop="ip" width="140" />
       <el-table-column label="国家" prop="country" width="80">
         <template #default="scope">
@@ -119,8 +140,16 @@
       <el-descriptions-item label="点击ID" :span="2">
         <span class="font-mono">{{ currentDetail.clickId }}</span>
       </el-descriptions-item>
-      <el-descriptions-item label="Offer">
-        {{ getOfferName(currentDetail.offerId) }}
+      <el-descriptions-item label="目标类型">
+        <el-tag :type="getTargetTypeTag(currentDetail.targetType)" size="small">
+          {{ getTargetTypeName(currentDetail.targetType) }}
+        </el-tag>
+      </el-descriptions-item>
+      <el-descriptions-item label="目标ID">
+        {{ currentDetail.targetId || '-' }}
+      </el-descriptions-item>
+      <el-descriptions-item label="商家ID">
+        {{ currentDetail.merchantId || '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="Campaign">
         {{ currentDetail.campaignId ? getCampaignName(currentDetail.campaignId) : '-' }}
@@ -159,7 +188,6 @@
 <script setup lang="ts">
 import { dateFormatter } from '@/utils/formatTime'
 import { ClickApi } from '@/api/river/tracking'
-import { OfferApi } from '@/api/river/affiliate'
 import { CampaignApi } from '@/api/river/campaign'
 
 defineOptions({ name: 'TrackingClick' })
@@ -169,24 +197,44 @@ const message = useMessage()
 const loading = ref(true) // 列表的加载中
 const total = ref(0) // 列表的总页数
 const list = ref([]) // 列表的数据
-const offerList = ref([]) // Offer列表
 const campaignList = ref([]) // Campaign列表
 const detailVisible = ref(false) // 详情弹窗
 const currentDetail = ref<any>(null) // 当前详情数据
 
+// 目标类型选项
+const targetTypeOptions = [
+  { value: 1, label: '商家' },
+  { value: 2, label: 'Offer' },
+  { value: 3, label: 'Deal' },
+  { value: 4, label: '优惠券' }
+]
+
 const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,
-  offerId: undefined,
+  targetType: undefined as number | undefined,
+  targetId: undefined as number | undefined,
+  merchantId: undefined as number | undefined,
   clickId: undefined,
   clickTime: undefined
 })
 const queryFormRef = ref() // 搜索的表单
 
-/** 获取Offer名称 */
-const getOfferName = (id: number) => {
-  const offer = offerList.value.find((o) => o.id === id)
-  return offer?.name || `ID: ${id}`
+/** 获取目标类型名称 */
+const getTargetTypeName = (type: number) => {
+  const item = targetTypeOptions.find(o => o.value === type)
+  return item?.label || `类型${type}`
+}
+
+/** 获取目标类型标签样式 */
+const getTargetTypeTag = (type: number) => {
+  const map: Record<number, string> = {
+    1: 'warning',  // 商家 - 橙色
+    2: 'success',  // Offer - 绿色
+    3: 'primary',  // Deal - 蓝色
+    4: 'info'      // 优惠券 - 灰色
+  }
+  return map[type] || 'info'
 }
 
 /** 获取Campaign名称 */
@@ -219,11 +267,6 @@ const getList = async () => {
   }
 }
 
-/** 获取Offer列表 */
-const getOfferList = async () => {
-  offerList.value = await OfferApi.getOfferList()
-}
-
 /** 获取Campaign列表 */
 const getCampaignList = async () => {
   const data = await CampaignApi.getCampaignPage({ pageNo: 1, pageSize: 200 })
@@ -251,7 +294,6 @@ const handleView = (row: any) => {
 /** 初始化 **/
 onMounted(() => {
   getList()
-  getOfferList()
   getCampaignList()
 })
 </script>

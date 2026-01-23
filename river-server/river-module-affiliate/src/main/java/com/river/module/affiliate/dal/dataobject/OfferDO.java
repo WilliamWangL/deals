@@ -56,8 +56,8 @@ public class OfferDO extends TenantBaseDO {
     /** Cookie 有效期（天） */
     private Integer cookieDays;
 
-    /** 追踪链接模板 */
-    private String trackingUrlTemplate;
+    /** 追踪跳转URL（完整URL，存储时已拼接参数） */
+    private String gotoUrl;
 
     /** 落地页 URL */
     private String landingUrl;

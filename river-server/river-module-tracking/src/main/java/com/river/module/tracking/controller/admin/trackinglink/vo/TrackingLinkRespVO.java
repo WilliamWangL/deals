@@ -12,8 +12,11 @@ public class TrackingLinkRespVO {
     @Schema(description = "编号", example = "1")
     private Long id;
 
-    @Schema(description = "Offer ID", example = "1")
-    private Long offerId;
+    @Schema(description = "目标类型", example = "2")
+    private Integer targetType;
+
+    @Schema(description = "目标 ID", example = "1")
+    private Long targetId;
 
     @Schema(description = "链接 Slug", example = "my-link")
     private String slug;

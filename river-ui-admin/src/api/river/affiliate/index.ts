@@ -68,6 +68,7 @@ export interface MerchantVO {
   status: number
   regions: string
   categoryIds: string
+  defaultOfferId: number
   createTime: Date
 }
 
@@ -162,7 +163,7 @@ export interface OfferVO {
   commissionValue: number
   currency: string
   cookieDays: number
-  trackingUrlTemplate: string
+  gotoUrl: string
   landingUrl: string
   status: number
   regions: string

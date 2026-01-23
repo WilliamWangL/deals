@@ -15,7 +15,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="联盟网络" prop="networkId">
-            <el-select v-model="formData.networkId" placeholder="请选择联盟网络" class="!w-full">
+            <el-select v-model="formData.networkId" placeholder="请选择联盟网络" class="!w-full" @change="handleNetworkChange">
               <el-option
                 v-for="network in networkList"
                 :key="network.id"
@@ -63,6 +63,18 @@
             </el-select>
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="默认 Offer" prop="defaultOfferId">
+            <el-select v-model="formData.defaultOfferId" placeholder="请选择默认 Offer（用于 Visit Store 追踪）" class="!w-full" clearable>
+              <el-option
+                v-for="offer in offerList"
+                :key="offer.id"
+                :label="offer.name"
+                :value="offer.id"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
       </el-row>
       <el-form-item label="Logo URL" prop="logoUrl">
         <el-input v-model="formData.logoUrl" placeholder="请输入 Logo URL" />
@@ -100,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { MerchantApi, MerchantVO, AffiliateNetworkApi } from '@/api/river/affiliate'
+import { MerchantApi, MerchantVO, AffiliateNetworkApi, OfferApi, OfferVO } from '@/api/river/affiliate'
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 商家 表单 */
@@ -120,6 +132,7 @@ const dialogVisible = ref(false) // 弹窗的是否展示
 const dialogTitle = ref('') // 弹窗的标题
 const formLoading = ref(false) // 表单的加载中
 const formType = ref('') // 表单的类型：create - 新增；update - 修改
+const offerList = ref<OfferVO[]>([]) // Offer 列表
 const formData = ref({
   id: undefined,
   networkId: undefined,
@@ -132,7 +145,8 @@ const formData = ref({
   rating: 0,
   status: 0,
   regions: '',
-  categoryIds: ''
+  categoryIds: '',
+  defaultOfferId: undefined as number | undefined
 })
 const formRules = reactive({
   name: [{ required: true, message: '商家名称不能为空', trigger: 'blur' }],
@@ -140,6 +154,16 @@ const formRules = reactive({
   status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
 })
 const formRef = ref() // 表单 Ref
+
+/** 获取商家的 Offer 列表 */
+const getOfferList = async (merchantId: number, networkId: number) => {
+  offerList.value = await OfferApi.getOfferList({ merchantId, networkId } as any)
+}
+
+/** 联盟网络变化时清空默认 Offer */
+const handleNetworkChange = () => {
+  formData.value.defaultOfferId = undefined
+}
 
 /** 打开弹窗 */
 const open = async (type: string, id?: number) => {
@@ -152,6 +176,8 @@ const open = async (type: string, id?: number) => {
     formLoading.value = true
     try {
       formData.value = await MerchantApi.getMerchant(id)
+      // 获取该商家的 Offer 列表
+      await getOfferList(id, formData.value.networkId)
     } finally {
       formLoading.value = false
     }
@@ -197,8 +223,10 @@ const resetForm = () => {
     rating: 0,
     status: 0,
     regions: '',
-    categoryIds: ''
+    categoryIds: '',
+    defaultOfferId: undefined
   }
+  offerList.value = []
   formRef.value?.resetFields()
 }
 </script>

@@ -2,8 +2,6 @@ package com.river.module.tracking.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.river.framework.common.pojo.PageResult;
-import com.river.module.affiliate.dal.dataobject.OfferDO;
-import com.river.module.affiliate.service.OfferService;
 import com.river.module.tracking.controller.admin.click.vo.ClickPageReqVO;
 import com.river.module.tracking.dal.dataobject.ClickDO;
 import com.river.module.tracking.dal.dataobject.TrackingLinkDO;
@@ -33,9 +31,6 @@ public class ClickServiceImpl implements ClickService {
 
     @Resource
     private TrackingLinkMapper trackingLinkMapper;
-
-    @Resource
-    private OfferService offerService;
 
     @Override
     public ClickDO getClick(String clickId) {
@@ -69,12 +64,6 @@ public class ClickServiceImpl implements ClickService {
             throw exception(TRACKING_LINK_NOT_EXISTS);
         }
 
-        OfferDO offer = offerService.getOffer(trackingLink.getOfferId());
-        if (offer == null) {
-            log.warn("Offer not found for trackingLink: {}", trackingLinkId);
-            return FALLBACK_URL;
-        }
-
         String clickId = generateClickId();
 
         String finalSub1 = StrUtil.firstNonBlank(sub1, trackingLink.getPresetSub1());
@@ -83,9 +72,11 @@ public class ClickServiceImpl implements ClickService {
         String finalSub4 = StrUtil.firstNonBlank(sub4, trackingLink.getPresetSub4());
         String finalSub5 = StrUtil.firstNonBlank(sub5, trackingLink.getPresetSub5());
 
+        // 构建 ClickDO，使用 trackingLink 的 targetType 和 targetId
         ClickDO click = ClickDO.builder()
                 .clickId(clickId)
-                .offerId(offer.getId())
+                .targetType(trackingLink.getTargetType())
+                .targetId(trackingLink.getTargetId())
                 .sub1(finalSub1)
                 .sub2(finalSub2)
                 .sub3(finalSub3)
@@ -98,9 +89,11 @@ public class ClickServiceImpl implements ClickService {
                 .build();
 
         clickMapper.insert(click);
-        log.debug("Click recorded: clickId={}, offerId={}", clickId, offer.getId());
+        log.debug("Click recorded: clickId={}, targetType={}, targetId={}",
+                clickId, trackingLink.getTargetType(), trackingLink.getTargetId());
 
-        return buildRedirectUrl(offer.getTrackingUrlTemplate(), clickId, finalSub1, finalSub2, finalSub3, finalSub4, finalSub5);
+        // 直接使用 trackingLink.trackingUrl（已拼接好参数的完整追踪链接）
+        return StrUtil.nullToDefault(trackingLink.getTrackingUrl(), FALLBACK_URL);
     }
 
     private TrackingLinkDO findTrackingLink(String trackingLinkId) {
@@ -118,23 +111,6 @@ public class ClickServiceImpl implements ClickService {
 
     private String generateClickId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 26).toUpperCase();
-    }
-
-    private String buildRedirectUrl(String template, String clickId,
-                                    String sub1, String sub2, String sub3, String sub4, String sub5) {
-        if (StrUtil.isBlank(template)) {
-            return FALLBACK_URL;
-        }
-
-        String url = template
-                .replace("{click_id}", StrUtil.nullToEmpty(clickId))
-                .replace("{sub1}", StrUtil.nullToEmpty(sub1))
-                .replace("{sub2}", StrUtil.nullToEmpty(sub2))
-                .replace("{sub3}", StrUtil.nullToEmpty(sub3))
-                .replace("{sub4}", StrUtil.nullToEmpty(sub4))
-                .replace("{sub5}", StrUtil.nullToEmpty(sub5));
-
-        return url;
     }
 
 }

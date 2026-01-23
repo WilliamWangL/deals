@@ -10,8 +10,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class TrackingLinkPageReqVO extends PageParam {
 
-    @Schema(description = "Offer ID")
-    private Long offerId;
+    @Schema(description = "目标类型", example = "2")
+    private Integer targetType;
+
+    @Schema(description = "目标 ID")
+    private Long targetId;
 
     @Schema(description = "链接 Slug")
     private String slug;

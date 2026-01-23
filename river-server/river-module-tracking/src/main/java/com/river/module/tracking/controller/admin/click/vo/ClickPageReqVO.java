@@ -15,8 +15,14 @@ import static com.river.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_D
 @EqualsAndHashCode(callSuper = true)
 public class ClickPageReqVO extends PageParam {
 
-    @Schema(description = "Offer ID")
-    private Long offerId;
+    @Schema(description = "目标类型", example = "2")
+    private Integer targetType;
+
+    @Schema(description = "目标 ID")
+    private Long targetId;
+
+    @Schema(description = "商家 ID")
+    private Long merchantId;
 
     @Schema(description = "Campaign ID")
     private Long campaignId;

@@ -44,4 +44,13 @@ public class ConversionDO extends BaseDO {
 
     private LocalDateTime conversionTime;
 
+    // ========== 冗余字段（便于统计，与 ClickDO 保持一致）==========
+
+    /** {@link com.river.module.tracking.enums.TrackingTargetTypeEnum} */
+    private Integer targetType;
+
+    private Long targetId;
+
+    private Long merchantId;
+
 }

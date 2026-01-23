@@ -60,4 +60,7 @@ public class MerchantDO extends TenantBaseDO {
 
     /** 分类 ID 列表（JSON 数组） */
     private String categoryIds;
+
+    /** 默认 Offer ID，用于 Visit Store 追踪 */
+    private Long defaultOfferId;
 }

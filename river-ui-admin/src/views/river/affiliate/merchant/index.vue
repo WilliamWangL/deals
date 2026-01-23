@@ -151,6 +151,7 @@
       <el-descriptions-item label="评级">
         <el-rate v-model="currentDetail.rating" disabled show-score score-template="{value}" />
       </el-descriptions-item>
+      <el-descriptions-item label="默认 Offer ID">{{ currentDetail.defaultOfferId || '-' }}</el-descriptions-item>
       <el-descriptions-item label="联系人">{{ currentDetail.contactName || '-' }}</el-descriptions-item>
       <el-descriptions-item label="邮箱">{{ currentDetail.contactEmail || '-' }}</el-descriptions-item>
       <el-descriptions-item label="联系电话">{{ currentDetail.contactPhone || '-' }}</el-descriptions-item>

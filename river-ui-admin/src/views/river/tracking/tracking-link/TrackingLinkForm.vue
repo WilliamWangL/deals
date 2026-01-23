@@ -8,21 +8,40 @@
       v-loading="formLoading"
     >
       <el-row :gutter="20">
-        <el-col :span="16">
-          <el-form-item label="Offer" prop="offerId">
-            <el-select v-model="formData.offerId" placeholder="请选择Offer" filterable class="!w-full">
+        <el-col :span="12">
+          <el-form-item label="目标类型" prop="targetType">
+            <el-select v-model="formData.targetType" placeholder="请选择目标类型" class="!w-full" @change="handleTargetTypeChange">
               <el-option
-                v-for="offer in offerList"
-                :key="offer.id"
-                :label="offer.name"
-                :value="offer.id"
+                v-for="dict in targetTypeOptions"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
               />
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="12">
+          <el-form-item label="目标ID" prop="targetId">
+            <el-input-number v-model="formData.targetId" placeholder="请输入目标ID" :min="1" class="!w-full" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="16">
           <el-form-item label="Slug" prop="slug">
             <el-input v-model="formData.slug" placeholder="短链接标识" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="状态" prop="status">
+            <el-radio-group v-model="formData.status">
+              <el-radio
+                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+                :key="dict.value"
+                :value="dict.value"
+                >{{ dict.label }}</el-radio
+              >
+            </el-radio-group>
           </el-form-item>
         </el-col>
       </el-row>
@@ -57,18 +76,6 @@
             <el-input v-model="formData.presetSub5" placeholder="预设Sub5值" />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="状态" prop="status">
-            <el-radio-group v-model="formData.status">
-              <el-radio
-                v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
-                :key="dict.value"
-                :value="dict.value"
-                >{{ dict.label }}</el-radio
-              >
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
       </el-row>
       <el-divider content-position="left">UTM参数（可选）</el-divider>
       <el-form-item label="UTM参数" prop="utmParams">
@@ -76,9 +83,15 @@
           v-model="formData.utmParams"
           type="textarea"
           :rows="4"
-          placeholder="请输入UTM参数（JSON格式），如: {&quot;utm_source&quot;: &quot;google&quot;, &quot;utm_medium&quot;: &quot;cpc&quot;}"
+          placeholder="请输入UTM参数（JSON格式），如: {&quotutm_source&quot;: &quotgoogle&quot, &quotutm_medium&quot;: &quotcpc&quot}"
         />
       </el-form-item>
+      <el-alert
+        title="目标类型说明：1=商家, 2=Offer, 3=Deal, 4=优惠券"
+        type="info"
+        :closable="false"
+        class="mb-10px"
+      />
       <el-alert
         title="生成的链接格式: https://yourdomain.com/click/{slug}?sub1={sub1}&sub2={sub2}..."
         type="info"
@@ -102,12 +115,13 @@ defineOptions({ name: 'TrackingLinkForm' })
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
 
-const props = defineProps({
-  offerList: {
-    type: Array as PropType<any[]>,
-    default: () => []
-  }
-})
+// 目标类型选项
+const targetTypeOptions = [
+  { value: 1, label: '商家' },
+  { value: 2, label: 'Offer' },
+  { value: 3, label: 'Deal' },
+  { value: 4, label: '优惠券' }
+]
 
 const dialogVisible = ref(false) // 弹窗的是否展示
 const dialogTitle = ref('') // 弹窗的标题
@@ -116,7 +130,8 @@ const formType = ref('') // 表单的类型：create - 新增；update - 修改
 
 const formData = ref({
   id: undefined,
-  offerId: undefined,
+  targetType: 2 as number,  // 默认 Offer
+  targetId: undefined as number | undefined,
   slug: '',
   presetSub1: '',
   presetSub2: '',
@@ -127,11 +142,17 @@ const formData = ref({
   status: 0
 })
 const formRules = reactive({
-  offerId: [{ required: true, message: 'Offer不能为空', trigger: 'change' }],
+  targetType: [{ required: true, message: '目标类型不能为空', trigger: 'change' }],
+  targetId: [{ required: true, message: '目标ID不能为空', trigger: 'blur' }],
   slug: [{ required: true, message: 'Slug不能为空', trigger: 'blur' }],
   status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
 })
 const formRef = ref() // 表单 Ref
+
+/** 目标类型变化时清空目标ID */
+const handleTargetTypeChange = () => {
+  formData.value.targetId = undefined
+}
 
 /** 打开弹窗 */
 const open = async (type: string, id?: number) => {
@@ -179,7 +200,8 @@ const submitForm = async () => {
 const resetForm = () => {
   formData.value = {
     id: undefined,
-    offerId: undefined,
+    targetType: 2,  // 默认 Offer
+    targetId: undefined,
     slug: '',
     presetSub1: '',
     presetSub2: '',

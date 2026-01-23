@@ -41,8 +41,8 @@ public class OfferRespVO {
     @Schema(description = "Cookie 有效期（天）", example = "30")
     private Integer cookieDays;
 
-    @Schema(description = "追踪链接模板")
-    private String trackingUrlTemplate;
+    @Schema(description = "追踪跳转URL")
+    private String gotoUrl;
 
     @Schema(description = "落地页 URL")
     private String landingUrl;

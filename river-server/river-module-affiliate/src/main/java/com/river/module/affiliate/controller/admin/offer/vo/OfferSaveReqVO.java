@@ -46,8 +46,8 @@ public class OfferSaveReqVO {
     @Schema(description = "Cookie 有效期（天）", example = "30")
     private Integer cookieDays;
 
-    @Schema(description = "追踪链接模板")
-    private String trackingUrlTemplate;
+    @Schema(description = "追踪跳转URL（完整URL，存储时已拼接参数）")
+    private String gotoUrl;
 
     @Schema(description = "落地页 URL")
     private String landingUrl;

@@ -12,9 +12,13 @@ public class TrackingLinkSaveReqVO {
     @Schema(description = "编号", example = "1")
     private Long id;
 
-    @Schema(description = "Offer ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "Offer 不能为空")
-    private Long offerId;
+    @Schema(description = "目标类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
+    @NotNull(message = "目标类型不能为空")
+    private Integer targetType;
+
+    @Schema(description = "目标 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "目标 ID 不能为空")
+    private Long targetId;
 
     @Schema(description = "链接 Slug", requiredMode = Schema.RequiredMode.REQUIRED, example = "my-link")
     @NotBlank(message = "链接 Slug 不能为空")

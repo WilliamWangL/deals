@@ -47,4 +47,7 @@ public class MerchantSaveReqVO {
 
     @Schema(description = "分类 ID 列表（JSON 数组）", example = "[1, 2, 3]")
     private String categoryIds;
+
+    @Schema(description = "默认 Offer ID，用于 Visit Store 追踪", example = "1")
+    private Long defaultOfferId;
 }

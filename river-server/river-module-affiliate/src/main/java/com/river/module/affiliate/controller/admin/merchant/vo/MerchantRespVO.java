@@ -44,6 +44,9 @@ public class MerchantRespVO {
     @Schema(description = "分类 ID 列表（JSON 数组）")
     private String categoryIds;
 
+    @Schema(description = "默认 Offer ID，用于 Visit Store 追踪", example = "1")
+    private Long defaultOfferId;
+
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 }

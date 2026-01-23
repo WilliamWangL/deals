@@ -121,12 +121,12 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item label="追踪链接模板" prop="trackingUrlTemplate">
+      <el-form-item label="追踪跳转URL" prop="gotoUrl">
         <el-input
-          v-model="formData.trackingUrlTemplate"
+          v-model="formData.gotoUrl"
           type="textarea"
           :rows="2"
-          placeholder="请输入追踪链接模板，支持 {affiliate_id}、{offer_id} 等变量"
+          placeholder="请输入追踪跳转URL（已拼接参数的完整URL）"
         />
       </el-form-item>
       <el-form-item label="落地页URL" prop="landingUrl">
@@ -213,9 +213,9 @@ const formData = ref({
   commissionValue: 0,
   currency: 'USD',
   cookieDays: 30,
-  trackingUrlTemplate: '',
+  gotoUrl: '',
   landingUrl: '',
-  status: 0,
+  status: 1,
   regions: '',
   categoryIds: '',
   tags: '',
@@ -304,7 +304,7 @@ const resetForm = () => {
     commissionValue: 0,
     currency: 'USD',
     cookieDays: 30,
-    trackingUrlTemplate: '',
+    gotoUrl: '',
     landingUrl: '',
     status: 1,
     regions: '',

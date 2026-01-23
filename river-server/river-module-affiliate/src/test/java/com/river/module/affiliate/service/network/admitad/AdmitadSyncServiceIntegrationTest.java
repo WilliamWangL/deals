@@ -87,5 +87,57 @@ class AdmitadSyncServiceIntegrationTest {
             campaign.getActions().forEach(a ->
                 System.out.println("  - " + a.getName() + " (" + a.getType() + "): " + a.getPayment()));
         }
+
+        // 打印完整的 JSON（通过 ObjectMapper）
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.SerializationFeature INDENT_OUTPUT = com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
+            mapper.enable(INDENT_OUTPUT);
+            String json = mapper.writeValueAsString(campaign);
+            System.out.println("\n========================================");
+            System.out.println("Complete JSON for first campaign:");
+            System.out.println("========================================");
+            System.out.println(json);
+        } catch (Exception e) {
+            System.out.println("Failed to serialize to JSON: " + e.getMessage());
+        }
+    }
+
+    @Test
+    void testDeeplinkGeneration() {
+        // 对比手工构建的链接和 API 返回的 deeplink
+        Long campaignId = 92L; // 使用 Lineage 2 的 campaign ID
+        String subid = "test_click_123";
+
+        // 手工构建的链接（当前实现方式）
+        String manualLink = String.format(
+            "https://ad.admitad.com/g/%s/?subid=%s&subid1={sub1}&subid2={sub2}",
+            campaignId, subid);
+
+        // API 生成的 deeplink
+        String apiDeeplink = admitadClient.generateDeeplink(credential, campaignId, subid);
+
+        System.out.println("========================================");
+        System.out.println("Deeplink 对比测试 (Campaign ID: " + campaignId + ")");
+        System.out.println("========================================");
+        System.out.println("手工构建: " + manualLink);
+        System.out.println("API 生成: " + apiDeeplink);
+
+        if (apiDeeplink != null) {
+            System.out.println("\n分析:");
+            System.out.println("  - 基础 URL 一致: " + manualLink.startsWith("https://ad.admitad.com/g/" + campaignId));
+            System.out.println("  - subid 参数一致: " + apiDeeplink.contains("subid=" + subid));
+
+            // 提取 API 返回链接的关键部分
+            if (apiDeeplink.contains("&ulp=")) {
+                String ulp = apiDeeplink.substring(apiDeeplink.indexOf("&ulp=") + 5);
+                System.out.println("  - ULP 参数: " + ulp);
+            }
+
+            // 检查是否有其他参数
+            String manualBase = "https://ad.admitad.com/g/" + campaignId + "/";
+            String apiBase = apiDeeplink.contains("?") ? apiDeeplink.substring(0, apiDeeplink.indexOf("?")) : apiDeeplink;
+            System.out.println("  - 基础路径一致: " + manualBase.equals(apiBase));
+        }
     }
 }
