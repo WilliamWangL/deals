@@ -197,7 +197,7 @@ export function DealCard({ deal }: DealCardProps) {
 
         {/* CTA Button */}
         <Link
-          href={deal.gotoUrl}
+          href={deal.trackingLinkId ? `/api/go/${deal.trackingLinkId}` : deal.gotoUrl}
           target="_blank"
           rel="noopener"
           className={cn(

@@ -49,25 +49,23 @@
 
 ### 完成定义
 
-- [ ] `POST /affiliate/network/sync-deals?code=X` 返回 200 并触发 Deal 同步
-- [ ] `POST /affiliate/network/sync-deals?networkId=Y` 返回 200 并触发 Deal 同步
-- [ ] `POST /affiliate/network/sync-deals` 无参数返回 400
-- [ ] `POST /affiliate/network/sync-deals?code=X&networkId=Y` 使用 networkId
-- [ ] `POST /affiliate/network/sync-coupons-only?code=X` 返回 200 并触发 Coupon 同步
-- [ ] `POST /affiliate/network/sync-coupons-only?networkId=Y` 返回 200 并触发 Coupon 同步
-- [ ] `POST /affiliate/network/sync-coupons-only` 无参数返回 400
-- [ ] 无效 code 返回 404
-- [ ] 未知 networkId 返回 404
-- [ ] 现有 `sync-coupons` 接口行为保持不变
-- [ ] 单元测试覆盖率 ≥ 80%
+- [x] `POST /affiliate/network/sync-deals?code=X` 返回 200 并触发 Deal 同步
+- [x] `POST /affiliate/network/sync-deals?networkId=Y` 返回 200 并触发 Deal 同步
+- [x] `POST /affiliate/network/sync-deals` 无参数返回 400
+- [x] `POST /affiliate/network/sync-deals?code=X&networkId=Y` 使用 networkId
+- [x] `POST /affiliate/network/sync-coupons-only?code=X` 返回 200 并触发 Coupon 同步
+- [x] `POST /affiliate/network/sync-coupons-only?networkId=Y` 返回 200 并触发 Coupon 同步
+- [x] `POST /affiliate/network/sync-coupons-only` 无参数返回 400
+- [x] 无效 code 返回 404
+- [x] 未知 networkId 返回 404
+- [x] 现有 `sync-coupons` 接口行为保持不变
+- [x] 单元测试覆盖率 ≥ 80%
 
-### 必须有
-
-- 独立的 `sync-deals` 接口（联盟网络模块）
-- 独立的 `sync-coupons-only` 接口（联盟网络模块）
-- 参数验证（networkId/code 至少一个）
-- 错误处理（无效参数、无效网络）
-- 单元测试
+- [x] 独立的 `sync-deals` 接口（联盟网络模块）
+- [x] 独立的 `sync-coupons-only` 接口（联盟网络模块）
+- [x] 参数验证（networkId/code 至少一个）
+- [x] 错误处理（无效参数、无效网络）
+- [x] 单元测试
 
 ### 禁止有（Guardrails）
 
@@ -204,7 +202,7 @@ class SyncCouponsOnlyTest {
 
 > 每个任务包含实现步骤和测试用例。实现 + 测试 = 一个完整任务。
 
-- [ ] 1. 查找并阅读现有的测试文件和 Controller
+- [x] 1. 查找并阅读现有的测试文件和 Controller
 
   **查找范围**：
   - `river-module-affiliate/**/test/**/*ControllerTest.java`
@@ -224,7 +222,7 @@ class SyncCouponsOnlyTest {
 
   **Commit**: NO（与下一个任务合并）
 
-- [ ] 2. 添加 sync-deals 接口
+- [x] 2. 添加 sync-deals 接口
 
   **实现步骤**：
 
@@ -361,7 +359,7 @@ class SyncCouponsOnlyTest {
   - Message: `feat(affiliate): add sync-deals endpoint`
   - Files: `AffiliateNetworkController.java`, `AffiliateNetworkService.java`, `AdmitadSyncService.java`
 
-- [ ] 3. 添加 sync-coupons-only 接口
+- [x] 3. 添加 sync-coupons-only 接口
 
   **实现步骤**：
 
@@ -447,7 +445,7 @@ class SyncCouponsOnlyTest {
   - Message: `feat(affiliate): add sync-coupons-only endpoint`
   - Files: `AffiliateNetworkController.java`
 
-- [ ] 4. 编写单元测试
+- [x] 4. 编写单元测试
 
   **测试文件**：
   - 位置：`river-module-affiliate/src/test/java/.../controller/admin/network/AffiliateNetworkControllerTest.java`

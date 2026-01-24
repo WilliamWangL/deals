@@ -75,7 +75,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
           {/* Merchant Info */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <a
-              href={coupon.gotoUrl}
+              href={coupon.trackingLinkId ? `/api/go/${coupon.trackingLinkId}` : coupon.gotoUrl}
               target="_blank"
               rel="noopener"
               className="relative shrink-0"
@@ -96,7 +96,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
             </a>
             <div className="min-w-0 flex-1">
               <a
-                href={coupon.gotoUrl}
+                href={coupon.trackingLinkId ? `/api/go/${coupon.trackingLinkId}` : coupon.gotoUrl}
                 target="_blank"
                 rel="noopener"
                 className="font-semibold text-sm text-foreground truncate block hover:text-primary transition-colors"
@@ -214,7 +214,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
         {/* Footer Link */}
         <div className="mt-4 flex items-center justify-between">
           <a
-            href={coupon.gotoUrl}
+            href={coupon.trackingLinkId ? `/api/go/${coupon.trackingLinkId}` : coupon.gotoUrl}
             target="_blank"
             rel="noopener"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors group/link"

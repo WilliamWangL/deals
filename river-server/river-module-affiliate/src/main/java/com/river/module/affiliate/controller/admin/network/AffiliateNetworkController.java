@@ -169,6 +169,82 @@ public class AffiliateNetworkController {
         return success(result);
     }
 
+    @PostMapping("/sync-deals")
+    @Operation(summary = "同步Deal数据")
+    @Parameter(name = "networkId", description = "联盟网络ID", required = false)
+    @Parameter(name = "code", description = "联盟编码", required = false)
+    @PreAuthorize("@ss.hasPermission('affiliate:network:sync')")
+    public CommonResult<SyncResult> syncDeals(
+            @RequestParam(required = false) String networkId,
+            @RequestParam(required = false) String code) {
+        log.info("[syncDeals] Request received - networkId: {}, code: {}", networkId, code);
+
+        // 参数校验：至少一个不为空
+        if (StrUtil.isAllEmpty(networkId, code)) {
+            return success(SyncResult.error("At least one of networkId or code is required"));
+        }
+
+        String finalCode = code;
+
+        // networkId 优先：解析出 code
+        if (StrUtil.isNotEmpty(networkId)) {
+            try {
+                Long id = Long.parseLong(networkId);
+                AffiliateNetworkDO network = networkService.getNetwork(id);
+                if (network == null) {
+                    log.warn("[syncDeals] Network not found - networkId: {}", networkId);
+                    return success(SyncResult.error("Network not found: " + networkId));
+                }
+                finalCode = network.getCode();
+            } catch (NumberFormatException e) {
+                log.warn("[syncDeals] Invalid networkId format: {}", networkId);
+                return success(SyncResult.error("Invalid networkId format"));
+            }
+        }
+
+        // 调用同步逻辑（Deal only）
+        SyncResult result = admitadSyncService.syncDeals(finalCode);
+        return success(result);
+    }
+
+    @PostMapping("/sync-coupons-only")
+    @Operation(summary = "同步优惠券数据")
+    @Parameter(name = "networkId", description = "联盟网络ID", required = false)
+    @Parameter(name = "code", description = "联盟编码", required = false)
+    @PreAuthorize("@ss.hasPermission('affiliate:network:sync')")
+    public CommonResult<SyncResult> syncCouponsOnly(
+            @RequestParam(required = false) String networkId,
+            @RequestParam(required = false) String code) {
+        log.info("[syncCouponsOnly] Request received - networkId: {}, code: {}", networkId, code);
+
+        // 参数校验：至少一个不为空
+        if (StrUtil.isAllEmpty(networkId, code)) {
+            return success(SyncResult.error("At least one of networkId or code is required"));
+        }
+
+        String finalCode = code;
+
+        // networkId 优先：解析出 code
+        if (StrUtil.isNotEmpty(networkId)) {
+            try {
+                Long id = Long.parseLong(networkId);
+                AffiliateNetworkDO network = networkService.getNetwork(id);
+                if (network == null) {
+                    log.warn("[syncCouponsOnly] Network not found - networkId: {}", networkId);
+                    return success(SyncResult.error("Network not found: " + networkId));
+                }
+                finalCode = network.getCode();
+            } catch (NumberFormatException e) {
+                log.warn("[syncCouponsOnly] Invalid networkId format: {}", networkId);
+                return success(SyncResult.error("Invalid networkId format"));
+            }
+        }
+
+        // 调用同步逻辑（Coupon only）
+        SyncResult result = admitadSyncService.syncCouponsOnly(finalCode);
+        return success(result);
+    }
+
     /**
      * 统一同步结果响应 DTO
      */

@@ -864,6 +864,24 @@ public class AdmitadSyncService {
     }
 
     /**
+     * 同步 Deal 数据（通过 code 调用）
+     * @param networkCode 联盟网络编码
+     * @return 同步结果
+     */
+    public AffiliateNetworkController.SyncResult syncDeals(String networkCode) {
+        NetworkCredentialDO credential = getEnabledCredentialByNetworkCode(networkCode);
+        if (credential == null) {
+            return AffiliateNetworkController.SyncResult.error("No enabled credentials found for network: " + networkCode);
+        }
+        syncCoupons(credential);
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("deals", lastSyncDeals);
+        stats.put("coupons", lastSyncCoupons);
+        stats.put("failed", lastSyncFailed);
+        return AffiliateNetworkController.SyncResult.success("Deal sync completed", stats);
+    }
+
+    /**
      * 同步优惠券和Deal数据（通过 code 调用）
      * @param networkCode 联盟网络编码
      * @return 同步结果

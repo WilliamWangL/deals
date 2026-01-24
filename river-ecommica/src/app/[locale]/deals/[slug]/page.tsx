@@ -48,7 +48,7 @@ export default async function DealDetailPage({ params }: Props) {
     notFound();
   }
 
-  const trackingUrl = deal.gotoUrl || '#';
+  const trackingUrl = deal.trackingLinkId ? `/api/go/${deal.trackingLinkId}` : (deal.gotoUrl || '#');
 
   const breadcrumbs = [
     { label: 'Deals', href: `/${locale}/deals` },
