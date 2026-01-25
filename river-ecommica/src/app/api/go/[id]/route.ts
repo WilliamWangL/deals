@@ -3,8 +3,13 @@ import { getTrackingUrl } from '@/lib/tracking'
 
 export const runtime = 'edge'
 
-// 允许重定向的域名白名单（联盟网络域名）
-const ALLOWED_REDIRECT_DOMAINS = [
+const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID || '1'
+const REDIRECT_VALIDATION_ENABLED = process.env.NEXT_PUBLIC_TRACKING_REDIRECT_VALIDATE !== 'false'
+const REDIRECT_DOMAIN_CONFIG = process.env.NEXT_PUBLIC_TRACKING_REDIRECT_DOMAINS || ''
+const REDIRECT_ALLOW_HTTP = process.env.NEXT_PUBLIC_TRACKING_REDIRECT_ALLOW_HTTP === 'true'
+
+// 默认允许重定向的域名白名单（联盟网络域名）
+const DEFAULT_ALLOWED_REDIRECT_DOMAINS = [
   'admitad.com',
   'ad.admitad.com',
   'click.admitad.com',
@@ -19,19 +24,32 @@ const ALLOWED_REDIRECT_DOMAINS = [
   // 添加更多联盟域名
 ]
 
+const ALLOWED_REDIRECT_DOMAINS = REDIRECT_DOMAIN_CONFIG
+  .split(',')
+  .map(domain => domain.trim())
+  .filter(Boolean)
+
+const EFFECTIVE_ALLOWED_DOMAINS = ALLOWED_REDIRECT_DOMAINS.length
+  ? ALLOWED_REDIRECT_DOMAINS
+  : DEFAULT_ALLOWED_REDIRECT_DOMAINS
+
 /**
  * 验证重定向 URL 是否安全（防止开放重定向攻击）
  */
 function isValidRedirectUrl(url: string): boolean {
+  if (!REDIRECT_VALIDATION_ENABLED) {
+    return true
+  }
+
   try {
     const parsed = new URL(url)
-    // 只允许 https 协议
-    if (parsed.protocol !== 'https:') {
+    // 只允许 https（可选允许 http）
+    if (parsed.protocol !== 'https:' && !(REDIRECT_ALLOW_HTTP && parsed.protocol === 'http:')) {
       return false
     }
     // 检查域名是否在白名单中
     const hostname = parsed.hostname.toLowerCase()
-    return ALLOWED_REDIRECT_DOMAINS.some(domain => 
+    return EFFECTIVE_ALLOWED_DOMAINS.some(domain => 
       hostname === domain || hostname.endsWith('.' + domain)
     )
   } catch {
@@ -53,6 +71,7 @@ export async function GET(
   const trackingUrl = getTrackingUrl(id)
 
   const headers = new Headers()
+  headers.set('tenant-id', TENANT_ID)
   headers.set('X-Forwarded-For', request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '')
   headers.set('User-Agent', request.headers.get('user-agent') || '')
   headers.set('Referer', request.headers.get('referer') || '')

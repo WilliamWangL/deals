@@ -46,3 +46,9 @@
 1. 手动运行 Google Rich Results Test 验证 Schema
 2. 运行 Lighthouse Audit 验证 Accessibility
 3. 考虑添加 `x-default` 到 alternates 配置
+
+## Breadcrumbs UI Update (2026-01-25)
+- Verified `src/components/layout/Breadcrumbs.tsx` updates for mobile visibility and alignment.
+- Changes include adding `container mx-auto px-4` to nav and `flex flex-wrap` to ol.
+- Confirmed no LSP errors in the modified file.
+- Note: Project build fails due to unrelated `playwright.config.ts` type error and lint issues in other files.

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { JsonLd, BASE_URL, generateDealJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { CheckCircle, Clock, ShieldCheck, ExternalLink, Store, Tag } from 'lucide-react';
+import { getTrackingLink } from '@/lib/tracking';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -54,7 +55,7 @@ export default async function DealDetailPage({ params }: Props) {
     notFound();
   }
 
-  const trackingUrl = deal.trackingLinkId ? `/api/go/${deal.trackingLinkId}` : (deal.gotoUrl || '#');
+  const trackingUrl = getTrackingLink(deal.trackingLinkId, deal.gotoUrl);
 
   const breadcrumbs = [
     { label: 'Deals', href: `/${locale}/deals` },

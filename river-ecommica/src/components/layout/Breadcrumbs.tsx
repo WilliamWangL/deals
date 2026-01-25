@@ -16,8 +16,8 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className={cn('mb-4', className)}>
-      <ol className="hidden sm:flex items-center space-x-2 text-sm">
+    <nav aria-label="Breadcrumb" className={cn('mb-4 container mx-auto px-4', className)}>
+      <ol className="flex flex-wrap items-center gap-2 text-sm">
         <li>
           <Link
             href="/"

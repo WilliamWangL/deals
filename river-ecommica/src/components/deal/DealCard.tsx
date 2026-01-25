@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Clock, Sparkles, Crown, ArrowUpRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import { getTrackingLink } from "@/lib/tracking"
 
 interface DealCardProps {
   deal: Deal;
@@ -190,7 +191,7 @@ export function DealCard({ deal }: DealCardProps) {
         <div className="mt-auto">
           {/* CTA Button */}
           <Link
-            href={deal.trackingLinkId ? `/api/go/${deal.trackingLinkId}` : deal.gotoUrl}
+            href={getTrackingLink(deal.trackingLinkId, deal.gotoUrl)}
             target="_blank"
             rel="noopener"
             className={cn(
