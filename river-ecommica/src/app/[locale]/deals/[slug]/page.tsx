@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchDeals, fetchDealBySlug } from '@/lib/api';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { JsonLd, generateDealJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { JsonLd, BASE_URL, generateDealJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { CheckCircle, Clock, ShieldCheck, ExternalLink, Store, Tag } from 'lucide-react';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -27,7 +27,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const deal = await fetchDealBySlug(slug);
   
   if (!deal) {
@@ -37,6 +37,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${deal.title} - ${deal.merchant.name}`,
     description: deal.description || `Get ${deal.discountPercent}% off at ${deal.merchant.name}`,
+    openGraph: {
+      title: `${deal.title} - ${deal.merchant.name}`,
+      description: deal.description || `Get ${deal.discountPercent}% off at ${deal.merchant.name}`,
+      url: `${BASE_URL}/${locale}/deals/${deal.slug}`,
+      type: 'article',
+    }
   };
 }
 
@@ -57,7 +63,7 @@ export default async function DealDetailPage({ params }: Props) {
 
   const breadcrumbJsonLdItems = breadcrumbs.map(item => ({
     name: item.label,
-    url: item.href
+    url: `${BASE_URL}${item.href}`
   }));
 
   return (
@@ -65,55 +71,133 @@ export default async function DealDetailPage({ params }: Props) {
       <Breadcrumbs items={breadcrumbs} />
       <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
       <JsonLd data={generateDealJsonLd(deal)} />
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {deal.imageUrl && (
-          <div className="h-64 bg-gray-100 relative">
-            <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover" />
-          </div>
-        )}
-        
-        <div className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            {deal.featured && <Badge>Featured</Badge>}
-            {deal.discountPercent > 0 && (
-              <Badge variant="destructive">{deal.discountPercent}% Off</Badge>
-            )}
-          </div>
+      
+      <main className="min-h-screen pb-12">
+        <div className="section-gradient pt-8 pb-16">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              <div className="lg:col-span-5">
+                <div className="card-elevated overflow-hidden p-2 bg-white relative group">
+                  <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-50">
+                    {deal.imageUrl ? (
+                      <Image 
+                        src={deal.imageUrl} 
+                        alt={deal.title} 
+                        fill 
+                        className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        <Tag size={64} />
+                      </div>
+                    )}
+                    
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      {deal.featured && <span className="badge-featured shadow-lg">Featured</span>}
+                      {deal.discountPercent > 0 && (
+                        <span className="badge-deal shadow-lg">-{deal.discountPercent}%</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-          <h1 className="text-3xl font-bold mb-2">{deal.title}</h1>
-          
-          <Link href={`/${locale}/stores/${deal.merchant.slug}`} className="text-blue-600 hover:underline mb-4 block">
-            {deal.merchant.name}
-          </Link>
+                <div className="mt-6 grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-white/50 border border-white/60 shadow-sm">
+                    <div className="p-2 rounded-full bg-green-100 text-green-600">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Verified</p>
+                      <p className="text-sm font-bold text-foreground">Trusted Deal</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-white/50 border border-white/60 shadow-sm">
+                    <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Updated</p>
+                      <p className="text-sm font-bold text-foreground">Today</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          <p className="text-gray-600 mb-6">{deal.description}</p>
+              <div className="lg:col-span-7 space-y-6">
+                <div>
+                  <Link 
+                    href={`/${locale}/stores/${deal.merchant.slug}`}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors mb-3 group"
+                  >
+                    <Store size={16} className="group-hover:text-primary" />
+                    {deal.merchant.name}
+                  </Link>
+                  
+                  <h1 className="text-3xl md:text-4xl font-bold font-display tracking-tight text-foreground mb-4 leading-tight">
+                    {deal.title}
+                  </h1>
 
-          {(deal.originalPrice > 0 || deal.dealPrice > 0) && (
-            <div className="flex items-center gap-4 mb-6">
-              {deal.originalPrice > 0 && (
-                <span className="text-gray-400 line-through text-lg">${deal.originalPrice}</span>
-              )}
-              {deal.dealPrice > 0 && (
-                <span className="text-green-600 font-bold text-2xl">${deal.dealPrice}</span>
-              )}
+                  {(deal.originalPrice > 0 || deal.dealPrice > 0) && (
+                    <div className="flex items-baseline gap-3 mb-6">
+                      {deal.dealPrice > 0 && (
+                        <span className="text-4xl font-bold text-gradient-savings">
+                          ${deal.dealPrice}
+                        </span>
+                      )}
+                      {deal.originalPrice > 0 && (
+                        <span className="text-xl text-muted-foreground line-through decoration-2 decoration-red-200">
+                          ${deal.originalPrice}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-6 rounded-2xl bg-white border border-border shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button asChild size="lg" className="btn-accent w-full text-lg h-14 glow-accent group relative overflow-hidden">
+                      <a href={trackingUrl} target="_blank" rel="noopener noreferrer">
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          Get This Deal <ExternalLink size={20} />
+                        </span>
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                      </a>
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle size={14} className="text-green-500" /> Verified Working
+                    </span>
+                    {deal.endTime && (
+                      <span className="flex items-center gap-1.5">
+                        <Clock size={14} className="text-orange-500" /> 
+                        Expires: {new Date(deal.endTime).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="prose prose-gray max-w-none">
+                  <h3 className="text-lg font-bold font-display mb-2">About this deal</h3>
+                  <p className="text-gray-600 leading-relaxed">{deal.description}</p>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-500 border border-gray-100">
+                  <p className="font-medium mb-1 text-gray-700">Terms & Conditions:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Offer valid while supplies last.</li>
+                    <li>Prices and availability subject to change without notice.</li>
+                    <li>See merchant website for full details.</li>
+                  </ul>
+                </div>
+
+              </div>
             </div>
-          )}
-
-          {deal.endTime && (
-            <p className="text-sm text-gray-500 mb-6">
-              Expires: {new Date(deal.endTime).toLocaleDateString()}
-            </p>
-          )}
-
-          <Button asChild size="lg" className="w-full">
-            <a href={trackingUrl} target="_blank" rel="noopener noreferrer">
-              Get This Deal
-            </a>
-          </Button>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
     </>
   );
 }

@@ -7,12 +7,12 @@ import { PAGINATION } from '@/constants/pagination';
 import { Card, CardContent } from '@/components/ui/card';
 import { BlogPagination } from '@/components/blog/BlogPagination';
 import { EmptyState } from '@/components/ui/empty-state';
+import { JsonLd, BASE_URL, generateBreadcrumbJsonLd, generateItemListJsonLd } from '@/components/seo/JsonLd';
 import {
   BookOpen,
   Sparkles,
   FileText,
   TrendingUp,
-  Clock,
   ArrowRight,
   Star,
   User,
@@ -26,6 +26,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t('meta.title'),
     description: t('meta.description'),
+    openGraph: {
+      title: t('meta.title'),
+      description: t('meta.description'),
+      url: `${BASE_URL}/${locale}/blog`,
+      type: 'website',
+    }
   };
 }
 
@@ -59,14 +65,30 @@ export default async function BlogPage({
     return configs[type] || { label: type, color: 'text-muted-foreground', bg: 'bg-muted border-border' };
   };
 
+  const breadcrumbJsonLdItems = [
+    { name: 'Home', url: `${BASE_URL}/${locale}` },
+    { name: 'Blog', url: `${BASE_URL}/${locale}/blog` },
+  ];
+  const itemListJsonLdItems = posts
+    .filter(post => post.slug)
+    .map(post => ({
+      name: post.title,
+      url: `${BASE_URL}/${locale}/blog/${post.slug}`
+    }));
+
   return (
-    <main className="min-h-screen bg-background">
+    <>
+      <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
+      {itemListJsonLdItems.length > 0 && (
+        <JsonLd data={generateItemListJsonLd(itemListJsonLdItems, 'Blog')} />
+      )}
+      <main className="min-h-screen bg-background">
       {/* Hero Header */}
-      <section className="page-header py-12 md:py-16">
+      <section className="relative section-gradient py-12 md:py-16 border-b border-border/50">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-violet-200/20 to-purple-200/20 rounded-full blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-primary/10 to-accent/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-secondary/20 to-primary/5 rounded-full blur-3xl" />
         </div>
 
         <div className="container mx-auto px-4 relative">
@@ -74,8 +96,8 @@ export default async function BlogPage({
             {/* Title Section */}
             <div className="max-w-2xl">
               <div className="flex items-center gap-3 mb-5">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100">
-                  <BookOpen className="w-8 h-8 text-blue-600" />
+                <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                  <BookOpen className="w-8 h-8" />
                 </div>
                 <div className="badge-featured">
                   <Sparkles className="w-3.5 h-3.5" />
@@ -127,9 +149,9 @@ export default async function BlogPage({
                 const typeConfig = getTypeConfig(post.type);
                 return (
                   <Link key={post.id} href={`/${locale}/blog/${post.slug}`} className="group block h-full">
-                    <Card className="h-full overflow-hidden bg-card border-border/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/[0.08] hover:-translate-y-1 hover:border-primary/20 rounded-2xl">
+                    <Card className="h-full overflow-hidden card-interactive border-border/50 rounded-2xl flex flex-col">
                       {/* Cover Image */}
-                      <div className="relative h-48 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 overflow-hidden">
+                      <div className="relative h-48 bg-muted overflow-hidden">
                         {post.coverImage ? (
                           <Image
                             src={post.coverImage}
@@ -161,25 +183,25 @@ export default async function BlogPage({
 
                         {/* Hover arrow indicator */}
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 z-10">
-                          <div className="bg-primary/10 p-2 rounded-full backdrop-blur-sm">
-                            <ArrowRight className="w-4 h-4 text-primary" />
+                          <div className="bg-background/20 p-2 rounded-full backdrop-blur-sm">
+                            <ArrowRight className="w-4 h-4 text-white" />
                           </div>
                         </div>
                       </div>
 
-                      <CardContent className="p-5">
+                      <CardContent className="p-5 flex flex-col flex-1">
                         {/* Title */}
                         <h2 className="font-display font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem]">
                           {post.title}
                         </h2>
 
                         {/* Excerpt */}
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
                           {post.excerpt}
                         </p>
 
                         {/* Author & Date */}
-                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border/50">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border/50 mt-auto">
                           <div className="flex items-center gap-1.5">
                             <User className="w-3.5 h-3.5" />
                             <span className="font-medium">{post.authorName}</span>
@@ -200,13 +222,16 @@ export default async function BlogPage({
             </div>
           </>
         ) : (
-          <EmptyState
-            icon="book"
-            title="No posts found"
-            description="We don't have any blog posts yet. Check back later for tips, guides, and deals news."
-          />
+          <div className="card-elevated p-12">
+            <EmptyState
+              icon="book"
+              title="No posts found"
+              description="We don't have any blog posts yet. Check back later for tips, guides, and deals news."
+            />
+          </div>
         )}
       </section>
-    </main>
+      </main>
+    </>
   );
 }

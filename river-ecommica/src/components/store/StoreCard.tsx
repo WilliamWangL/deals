@@ -10,21 +10,15 @@ export function StoreCard({ store, locale = 'en' }: { store: Store; locale?: str
 
   return (
     <Link href={`/${locale}/stores/${store.slug}`} className="group block h-full">
-      <article className={cn(
-        "h-full relative bg-card rounded-2xl overflow-hidden transition-all duration-300",
-        "border border-border/40 hover:border-border/80",
-        "hover:shadow-lg hover:shadow-black/[0.03]",
-        "hover:-translate-y-0.5"
-      )}>
+      <article className="h-full relative card-interactive flex flex-col overflow-hidden">
         {/* Header with Logo */}
-        <div className="relative p-5 pb-4">
+        <div className="relative p-5 pb-4 flex-1">
           <div className="flex items-start gap-4">
             {/* Logo */}
             <div className="relative shrink-0">
               <div className={cn(
                 "w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden",
-                "bg-gradient-to-br from-slate-50 to-slate-100",
-                "border border-slate-200/60",
+                "bg-white border border-border",
                 "transition-all duration-300 group-hover:shadow-md group-hover:scale-105"
               )}>
                 {store.logoUrl ? (
@@ -36,7 +30,7 @@ export function StoreCard({ store, locale = 'en' }: { store: Store; locale?: str
                     className="object-contain w-12 h-12"
                   />
                 ) : (
-                  <span className="text-xl font-bold text-slate-400">
+                  <span className="text-xl font-bold text-muted-foreground">
                     {store.name[0]}
                   </span>
                 )}
@@ -60,7 +54,7 @@ export function StoreCard({ store, locale = 'en' }: { store: Store; locale?: str
                           "w-3.5 h-3.5",
                           star <= Math.round(rating)
                             ? "fill-amber-400 text-amber-400"
-                            : "fill-slate-200 text-slate-200"
+                            : "fill-muted text-muted"
                         )}
                       />
                     ))}
@@ -75,33 +69,33 @@ export function StoreCard({ store, locale = 'en' }: { store: Store; locale?: str
             {/* Arrow */}
             <div className={cn(
               "shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
-              "bg-muted/50 text-muted-foreground",
+              "bg-muted text-muted-foreground",
               "transition-all duration-300",
-              "group-hover:bg-primary group-hover:text-white group-hover:scale-110"
+              "group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110"
             )}>
               <ArrowUpRight className="w-4 h-4" />
             </div>
           </div>
+
+          {/* Description if available */}
+          {store.description && (
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                {store.description}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Description if available */}
-        {store.description && (
-          <div className="px-5 pb-4">
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-              {store.description}
-            </p>
-          </div>
-        )}
-
         {/* Stats Footer */}
-        <div className="border-t border-border/40 bg-muted/20">
+        <div className="border-t border-border/50 bg-muted/30 mt-auto">
           <div className="flex">
             <div className="flex-1 py-3 px-5 flex items-center justify-center gap-2">
               <Tag className="w-4 h-4 text-muted-foreground" />
               <span className="font-semibold text-foreground">{store.dealCount || 0}</span>
               <span className="text-sm text-muted-foreground">Deals</span>
             </div>
-            <div className="w-px bg-border/40" />
+            <div className="w-px bg-border/50" />
             <div className="flex-1 py-3 px-5 flex items-center justify-center gap-2">
               <Ticket className="w-4 h-4 text-muted-foreground" />
               <span className="font-semibold text-foreground">{store.couponCount || 0}</span>

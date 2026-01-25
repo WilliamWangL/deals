@@ -4,6 +4,9 @@ import type { NextConfig } from 'next';
 const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

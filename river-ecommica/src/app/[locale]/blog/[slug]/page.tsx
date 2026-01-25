@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { fetchPosts, fetchPostBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
-import { JsonLd, generateBlogPostJsonLd } from '@/components/seo/JsonLd';
+import { JsonLd, BASE_URL, generateBlogPostJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { Calendar, Eye, User, Tag } from 'lucide-react';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -24,7 +25,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const post = await fetchPostBySlug(slug);
   
   if (!post) {
@@ -34,11 +35,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.metaTitle || post.title,
     description: post.metaDescription || post.excerpt,
+    openGraph: {
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.excerpt,
+      url: `${BASE_URL}/${locale}/blog/${post.slug}`,
+      type: 'article',
+    }
   };
 }
 
 export default async function BlogPostPage({ params }: Props) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const post = await fetchPostBySlug(slug);
 
   if (!post) {
@@ -55,50 +62,103 @@ export default async function BlogPostPage({ params }: Props) {
     return labels[type] || type;
   };
 
+  const breadcrumbJsonLdItems = [
+    { name: 'Home', url: `${BASE_URL}/${locale}` },
+    { name: 'Blog', url: `${BASE_URL}/${locale}/blog` },
+    { name: post.title, url: `${BASE_URL}/${locale}/blog/${post.slug}` },
+  ];
+
   return (
     <>
       <JsonLd data={generateBlogPostJsonLd(post)} />
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-      <article>
-        {post.coverImage && (
-          <div className="h-64 md:h-96 bg-gray-100 rounded-lg overflow-hidden mb-8 relative">
-            <Image src={post.coverImage} alt={post.title} fill className="object-cover" />
-          </div>
-        )}
-
-        <div className="flex items-center gap-2 mb-4">
-          <Badge variant="secondary">{getTypeLabel(post.type)}</Badge>
-          {post.featured && <Badge>Featured</Badge>}
-        </div>
-
-        <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
-
-        <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
-          <div className="flex items-center gap-2">
-            {post.authorAvatar && (
-              <Image src={post.authorAvatar} alt={post.authorName} width={32} height={32} className="rounded-full" />
-            )}
-            <span>{post.authorName}</span>
-          </div>
-          <span>•</span>
-          <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
-          {post.viewCount && (
+      <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
+      <main className="min-h-screen bg-dots-pattern pb-16">
+        <div className="relative h-[400px] w-full bg-gray-900 overflow-hidden">
+          {post.coverImage ? (
             <>
-              <span>•</span>
-              <span>{post.viewCount} views</span>
+              <Image 
+                src={post.coverImage} 
+                alt={post.title} 
+                fill 
+                className="object-cover opacity-60" 
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
             </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />
           )}
+          
+          <div className="absolute bottom-0 left-0 w-full p-8 pb-12">
+            <div className="container mx-auto max-w-4xl">
+              <div className="flex items-center gap-3 mb-4">
+                <Badge className="bg-primary/90 hover:bg-primary text-white border-none backdrop-blur-sm">
+                  {getTypeLabel(post.type)}
+                </Badge>
+                {post.featured && (
+                  <Badge variant="secondary" className="bg-amber-500/90 text-white border-none backdrop-blur-sm">
+                    Featured
+                  </Badge>
+                )}
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl font-bold font-display text-white mb-6 leading-tight shadow-sm">
+                {post.title}
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-6 text-white/80 text-sm font-medium">
+                <div className="flex items-center gap-2">
+                  {post.authorAvatar ? (
+                    <Image 
+                      src={post.authorAvatar} 
+                      alt={post.authorName} 
+                      width={32} 
+                      height={32} 
+                      className="rounded-full border-2 border-white/20" 
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                      <User size={16} />
+                    </div>
+                  )}
+                  <span>{post.authorName}</span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} />
+                  <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                </div>
+                
+                {post.viewCount && (
+                  <div className="flex items-center gap-2">
+                    <Eye size={16} />
+                    <span>{post.viewCount} views</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="prose prose-lg max-w-none">
-          {post.content ? (
-            <div dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br/>') }} />
-          ) : (
-            <p>{post.excerpt}</p>
-          )}
-        </div>
-      </article>
-    </main>
+        <article className="container mx-auto px-4 max-w-4xl -mt-8 relative z-10">
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-border/50">
+            <div className="prose prose-lg prose-slate max-w-none prose-headings:font-display prose-a:text-primary prose-img:rounded-xl">
+              {post.content ? (
+                <div dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br/>') }} />
+              ) : (
+                <p className="text-xl text-gray-600 leading-relaxed">{post.excerpt}</p>
+              )}
+            </div>
+            
+            <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Tag size={16} />
+                <span>Filed under: {getTypeLabel(post.type)}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </main>
     </>
   );
 }

@@ -47,8 +47,8 @@ export function SearchBar({
   };
 
   return (
-    <div className={cn("relative w-full", className)}>
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors z-10">
+    <div className={cn("relative w-full group", className)}>
+      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors z-10">
         <Search className="h-5 w-5" />
       </div>
       <Input
@@ -56,7 +56,7 @@ export function SearchBar({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder || t('searchPlaceholder')}
-        className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all rounded-xl pr-10"
+        className="pl-12 h-12 bg-white border-slate-200 focus:border-primary/20 focus:ring-4 focus:ring-primary/10 transition-all rounded-full pr-12 shadow-sm hover:shadow-md"
         autoFocus={autoFocus}
       />
       {query && (
@@ -64,7 +64,7 @@ export function SearchBar({
           variant="ghost"
           size="icon"
           onClick={handleClear}
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-slate-100"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-slate-100 rounded-full"
         >
           <X className="h-4 w-4" />
         </Button>

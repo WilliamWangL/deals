@@ -50,15 +50,15 @@ export default function CouponsToolbar() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center gap-3">
           {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative flex-1 max-w-md group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
             <Input
               placeholder="Search codes or stores..."
               value={searchValue}
               onChange={(e) => handleSearch(e.target.value)}
               className={cn(
-                "pl-10 pr-10 h-11 bg-muted/30 border-border/50 rounded-xl",
-                "focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10",
+                "pl-12 pr-12 h-12 bg-white border-slate-200 rounded-full shadow-sm hover:shadow-md",
+                "focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/10",
                 "placeholder:text-muted-foreground/60",
                 "transition-all duration-200"
               )}
@@ -66,7 +66,7 @@ export default function CouponsToolbar() {
             {searchValue && (
               <button
                 onClick={() => handleSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted hover:bg-muted-foreground/20 flex items-center justify-center transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
               >
                 <X className="w-3 h-3 text-muted-foreground" />
               </button>
@@ -79,10 +79,10 @@ export default function CouponsToolbar() {
             size="sm"
             onClick={toggleVerified}
             className={cn(
-              "h-11 px-4 rounded-xl gap-2 font-medium transition-all duration-200",
+              "h-12 px-6 rounded-full gap-2 font-medium transition-all duration-200 shadow-sm border",
               showVerified
-                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200 shadow-emerald-100"
+                : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-slate-200"
             )}
           >
             <BadgeCheck className={cn(

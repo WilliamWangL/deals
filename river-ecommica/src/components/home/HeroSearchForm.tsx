@@ -31,25 +31,25 @@ export function HeroSearchForm({ placeholder, buttonText }: HeroSearchFormProps)
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative group">
-      {/* Glow effect - amber themed to match savings */}
+    <form onSubmit={handleSubmit} className="relative group w-full max-w-2xl mx-auto">
+      {/* Glow effect - Primary/Accent gradient */}
       <div className={`
-        absolute -inset-1 rounded-2xl blur-lg transition-all duration-500
-        bg-gradient-to-r from-amber-500/40 via-orange-500/30 to-amber-500/40
-        ${isFocused ? 'opacity-80 -inset-1.5' : 'opacity-40 group-hover:opacity-60'}
+        absolute -inset-1 rounded-2xl blur-xl transition-all duration-500
+        bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30
+        ${isFocused ? 'opacity-100 scale-[1.02]' : 'opacity-40 group-hover:opacity-60'}
       `} />
 
       {/* Main container */}
       <div className={`
-        relative flex items-center gap-2 p-2 rounded-xl
-        bg-white/95 backdrop-blur-xl
-        shadow-2xl shadow-black/20
-        ring-1 transition-all duration-300
-        ${isFocused ? 'ring-amber-400/50 ring-2' : 'ring-white/20'}
+        relative flex items-center gap-2 p-2 rounded-2xl
+        bg-card/80 backdrop-blur-xl border border-white/40
+        shadow-2xl shadow-primary/5
+        transition-all duration-300
+        ${isFocused ? 'ring-2 ring-primary/50 translate-y-[-2px]' : 'hover:translate-y-[-1px]'}
       `}>
         {/* Search icon */}
-        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-100">
-          <Search className="w-5 h-5 text-slate-500" />
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary">
+          <Search className="w-5 h-5" />
         </div>
 
         {/* Input */}
@@ -60,7 +60,7 @@ export function HeroSearchForm({ placeholder, buttonText }: HeroSearchFormProps)
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
-          className="flex-1 border-0 bg-transparent text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-lg h-12 shadow-none"
+          className="flex-1 border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 text-lg h-12 shadow-none font-medium"
         />
 
         {/* Submit button */}
@@ -68,7 +68,7 @@ export function HeroSearchForm({ placeholder, buttonText }: HeroSearchFormProps)
           type="submit"
           size="lg"
           disabled={!isMounted || !query.trim()}
-          className="h-12 px-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+          className="h-12 px-8 btn-primary rounded-xl flex items-center gap-2"
         >
           <span className="hidden sm:inline">{buttonText}</span>
           <ArrowRight className="w-4 h-4" />

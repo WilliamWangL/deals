@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { DealCard } from '@/components/deal/DealCard';
 import { StoreCard } from '@/components/store/StoreCard';
@@ -43,7 +44,7 @@ const IconMap: Record<string, LucideIcon> = {
   Heart
 };
 
-export async function generateMetadata({params}: {params: Promise<{locale: string}>}) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({locale, namespace: 'Home'});
   return { title: t('title') };
@@ -73,104 +74,106 @@ export default async function HomePage({
   const popularStores = storesResult.list.slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-sans selection:bg-primary/20 selection:text-primary">
       <JsonLd data={generateWebSiteJsonLd()} />
+      
       {/* ============================================
-          HERO SECTION - Premium Dark Theme
+          HERO SECTION - Warm Honey Theme
           ============================================ */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-indigo-950/90 to-slate-900">
-        {/* Animated Background Mesh */}
+      <section className="relative overflow-hidden bg-background">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.6]" />
+        
+        {/* Ambient Glows */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Primary glow - top left */}
-          <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-indigo-600/30 rounded-full blur-[120px] animate-pulse-glow" />
-          {/* Secondary glow - right */}
-          <div className="absolute top-1/4 -right-20 w-[500px] h-[500px] bg-violet-600/25 rounded-full blur-[100px]" />
-          {/* Accent glow - bottom */}
-          <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-amber-500/15 rounded-full blur-[80px]" />
-
-          {/* Subtle grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
-
-          {/* Gradient fade at bottom */}
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-900 to-transparent" />
+          <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full bg-primary/10 blur-[120px] animate-pulse-glow" />
+          <div className="absolute top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-accent/10 blur-[100px]" />
         </div>
 
-        <div className="container relative mx-auto px-4 pt-16 pb-28 lg:pt-24 lg:pb-36">
+        <div className="container relative mx-auto px-4 pt-20 pb-32 lg:pt-32 lg:pb-40">
           <div className="mx-auto max-w-4xl flex flex-col items-center text-center">
-            {/* Trust Badge - Floating pill */}
+            
+            {/* Trust Badge */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.07] backdrop-blur-xl border border-white/[0.08] text-sm font-medium mb-10 shadow-2xl shadow-black/20">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-primary/20 shadow-lg shadow-primary/5 mb-8">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent border-2 border-white flex items-center justify-center text-[10px] text-white font-bold">
+                      <Star className="w-3 h-3 fill-current" />
+                    </div>
+                  ))}
                 </div>
-                <span className="text-white/90">Trusted by 50,000+ Shoppers</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Trusted by <span className="text-foreground font-bold">50,000+</span> Shoppers
+                </span>
               </div>
             </div>
 
-            {/* Headline - Bold & Clear */}
+            {/* Headline */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150">
-              <span className="text-white">Smart Savings,</span>
+              <span className="text-foreground">Smart Savings,</span>
               <br />
-              <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+              <span className="text-gradient-primary">
                 Every Purchase
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg md:text-xl text-slate-300/90 max-w-2xl mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
               {t('heroSubtitle')}
             </p>
 
             {/* Search Form */}
-            <div className="w-full max-w-2xl mb-14 animate-in fade-in zoom-in-95 duration-700 delay-500">
+            <div className="w-full max-w-2xl mb-16 animate-in fade-in zoom-in-95 duration-700 delay-500">
               <HeroSearchForm
                 placeholder={tCommon('searchPlaceholder')}
                 buttonText={tCommon('search')}
               />
             </div>
 
-            {/* Trust Indicators - Refined Pills */}
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700">
-              {[
-                { icon: ShieldCheck, text: 'Verified Codes', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                { icon: TrendingUp, text: 'Updated Daily', color: 'text-amber-400', bg: 'bg-amber-500/10' },
-                { icon: Users, text: '10,000+ Stores', color: 'text-blue-400', bg: 'bg-blue-500/10' }
-              ].map(({ icon: Icon, text, color, bg }) => (
-                <div key={text} className={`flex items-center gap-2.5 px-4 py-2 rounded-full ${bg} border border-white/5`}>
-                  <Icon className={`w-4 h-4 ${color}`} />
-                  <span className="text-sm font-medium text-white/80">{text}</span>
+            {/* Trust Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700">
+              <div className="stat-card group hover:border-primary/30 transition-colors">
+                <div className="mb-2 p-2 rounded-lg bg-emerald-500/10 text-emerald-600 group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
-              ))}
+                <div className="stat-value">100%</div>
+                <div className="stat-label">Verified Codes</div>
+              </div>
+              
+              <div className="stat-card group hover:border-primary/30 transition-colors">
+                <div className="mb-2 p-2 rounded-lg bg-amber-500/10 text-amber-600 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <div className="stat-value">Daily</div>
+                <div className="stat-label">Fresh Updates</div>
+              </div>
+
+              <div className="stat-card group hover:border-primary/30 transition-colors">
+                <div className="mb-2 p-2 rounded-lg bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform">
+                  <Users className="w-6 h-6" />
+                </div>
+                <div className="stat-value">10k+</div>
+                <div className="stat-label">Partner Stores</div>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Smooth curve transition */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 80" fill="none" className="w-full h-auto" preserveAspectRatio="none">
-            <path d="M0 80V40C360 10 720 0 1080 10C1260 20 1380 35 1440 40V80H0Z" className="fill-background"/>
-          </svg>
         </div>
       </section>
 
       {/* ============================================
-          CATEGORY BAR - Elevated Navigation
+          CATEGORY BAR
           ============================================ */}
-      <section className="sticky top-0 z-40 bg-background/80 backdrop-blur-2xl border-b border-border/30">
+      <section className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 overflow-x-auto py-3 no-scrollbar">
+          <div className="flex items-center gap-3 overflow-x-auto py-4 no-scrollbar">
             {categories.map((category, index) => {
               const Icon = IconMap[category.icon] || Tag;
               return (
                 <Link
                   key={category.id}
                   href={`/${locale}/category/${category.slug}`}
-                  className="group flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent hover:bg-primary/5 border border-transparent hover:border-primary/20 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 whitespace-nowrap"
+                  className="group flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full bg-card border border-border hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 whitespace-nowrap"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <Icon className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -183,31 +186,29 @@ export default async function HomePage({
       </section>
 
       {/* ============================================
-          FEATURED DEALS - With Visual Hierarchy
+          FEATURED DEALS
           ============================================ */}
-      <section className="py-16 lg:py-24">
+      <section className="py-20 lg:py-28 section-gradient">
         <div className="container mx-auto px-4">
-          {/* Section Header - Unified Style */}
-          <div className="flex items-end justify-between mb-10 lg:mb-12">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/20">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-sm font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-                  Hot Deals
-                </span>
+          {/* Section Header */}
+          <div className="flex items-end justify-between mb-12">
+            <div className="space-y-4">
+              <div className="badge-deal">
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                Hot Deals
               </div>
-              <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground">
-                {t('featuredDeals')}
-              </h2>
-              <p className="text-muted-foreground text-lg">
-                Handpicked savings, updated every hour
-              </p>
+              <div>
+                <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-2">
+                  {t('featuredDeals')}
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-xl">
+                  Handpicked savings, updated every hour by our community.
+                </p>
+              </div>
             </div>
             <Link
               href={`/${locale}/deals`}
-              className="group hidden md:flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-200"
+              className="group hidden md:flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-200 hover-underline"
             >
               {tCommon('viewAll')}
               <ArrowRight className="w-4 h-4" />
@@ -215,7 +216,7 @@ export default async function HomePage({
           </div>
 
           {/* Deals Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {featuredDeals.length > 0 ? featuredDeals.map((deal, index) => (
               <div
                 key={deal.id}
@@ -225,7 +226,7 @@ export default async function HomePage({
                 <DealCard deal={deal} />
               </div>
             )) : (
-              <div className="col-span-full py-20 text-center">
+              <div className="col-span-full py-20 text-center card-elevated">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
                   <Tag className="w-8 h-8 text-muted-foreground" />
                 </div>
@@ -235,8 +236,8 @@ export default async function HomePage({
           </div>
 
           {/* Mobile CTA */}
-          <div className="mt-10 text-center md:hidden">
-            <Button asChild className="rounded-xl px-8 h-12 font-semibold">
+          <div className="mt-12 text-center md:hidden">
+            <Button asChild className="btn-primary w-full sm:w-auto">
               <Link href={`/${locale}/deals`}>
                 {tCommon('viewAll')}
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -247,31 +248,32 @@ export default async function HomePage({
       </section>
 
       {/* ============================================
-          POPULAR STORES - Brand Showcase
+          POPULAR STORES
           ============================================ */}
-      <section className="py-16 lg:py-24 bg-gradient-to-b from-slate-50/50 via-slate-100/50 to-slate-50/50 dark:from-slate-900/50 dark:via-slate-800/30 dark:to-slate-900/50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
+        {/* Decorative background */}
+        <div className="absolute inset-0 bg-dots-pattern opacity-30" />
+        
+        <div className="container relative mx-auto px-4">
           {/* Section Header */}
-          <div className="flex items-end justify-between mb-10 lg:mb-12">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/20">
-                  <Store className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider">
-                  Top Brands
-                </span>
+          <div className="flex items-end justify-between mb-12">
+            <div className="space-y-4">
+              <div className="badge-exclusive">
+                <Store className="w-3.5 h-3.5" />
+                Top Brands
               </div>
-              <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground">
-                {t('popularStores')}
-              </h2>
-              <p className="text-muted-foreground text-lg">
-                Shop from brands you trust
-              </p>
+              <div>
+                <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-2">
+                  {t('popularStores')}
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-xl">
+                  Shop directly from the brands you know and trust.
+                </p>
+              </div>
             </div>
             <Link
               href={`/${locale}/stores`}
-              className="group hidden md:flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-200"
+              className="group hidden md:flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-200 hover-underline"
             >
               {tCommon('viewAll')}
               <ArrowRight className="w-4 h-4" />
@@ -279,7 +281,7 @@ export default async function HomePage({
           </div>
 
           {/* Stores Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
             {popularStores.map((store, index) => (
               <div
                 key={store.id}
@@ -292,8 +294,8 @@ export default async function HomePage({
           </div>
 
           {/* Mobile CTA */}
-          <div className="mt-10 text-center md:hidden">
-            <Button asChild variant="outline" className="rounded-xl px-8 h-12 font-semibold">
+          <div className="mt-12 text-center md:hidden">
+            <Button asChild variant="outline" className="w-full sm:w-auto rounded-xl h-12">
               <Link href={`/${locale}/stores`}>
                 {tCommon('viewAll')}
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -304,65 +306,62 @@ export default async function HomePage({
       </section>
 
       {/* ============================================
-          FEATURES SECTION - Why Choose Us
+          FEATURES SECTION
           ============================================ */}
-      <section className="py-16 lg:py-24">
+      <section className="py-20 lg:py-28 section-gradient">
         <div className="container mx-auto px-4">
-          {/* Section Header - Centered */}
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              <span>Why Ecommica</span>
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="badge-featured mb-6 mx-auto">
+              <Sparkles className="w-3.5 h-3.5" />
+              Why Ecommica
             </div>
             <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-4">
               Save Smarter, Not Harder
             </h2>
             <p className="text-muted-foreground text-lg">
-              We do the work so you can enjoy the savings
+              We do the heavy lifting so you can enjoy the savings.
             </p>
           </div>
 
-          {/* Features Grid - Refined Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 icon: BadgePercent,
                 title: 'Verified Codes',
                 description: 'Every coupon is tested and verified by our team before publishing. No expired codes, ever.',
-                gradient: 'from-emerald-500 to-teal-600',
-                shadowColor: 'shadow-emerald-500/20'
+                color: 'text-emerald-600',
+                bg: 'bg-emerald-100 dark:bg-emerald-900/30'
               },
               {
                 icon: Gift,
                 title: 'Exclusive Deals',
                 description: 'Access to partner-exclusive discounts you won\'t find anywhere else online.',
-                gradient: 'from-violet-500 to-purple-600',
-                shadowColor: 'shadow-violet-500/20'
+                color: 'text-violet-600',
+                bg: 'bg-violet-100 dark:bg-violet-900/30'
               },
               {
                 icon: Clock,
                 title: 'Real-Time Updates',
                 description: 'Fresh deals and coupons added hourly. Be the first to grab the best offers.',
-                gradient: 'from-amber-500 to-orange-600',
-                shadowColor: 'shadow-amber-500/20'
+                color: 'text-amber-600',
+                bg: 'bg-amber-100 dark:bg-amber-900/30'
               }
-            ].map(({ icon: Icon, title, description, gradient, shadowColor }, index) => (
+            ].map(({ icon: Icon, title, description, color, bg }, index) => (
               <div
                 key={title}
-                className="group relative p-8 rounded-2xl bg-card border border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4"
+                className="card-interactive p-8 animate-in fade-in slide-in-from-bottom-4"
                 style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
               >
                 {/* Icon */}
-                <div className={`inline-flex p-3.5 rounded-xl bg-gradient-to-br ${gradient} ${shadowColor} shadow-lg mb-6`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`inline-flex p-4 rounded-2xl ${bg} ${color} mb-6`}>
+                  <Icon className="w-8 h-8" />
                 </div>
 
                 {/* Content */}
                 <h3 className="text-xl font-display font-bold text-foreground mb-3">{title}</h3>
                 <p className="text-muted-foreground leading-relaxed">{description}</p>
-
-                {/* Hover accent */}
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-[0.02] transition-opacity duration-300`} />
               </div>
             ))}
           </div>
@@ -370,38 +369,38 @@ export default async function HomePage({
       </section>
 
       {/* ============================================
-          AFFILIATE NETWORKS - Partner Showcase
+          AFFILIATE NETWORKS
           ============================================ */}
       <AffiliateNetworks />
 
       {/* ============================================
-          CTA SECTION - Final Push
+          CTA SECTION
           ============================================ */}
-      <section className="relative py-20 lg:py-28 overflow-hidden">
+      <section className="relative py-24 lg:py-32 overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />
-
+        <div className="absolute inset-0 bg-primary" />
+        <div className="absolute inset-0 bg-grid-pattern opacity-10 mix-blend-overlay" />
+        
         {/* Decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-violet-500/15 rounded-full blur-[80px]" />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3" />
         </div>
 
         <div className="container relative mx-auto px-4 text-center">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             {/* Icon */}
-            <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20 mb-8">
-              <Sparkles className="w-10 h-10 text-amber-400" />
+            <div className="inline-flex p-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 mb-8 shadow-xl">
+              <Sparkles className="w-10 h-10 text-white" />
             </div>
 
             {/* Headline */}
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6">
-              Ready to Save?
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
+              Ready to Start Saving?
             </h2>
 
             {/* Description */}
-            <p className="text-slate-300 text-lg md:text-xl mb-10 leading-relaxed">
+            <p className="text-white/90 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">
               Join thousands of smart shoppers saving money every day with verified coupons and exclusive deals.
             </p>
 
@@ -409,7 +408,7 @@ export default async function HomePage({
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-white text-slate-900 hover:bg-slate-100 font-bold px-8 h-14 text-lg rounded-xl shadow-2xl shadow-black/20 hover:shadow-white/10 transition-all"
+                className="bg-white text-primary hover:bg-white/90 font-bold px-10 h-14 text-lg rounded-xl shadow-2xl shadow-black/10 hover:shadow-white/20 hover:-translate-y-1 transition-all"
                 asChild
               >
                 <Link href={`/${locale}/deals`}>
@@ -419,7 +418,7 @@ export default async function HomePage({
               </Button>
               <Button
                 size="lg"
-                className="bg-white/10 border-2 border-white/30 text-white hover:bg-white/20 hover:border-white/50 font-bold px-8 h-14 text-lg rounded-xl backdrop-blur-sm"
+                className="bg-black/20 border-2 border-white/30 text-white hover:bg-black/30 hover:border-white/50 font-bold px-10 h-14 text-lg rounded-xl backdrop-blur-sm hover:-translate-y-1 transition-all"
                 asChild
               >
                 <Link href={`/${locale}/coupons`}>

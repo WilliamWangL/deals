@@ -1,6 +1,6 @@
 import { Deal, Store, BlogPost, Coupon } from '@/types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://deals.ecommica.com';
+export const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://deals.ecommica.com';
 
 export function generateDealJsonLd(deal: Deal) {
   return {
@@ -99,6 +99,20 @@ export function generateBreadcrumbJsonLd(items: { name: string; url: string }[])
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+export function generateItemListJsonLd(items: { name: string; url: string }[], listName?: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    ...(listName && { name: listName }),
     itemListElement: items.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,

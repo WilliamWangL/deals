@@ -106,9 +106,21 @@ async function initGeoReader(): Promise<ReaderModel | null> {
 /**
  * 根据 IP 获取国家代码
  */
+function isLocalIP(ip: string): boolean {
+  return (
+    ip === '::1' ||
+    ip === '127.0.0.1' ||
+    ip.startsWith('192.168.') ||
+    ip.startsWith('10.') ||
+    ip.startsWith('::ffff:127.') ||
+    ip.startsWith('::ffff:192.168.') ||
+    ip.startsWith('::ffff:10.')
+  )
+}
+
 export async function getCountryByIP(ip: string): Promise<string | null> {
   // 处理本地开发环境的 IP
-  if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+  if (!ip || isLocalIP(ip)) {
     return null
   }
 

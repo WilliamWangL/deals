@@ -36,25 +36,25 @@ export function Footer({ locale = 'en' }: FooterProps) {
   ];
 
   return (
-    <footer className="bg-slate-950 text-slate-300 pt-16 pb-8 mt-16 relative overflow-hidden border-t border-slate-800/50">
+    <footer className="bg-slate-950 text-slate-300 pt-16 pb-8 mt-16 relative overflow-hidden border-t border-white/5">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-600/5 rounded-full blur-[100px]" />
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[100px]" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Newsletter Section */}
-        <div className="mb-12 p-8 rounded-2xl bg-gradient-to-r from-slate-900/80 via-indigo-950/50 to-slate-900/80 border border-slate-800/50 backdrop-blur-sm">
+        <div className="mb-12 p-8 rounded-3xl bg-gradient-to-r from-slate-900/80 via-slate-900/90 to-slate-900/80 border border-white/10 backdrop-blur-sm shadow-2xl shadow-black/20">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="text-center lg:text-left flex-1">
               <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
-                <div className="p-1.5 rounded-lg bg-amber-500/10">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
+                <div className="p-1.5 rounded-lg bg-primary/10">
+                  <Sparkles className="w-5 h-5 text-primary" />
                 </div>
-                <span className="text-sm font-medium text-amber-400 uppercase tracking-wider">Newsletter</span>
+                <span className="text-sm font-bold text-primary uppercase tracking-wider">Newsletter</span>
               </div>
-              <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tight">
+              <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2 tracking-tight">
                 Stay ahead of the best deals
               </h3>
               <p className="text-slate-400">
@@ -67,10 +67,10 @@ export function Footer({ locale = 'en' }: FooterProps) {
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  className="bg-slate-950/80 border-slate-700/50 text-white placeholder:text-slate-500 focus-visible:ring-primary h-12 rounded-xl pl-12"
+                  className="bg-slate-950/50 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-primary h-12 rounded-full pl-12"
                 />
               </div>
-              <Button size="lg" className="h-12 px-6 font-semibold rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:shadow-[0_0_25px_rgba(59,130,246,0.25)] transition-all">
+              <Button size="lg" className="h-12 px-6 font-semibold rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all">
                 Subscribe
               </Button>
             </div>
@@ -82,7 +82,7 @@ export function Footer({ locale = 'en' }: FooterProps) {
           {/* Brand Section */}
           <div className="lg:col-span-5 space-y-5">
             <Link href={`/${locale}`} className="inline-block">
-              <h2 className="text-2xl font-bold text-white tracking-tighter flex items-center gap-2">
+              <h2 className="text-2xl font-display font-bold text-white tracking-tighter flex items-center gap-2">
                 Ecommica
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               </h2>
@@ -96,7 +96,7 @@ export function Footer({ locale = 'en' }: FooterProps) {
                 <Link
                   key={label}
                   href={href}
-                  className="w-10 h-10 rounded-xl bg-slate-900/80 flex items-center justify-center text-slate-400 hover:text-white hover:bg-primary/20 hover:scale-105 transition-all duration-300 border border-slate-800/50"
+                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 hover:scale-105 transition-all duration-300 border border-white/5"
                 >
                   <Icon className="h-4 w-4" />
                   <span className="sr-only">{label}</span>
@@ -120,7 +120,7 @@ export function Footer({ locale = 'en' }: FooterProps) {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-slate-400 hover:text-white transition-colors text-sm inline-flex items-center group"
+                      className="text-slate-400 hover:text-primary transition-colors text-sm inline-flex items-center group"
                     >
                       <span className="w-0 group-hover:w-2 h-px bg-primary mr-0 group-hover:mr-2 transition-all duration-200" />
                       {item.label}
@@ -133,7 +133,7 @@ export function Footer({ locale = 'en' }: FooterProps) {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-slate-800/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-slate-500">
             &copy; {new Date().getFullYear()} Ecommica. All rights reserved.
           </p>

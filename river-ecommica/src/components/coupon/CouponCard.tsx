@@ -59,17 +59,12 @@ export default function CouponCard({ coupon }: CouponCardProps) {
 
   return (
     <article
-      className={cn(
-        "group relative bg-card rounded-2xl overflow-hidden transition-all duration-500",
-        "border border-border/40 hover:border-border",
-        "shadow-sm hover:shadow-lg hover:shadow-black/[0.04]",
-        "hover:-translate-y-0.5"
-      )}
+      className="group relative card-interactive h-full flex flex-col overflow-hidden"
     >
       {/* Subtle gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      <div className="relative p-5">
+      <div className="relative p-5 flex flex-col flex-1">
         {/* Header: Merchant + Discount Badge */}
         <div className="flex items-start justify-between gap-3 mb-4">
           {/* Merchant Info */}
@@ -80,7 +75,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
               rel="noopener"
               className="relative shrink-0"
             >
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
+              <div className="w-11 h-11 rounded-xl bg-white border border-border flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105 shadow-sm">
                 {coupon.merchant.logoUrl ? (
                   <img
                     src={coupon.merchant.logoUrl}
@@ -88,7 +83,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
                     className="w-8 h-8 object-contain"
                   />
                 ) : (
-                  <span className="text-base font-bold text-slate-400">
+                  <span className="text-base font-bold text-muted-foreground">
                     {coupon.merchant.name.charAt(0)}
                   </span>
                 )}
@@ -105,8 +100,8 @@ export default function CouponCard({ coupon }: CouponCardProps) {
               </a>
               <div className="flex items-center gap-2 mt-0.5">
                 {coupon.verified && (
-                  <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
-                    <BadgeCheck className="w-3.5 h-3.5" />
+                  <span className="badge-savings px-1.5 py-0.5 text-[10px]">
+                    <BadgeCheck className="w-3 h-3" />
                     Verified
                   </span>
                 )}
@@ -126,7 +121,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
           {/* Discount Badge */}
           <div className="shrink-0 text-right">
             <div className="inline-flex flex-col items-end">
-              <span className="text-2xl font-bold tracking-tight text-foreground leading-none">
+              <span className="text-2xl font-bold tracking-tight font-display text-gradient-savings leading-none">
                 {discount.prefix}{discount.value}{discount.suffix}
               </span>
               {discount.label && (
@@ -152,82 +147,83 @@ export default function CouponCard({ coupon }: CouponCardProps) {
           </div>
         )}
 
-        {/* Code Section */}
-        <div className="relative">
-          {/* Decorative dashed line */}
-          <div className="absolute -left-5 -right-5 top-0 border-t border-dashed border-border/60" />
+        <div className="mt-auto">
+          {/* Code Section */}
+          <div className="relative">
+            {/* Decorative dashed line */}
+            <div className="absolute -left-5 -right-5 top-0 border-t border-dashed border-border/60" />
 
-          <div className="pt-4">
-            <div className="flex items-center gap-2">
-              {/* Code Display */}
-              <div className={cn(
-                "flex-1 relative overflow-hidden rounded-xl transition-all duration-300",
-                "bg-gradient-to-r from-slate-50 to-slate-100/50",
-                "border border-slate-200/60",
-                copied && "border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50/50"
-              )}>
-                <div className="flex items-center justify-between px-4 py-3">
-                  <code className={cn(
-                    "font-mono font-bold text-sm tracking-wider transition-all duration-300",
-                    isRevealed ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    {displayCode}
-                  </code>
-                  {!isRevealed && (
-                    <button
-                      onClick={() => setIsRevealed(true)}
-                      className="text-[11px] text-primary font-medium hover:underline"
-                    >
-                      Reveal
-                    </button>
-                  )}
+            <div className="pt-4">
+              <div className="flex items-center gap-2">
+                {/* Code Display */}
+                <div className={cn(
+                  "flex-1 relative overflow-hidden rounded-xl transition-all duration-300",
+                  "bg-muted/30 border border-border",
+                  copied && "border-emerald-500/30 bg-emerald-50/30"
+                )}>
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <code className={cn(
+                      "font-mono font-bold text-sm tracking-wider transition-all duration-300",
+                      isRevealed ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      {displayCode}
+                    </code>
+                    {!isRevealed && (
+                      <button
+                        onClick={() => setIsRevealed(true)}
+                        className="text-[11px] text-primary font-medium hover:underline"
+                      >
+                        Reveal
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Copy Button */}
-              <Button
-                onClick={handleCopy}
-                className={cn(
-                  "h-12 px-5 rounded-xl font-semibold text-sm transition-all duration-300",
-                  "shadow-sm hover:shadow-md active:scale-[0.98]",
-                  copied
-                    ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                    : "bg-foreground hover:bg-foreground/90 text-background"
-                )}
-              >
-                {copied ? (
-                  <span className="flex items-center gap-2">
-                    <Check className="w-4 h-4" />
-                    Copied
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <Copy className="w-4 h-4" />
-                    Copy
-                  </span>
-                )}
-              </Button>
+                {/* Copy Button */}
+                <Button
+                  onClick={handleCopy}
+                  className={cn(
+                    "h-12 px-5 rounded-xl font-semibold text-sm transition-all duration-300",
+                    "shadow-sm hover:shadow-md active:scale-[0.98]",
+                    copied
+                      ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                      : "bg-foreground hover:bg-foreground/90 text-background"
+                  )}
+                >
+                  {copied ? (
+                    <span className="flex items-center gap-2">
+                      <Check className="w-4 h-4" />
+                      Copied
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </span>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer Link */}
-        <div className="mt-4 flex items-center justify-between">
-          <a
-            href={coupon.trackingLinkId ? `/api/go/${coupon.trackingLinkId}` : coupon.gotoUrl}
-            target="_blank"
-            rel="noopener"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors group/link"
-          >
-            <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5" />
-            {t('getCoupon')}
-          </a>
+          {/* Footer Link */}
+          <div className="mt-4 flex items-center justify-between">
+            <a
+              href={coupon.trackingLinkId ? `/api/go/${coupon.trackingLinkId}` : coupon.gotoUrl}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors group/link hover-underline"
+            >
+              <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5" />
+              {t('getCoupon')}
+            </a>
 
-          {expiry?.expired && (
-            <span className="text-[11px] text-muted-foreground">
-              Expired
-            </span>
-          )}
+            {expiry?.expired && (
+              <span className="text-[11px] text-muted-foreground">
+                Expired
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

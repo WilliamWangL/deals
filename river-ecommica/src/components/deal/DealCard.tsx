@@ -89,28 +89,20 @@ export function DealCard({ deal }: DealCardProps) {
   };
 
   return (
-    <article className={cn(
-      "group relative bg-card rounded-2xl overflow-hidden transition-all duration-300",
-      "border border-border/40 hover:border-border/80",
-      "hover:shadow-lg hover:shadow-black/[0.03]",
-      "hover:-translate-y-0.5"
-    )}>
+    <article className="group relative card-interactive h-full flex flex-col overflow-hidden">
       {/* Top Section - Discount Highlight */}
-      <div className={cn(
-        "relative px-5 pt-5 pb-4",
-        "bg-gradient-to-br from-slate-50/80 to-slate-100/50"
-      )}>
+      <div className="relative px-5 pt-5 pb-4 bg-gradient-to-br from-muted/50 to-background">
         {/* Badges Row */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {deal.featured && (
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wide">
+              <div className="badge-featured">
                 <Sparkles className="w-3 h-3" />
                 Featured
               </div>
             )}
             {deal.exclusive && (
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold uppercase tracking-wide">
+              <div className="badge-exclusive">
                 <Crown className="w-3 h-3" />
                 Exclusive
               </div>
@@ -125,7 +117,7 @@ export function DealCard({ deal }: DealCardProps) {
           <div className="relative shrink-0">
             <div className={cn(
               "w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden",
-              "bg-white border border-slate-200/60 shadow-sm",
+              "bg-white border border-border shadow-sm",
               "transition-all duration-300 group-hover:shadow-md group-hover:scale-105"
             )}>
               {deal.merchant.logoUrl ? (
@@ -137,7 +129,7 @@ export function DealCard({ deal }: DealCardProps) {
                   className="object-contain w-10 h-10"
                 />
               ) : (
-                <span className="text-lg font-bold text-slate-400">
+                <span className="text-lg font-bold text-muted-foreground">
                   {deal.merchant.name.charAt(0)}
                 </span>
               )}
@@ -150,8 +142,8 @@ export function DealCard({ deal }: DealCardProps) {
               {hasDiscount ? (
                 <>
                   <span className={cn(
-                    "text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
-                    getDiscountGradient()
+                    "text-3xl font-bold font-display",
+                    deal.discountPercent >= 50 ? "text-gradient-accent" : "text-gradient-primary"
                   )}>
                     {deal.discountPercent}%
                   </span>
@@ -161,7 +153,7 @@ export function DealCard({ deal }: DealCardProps) {
                 </>
               ) : deal.dealPrice > 0 ? (
                 <>
-                  <span className="text-3xl font-bold text-foreground">
+                  <span className="text-3xl font-bold text-foreground font-display">
                     ${deal.dealPrice}
                   </span>
                   {deal.originalPrice > 0 && (
@@ -171,7 +163,7 @@ export function DealCard({ deal }: DealCardProps) {
                   )}
                 </>
               ) : (
-                <span className="text-2xl font-bold text-primary">
+                <span className="text-2xl font-bold text-primary font-display">
                   Special Deal
                 </span>
               )}
@@ -184,33 +176,35 @@ export function DealCard({ deal }: DealCardProps) {
       </div>
 
       {/* Bottom Section - Title & CTA */}
-      <div className="p-5 pt-4">
+      <div className="p-5 pt-4 flex flex-col flex-1">
         {/* Title */}
-        <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-2 mb-4 min-h-[2.5rem] group-hover:text-primary transition-colors">
+        <h3 className="font-semibold text-base text-foreground leading-snug line-clamp-2 mb-4 min-h-[3rem] group-hover:text-primary transition-colors">
           <Link
             href={`/${locale}/deals/${deal.slug}`}
-            className="hover:underline decoration-primary/30 underline-offset-2"
+            className="hover-underline"
           >
             {deal.title}
           </Link>
         </h3>
 
-        {/* CTA Button */}
-        <Link
-          href={deal.trackingLinkId ? `/api/go/${deal.trackingLinkId}` : deal.gotoUrl}
-          target="_blank"
-          rel="noopener"
-          className={cn(
-            "flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl",
-            "bg-foreground text-background font-semibold text-sm",
-            "transition-all duration-300",
-            "hover:opacity-90 hover:shadow-md",
-            "active:scale-[0.98]"
-          )}
-        >
-          <span>{t('getDeal')}</span>
-          <ArrowUpRight className="w-4 h-4" />
-        </Link>
+        <div className="mt-auto">
+          {/* CTA Button */}
+          <Link
+            href={deal.trackingLinkId ? `/api/go/${deal.trackingLinkId}` : deal.gotoUrl}
+            target="_blank"
+            rel="noopener"
+            className={cn(
+              "flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl",
+              "bg-muted text-foreground font-semibold text-sm",
+              "transition-all duration-300",
+              "group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/20",
+              "active:scale-[0.98]"
+            )}
+          >
+            <span>{t('getDeal')}</span>
+            <ArrowUpRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
 
       {/* Top accent line for high discount deals */}

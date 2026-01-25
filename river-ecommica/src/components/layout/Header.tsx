@@ -88,7 +88,7 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
             className={cn(
                 "sticky top-0 z-50 w-full transition-all duration-300",
                 isScrolled
-                    ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
+                    ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm shadow-primary/5"
                     : "bg-background/50 backdrop-blur-md border-b border-transparent"
             )}
         >
@@ -97,15 +97,20 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                 <div className="flex items-center md:hidden">
                     <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                         <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="mr-2 -ml-2 hover:bg-muted/50 h-9 w-9">
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="mr-2 -ml-2 hover:bg-muted/50 h-9 w-9"
+                                aria-expanded={isMobileMenuOpen}
+                            >
                                 <Menu className="h-5 w-5" />
                                 <span className="sr-only">Menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="w-[85vw] max-w-[320px] p-0">
-                            <SheetHeader className="p-4 pb-3 border-b bg-gradient-to-r from-primary/5 to-transparent">
-                                <SheetTitle className="font-bold text-lg flex items-center gap-2">
-                                    <div className="bg-primary/10 p-1.5 rounded-lg">
+                        <SheetContent side="left" className="w-[85vw] max-w-[320px] p-0 border-r-border/50">
+                            <SheetHeader className="p-4 pb-3 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+                                <SheetTitle className="font-display font-bold text-lg flex items-center gap-2">
+                                    <div className="bg-primary/10 p-1.5 rounded-xl">
                                         <ShoppingBag className="h-5 w-5 text-primary" />
                                     </div>
                                     Ecommica
@@ -113,7 +118,7 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                             </SheetHeader>
 
                             {/* Mobile Search */}
-                            <div className="p-4 border-b">
+                            <div className="p-4 border-b border-border/50">
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                     <input
@@ -123,7 +128,7 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                                         onChange={(e) => setMobileSearchQuery(e.target.value)}
                                         onKeyDown={handleMobileKeyDown}
                                         placeholder={t('searchPlaceholder')}
-                                        className="w-full h-10 pl-9 pr-4 rounded-lg border border-input bg-muted/30 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm"
+                                        className="w-full h-10 pl-9 pr-4 rounded-xl border border-input bg-muted/30 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-muted-foreground/70"
                                     />
                                 </div>
                             </div>
@@ -132,14 +137,26 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                             <nav className="flex flex-col p-2">
                                 {NAV_LINKS.map((link) => {
                                     const Icon = NAV_ICONS[link.href] || LayoutGrid;
+                                    const isActive = link.href === '/deals';
                                     return (
                                         <SheetClose asChild key={link.href}>
                                             <Link
                                                 href={link.href}
-                                                className="flex items-center gap-3 text-base font-medium text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg group"
+                                                className={cn(
+                                                    "flex items-center gap-3 text-base font-medium transition-all py-3 px-3 rounded-xl group",
+                                                    isActive 
+                                                        ? "bg-primary/5 text-primary" 
+                                                        : "text-foreground/80 hover:text-foreground hover:bg-muted/50"
+                                                )}
                                             >
-                                                <div className="w-9 h-9 rounded-lg bg-muted/50 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
-                                                    <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                <div className={cn(
+                                                    "w-9 h-9 rounded-lg flex items-center justify-center transition-colors",
+                                                    isActive ? "bg-primary/10" : "bg-muted/50 group-hover:bg-primary/10"
+                                                )}>
+                                                    <Icon className={cn(
+                                                        "h-4 w-4 transition-colors",
+                                                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                                                    )} />
                                                 </div>
                                                 <span className="flex-1">{t(link.label)}</span>
                                                 <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
@@ -150,7 +167,7 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                             </nav>
 
                             {/* Mobile Footer */}
-                            <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-muted/30">
+                            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/50 bg-muted/30">
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs text-muted-foreground">Language</span>
                                     <LanguageSwitcher />
@@ -159,15 +176,15 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                         </SheetContent>
                     </Sheet>
 
-                    <Link href="/" className="font-bold text-lg flex items-center gap-1.5">
+                    <Link href="/" className="font-display font-bold text-lg flex items-center gap-1.5">
                         <ShoppingBag className="h-5 w-5 text-primary" />
                         <span>Ecommica</span>
                     </Link>
                 </div>
 
                 {/* Desktop: Logo */}
-                <Link href="/" className="hidden md:flex items-center gap-2 font-bold text-2xl tracking-tight group">
-                    <div className="bg-primary/10 p-1.5 rounded-lg group-hover:bg-primary/20 transition-colors">
+                <Link href="/" className="hidden md:flex items-center gap-2 font-display font-bold text-2xl tracking-tight group">
+                    <div className="bg-primary/10 p-1.5 rounded-xl group-hover:bg-primary/20 transition-colors">
                         <ShoppingBag className="h-6 w-6 text-primary" />
                     </div>
                     <span>Ecommica</span>
@@ -189,12 +206,24 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-1 sm:gap-2">
+                    {/* Desktop CTA */}
+                    <div className="hidden md:block mr-1">
+                        <Link href="/deals">
+                            <Button size="sm" className="rounded-full bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border-0 font-semibold shadow-none h-9 px-4">
+                                <Flame className="w-4 h-4 mr-1.5" />
+                                {t('deals')}
+                            </Button>
+                        </Link>
+                    </div>
+
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsSearchOpen(!isSearchOpen)}
+                        aria-expanded={isSearchOpen}
+                        aria-controls="search-dropdown"
                         className={cn(
-                            "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all h-9 w-9",
+                            "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all h-9 w-9 rounded-full",
                             isSearchOpen && "bg-muted text-foreground"
                         )}
                     >
@@ -214,9 +243,10 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
 
             {/* Desktop Search Dropdown */}
             <div
+                id="search-dropdown"
                 className={cn(
-                    "overflow-hidden transition-all duration-300 ease-in-out bg-background border-b absolute w-full",
-                    isSearchOpen ? "max-h-24 opacity-100 shadow-md" : "max-h-0 opacity-0"
+                    "overflow-hidden transition-all duration-300 ease-in-out bg-background/95 backdrop-blur-xl border-b border-border/50 absolute w-full",
+                    isSearchOpen ? "max-h-24 opacity-100 shadow-lg shadow-primary/5" : "max-h-0 opacity-0"
                 )}
             >
                 <div className="container mx-auto px-4 py-4 flex items-center justify-center">
@@ -229,12 +259,12 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder={t('searchPlaceholder')}
-                            className="w-full h-12 pl-12 pr-24 rounded-full border border-input bg-muted/30 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
+                            className="w-full h-12 pl-12 pr-24 rounded-full border border-input bg-muted/30 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm placeholder:text-muted-foreground/70"
                         />
                         <Button
                             onClick={handleSearch}
                             disabled={!searchQuery.trim()}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 px-4"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 px-4 bg-primary text-primary-foreground hover:bg-primary/90"
                         >
                             {t('search')}
                         </Button>

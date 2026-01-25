@@ -1,0 +1,183 @@
+
+> river-ecommica@0.1.0 dev /Users/apple/Projects/shixiaohe/river-ad-workspace/river-ecommica
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.78:3000
+- Environments: .env.local
+
+✓ Starting...
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Ready in 680ms
+ GET /en/stores 200 in 1351ms (compile: 824ms, proxy.ts: 49ms, render: 477ms)
+⨯ ./package.json:13:3
+Error parsing package.json file
+[0m [90m 11 |[39m     [32m"test:e2e:ui"[39m[33m:[39m [32m"playwright test --ui"[39m[33m,[39m
+ [90m 12 |[39m     [32m"test:e2e:update"[39m[33m:[39m [32m"playwright test --update-snapshots"[39m[33m,[39m
+[31m[1m>[22m[39m[90m 13 |[39m   }[33m,[39m
+ [90m    |[39m   [31m[1m^[22m[39m
+ [90m 14 |[39m   [32m"dependencies"[39m[33m:[39m {
+ [90m 15 |[39m     [32m"@maxmind/geoip2-node"[39m[33m:[39m [32m"^6.3.4"[39m[33m,[39m
+ [90m 16 |[39m     [32m"@radix-ui/react-accordion"[39m[33m:[39m [32m"^1.2.12"[39m[33m,[39m[0m
+
+package.json is not parseable: invalid JSON: trailing comma at line 13 column 3
+
+
+ GET /en/stores 500 in 240ms (compile: 152ms, proxy.ts: 5ms, render: 83ms)
+⨯ ./package.json:13:3
+Error parsing package.json file
+[0m [90m 11 |[39m     [32m"test:e2e:ui"[39m[33m:[39m [32m"playwright test --ui"[39m[33m,[39m
+ [90m 12 |[39m     [32m"test:e2e:update"[39m[33m:[39m [32m"playwright test --update-snapshots"[39m[33m,[39m
+[31m[1m>[22m[39m[90m 13 |[39m   }[33m,[39m
+ [90m    |[39m   [31m[1m^[22m[39m
+ [90m 14 |[39m   [32m"dependencies"[39m[33m:[39m {
+ [90m 15 |[39m     [32m"@maxmind/geoip2-node"[39m[33m:[39m [32m"^6.3.4"[39m[33m,[39m
+ [90m 16 |[39m     [32m"@radix-ui/react-accordion"[39m[33m:[39m [32m"^1.2.12"[39m[33m,[39m[0m
+
+package.json is not parseable: invalid JSON: trailing comma at line 13 column 3
+
+
+ GET /en/stores 500 in 18ms (compile: 9ms, proxy.ts: 3ms, render: 6ms)
+⨯ ./package.json:13:3
+Error parsing package.json file
+[0m [90m 11 |[39m     [32m"test:e2e:ui"[39m[33m:[39m [32m"playwright test --ui"[39m[33m,[39m
+ [90m 12 |[39m     [32m"test:e2e:update"[39m[33m:[39m [32m"playwright test --update-snapshots"[39m[33m,[39m
+[31m[1m>[22m[39m[90m 13 |[39m   }[33m,[39m
+ [90m    |[39m   [31m[1m^[22m[39m
+ [90m 14 |[39m   [32m"dependencies"[39m[33m:[39m {
+ [90m 15 |[39m     [32m"@maxmind/geoip2-node"[39m[33m:[39m [32m"^6.3.4"[39m[33m,[39m
+ [90m 16 |[39m     [32m"@radix-ui/react-accordion"[39m[33m:[39m [32m"^1.2.12"[39m[33m,[39m[0m
+
+package.json is not parseable: invalid JSON: trailing comma at line 13 column 3
+
+
+ GET /en/stores 500 in 21ms (compile: 14ms, proxy.ts: 3ms, render: 5ms)
+⨯ ./package.json:13:3
+Error parsing package.json file
+[0m [90m 11 |[39m     [32m"test:e2e:ui"[39m[33m:[39m [32m"playwright test --ui"[39m[33m,[39m
+ [90m 12 |[39m     [32m"test:e2e:update"[39m[33m:[39m [32m"playwright test --update-snapshots"[39m[33m,[39m
+[31m[1m>[22m[39m[90m 13 |[39m   }[33m,[39m
+ [90m    |[39m   [31m[1m^[22m[39m
+ [90m 14 |[39m   [32m"dependencies"[39m[33m:[39m {
+ [90m 15 |[39m     [32m"@maxmind/geoip2-node"[39m[33m:[39m [32m"^6.3.4"[39m[33m,[39m
+ [90m 16 |[39m     [32m"@radix-ui/react-accordion"[39m[33m:[39m [32m"^1.2.12"[39m[33m,[39m[0m
+
+package.json is not parseable: invalid JSON: trailing comma at line 13 column 3
+
+
+ GET /en/stores 200 in 333ms (compile: 13ms, proxy.ts: 3ms, render: 317ms)
+ GET /en 200 in 626ms (compile: 301ms, proxy.ts: 1346µs, render: 324ms)
+ GET /en 200 in 200ms (compile: 5ms, proxy.ts: 1350µs, render: 194ms)
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to /var/folders/kv/hbw7tyfd0f3cljcjjb110wy00000gn/T/next-panic-7935d7c987585eef23e82474808f1e11.log.
+
+To help make Turbopack better, report this error by clicking here: https://github.com/vercel/next.js/discussions/new?category=turbopack-error-report&title=Turbopack%20Error%3A%20Next.js%20package%20not%20found&body=Turbopack%20version%3A%20%60v16.1.0-canary.19-84-g3aa53984e%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0ATurbopack%20Error%3A%20Next.js%20package%20not%20found%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+Error: Turbopack build failed with 1 errors:
+./src/app
+Error: Next.js inferred your workspace root, but it may not be correct.
+    We couldn't find the Next.js package (next/package.json) from the project directory: /Users/apple/Projects/shixiaohe/river-ad-workspace/river-ecommica/src/app
+     To fix this, set turbopack.root in your Next.js config, or ensure the Next.js package is resolvable from this directory.
+    Note: For security and performance reasons, files outside of the project directory will not be compiled.
+    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+
+    at ignore-listed frames
+⚠ Installing TypeScript as it was not found while loading "next.config.ts".
+
+Installing devDependencies (pnpm):
+- typescript
+
+ WARN  Moving @tailwindcss/postcss that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @types/node that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @types/react that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @types/react-dom that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @playwright/test that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving eslint that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving eslint-config-next that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving tailwindcss that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving tw-animate-css that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving typescript that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @maxmind/geoip2-node that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @radix-ui/react-accordion that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @radix-ui/react-dialog that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @radix-ui/react-dropdown-menu that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @radix-ui/react-icons that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @radix-ui/react-slot that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving class-variance-authority that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving clsx that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving cookies-next that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving lucide-react that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving next that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving next-intl that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-dom that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving tailwind-merge that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving ulid that was installed by a different package manager to "node_modules/.ignored"
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 25, reused 25, downloaded 0, added 0
+ WARN  Request took 27307ms: https://registry.npmjs.org/@playwright%2Ftest
+Progress: resolved 26, reused 25, downloaded 0, added 0
+Progress: resolved 519, reused 429, downloaded 0, added 0
+Progress: resolved 519, reused 429, downloaded 1, added 0
+ WARN  Request took 81885ms: https://registry.npmjs.org/playwright
+Progress: resolved 520, reused 429, downloaded 1, added 0
+Progress: resolved 521, reused 429, downloaded 1, added 0
+Progress: resolved 521, reused 429, downloaded 2, added 0
+Progress: resolved 521, reused 429, downloaded 3, added 0
+ WARN  Request took 19950ms: https://registry.npmjs.org/playwright-core
+Progress: resolved 522, reused 429, downloaded 3, added 0
+Packages: +7 -3
++++++++---
+Progress: resolved 522, reused 429, downloaded 3, added 5
+Progress: resolved 522, reused 429, downloaded 3, added 6
+Progress: resolved 522, reused 429, downloaded 4, added 6
+Progress: resolved 522, reused 429, downloaded 4, added 7, done
+
+dependencies:
++ @maxmind/geoip2-node 6.3.4
++ @radix-ui/react-accordion 1.2.12
++ @radix-ui/react-dialog 1.1.15
++ @radix-ui/react-dropdown-menu 2.1.16
++ @radix-ui/react-icons 1.3.2
++ @radix-ui/react-slot 1.2.4
++ class-variance-authority 0.7.1
++ clsx 2.1.1
+- cookies-next
++ cookies-next 6.1.1
++ lucide-react 0.562.0
+- next
++ next 16.1.1
+- next-intl
++ next-intl 4.7.0
++ react 19.2.3
++ react-dom 19.2.3
++ tailwind-merge 3.4.0
++ ulid 3.0.2
+
+devDependencies:
++ @playwright/test 1.58.0
++ @tailwindcss/postcss 4.1.18
++ @types/node 20.19.29
++ @types/react 19.2.8
++ @types/react-dom 19.2.3
++ eslint 9.39.2
++ eslint-config-next 16.1.1
++ tailwindcss 4.1.18
++ tw-animate-css 1.4.0
++ typescript 5.9.3
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @parcel/watcher@2.5.4, @swc/core@1.15.8,            │
+│   sharp@0.34.5, unrs-resolver@1.11.1.                                        │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 2m 17.3s using pnpm v10.28.1
+
+[?25h
+ ELIFECYCLE  Command failed with exit code 1.

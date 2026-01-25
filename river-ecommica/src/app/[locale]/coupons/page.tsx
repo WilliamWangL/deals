@@ -7,6 +7,7 @@ import CouponCard from '@/components/coupon/CouponCard';
 import CouponsToolbar from '@/components/coupon/CouponsToolbar';
 import { CouponPagination } from '@/components/coupon/CouponPagination';
 import { EmptyState } from '@/components/ui/empty-state';
+import { JsonLd, BASE_URL, generateBreadcrumbJsonLd, generateItemListJsonLd } from '@/components/seo/JsonLd';
 import {
   Ticket,
   BadgeCheck,
@@ -22,6 +23,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t('meta.title'),
     description: t('meta.description'),
+    openGraph: {
+      title: t('meta.title'),
+      description: t('meta.description'),
+      url: `${BASE_URL}/${locale}/coupons`,
+      type: 'website',
+    }
   };
 }
 
@@ -71,84 +78,87 @@ export default async function CouponsPage(props: {
     return end > now && end <= threeDaysFromNow;
   }).length;
 
-  return (
-    <main className="min-h-screen bg-background">
-      {/* Hero Section - Ticket/Coupon Style */}
-      <section className="relative overflow-hidden">
-        {/* Dashed border pattern background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50/50 to-cyan-50/30" />
+  const breadcrumbJsonLdItems = [
+    { name: 'Home', url: `${BASE_URL}/${locale}` },
+    { name: 'Coupons', url: `${BASE_URL}/${locale}/coupons` },
+  ];
+  const itemListJsonLdItems = displayCoupons
+    .filter(coupon => coupon.id)
+    .map(coupon => ({
+      name: `${coupon.merchant.name} - ${coupon.title || coupon.description}`,
+      url: `${BASE_URL}/${locale}/coupons#coupon-${coupon.id}`
+    }));
 
-        {/* Decorative coupon shapes */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-4 -left-4 w-24 h-24 border-4 border-dashed border-emerald-200/50 rounded-full" />
-          <div className="absolute top-1/2 -right-8 w-32 h-32 border-4 border-dashed border-teal-200/40 rounded-full" />
-          <div className="absolute -bottom-6 left-1/4 w-20 h-20 border-4 border-dashed border-cyan-200/40 rounded-full" />
-        </div>
+  return (
+    <>
+      <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
+      {itemListJsonLdItems.length > 0 && (
+        <JsonLd data={generateItemListJsonLd(itemListJsonLdItems, 'Coupons')} />
+      )}
+      <main className="min-h-screen bg-background">
+      <section className="relative overflow-hidden section-gradient border-b border-border/50">
+        <div className="absolute inset-0 bg-dots-pattern opacity-50" />
 
         <div className="container mx-auto px-4 py-10 md:py-14 relative">
-          {/* Main Hero Card - Ticket Style */}
-          <div className="relative max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-lg border border-emerald-100 overflow-hidden">
-              {/* Notch decorations */}
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full border-r-2 border-emerald-100" />
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full border-l-2 border-emerald-100" />
+          <div className="relative max-w-5xl mx-auto">
+            <div className="bg-card rounded-3xl shadow-xl shadow-primary/5 border border-border overflow-hidden">
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-background rounded-full border-r border-border" />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-8 h-8 bg-background rounded-full border-l border-border" />
 
               <div className="flex flex-col md:flex-row">
-                {/* Left: Main Content */}
-                <div className="flex-1 p-6 md:p-8">
+                <div className="flex-1 p-8 md:p-10">
                   <div className="flex items-center gap-2 mb-4">
-                    <Scissors className="w-5 h-5 text-emerald-600" />
-                    <span className="text-emerald-600 font-semibold text-sm">COUPON CODES</span>
+                    <div className="p-2 rounded-lg bg-emerald-100/50 text-emerald-600">
+                      <Scissors className="w-5 h-5" />
+                    </div>
+                    <span className="text-emerald-600 font-bold text-sm tracking-wide">COUPON CODES</span>
                   </div>
 
-                  <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-3">
+                  <h1 className="text-4xl md:text-5xl font-bold font-display text-foreground tracking-tight mb-4">
                     Save More with
-                    <span className="text-emerald-600"> Verified Codes</span>
+                    <span className="text-gradient-savings block mt-1">Verified Codes</span>
                   </h1>
 
-                  <p className="text-muted-foreground text-base max-w-lg">
+                  <p className="text-muted-foreground text-lg max-w-lg leading-relaxed">
                     {t('subtitle')}. Copy, paste, and save instantly at checkout.
                   </p>
 
-                  {/* Quick action hint */}
-                  <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 text-sm">
+                  <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 text-muted-foreground text-sm font-medium border border-border/50">
                     <Copy className="w-4 h-4" />
                     <span>Click any code to copy</span>
                   </div>
                 </div>
 
-                {/* Right: Stats - Vertical Dashed Separator */}
-                <div className="relative md:border-l-2 md:border-dashed border-emerald-100 p-6 md:p-8 bg-gradient-to-br from-emerald-50/50 to-transparent">
-                  {/* Mobile top border */}
-                  <div className="md:hidden absolute top-0 left-6 right-6 border-t-2 border-dashed border-emerald-100" />
+                <div className="relative md:border-l border-dashed border-border p-8 md:p-10 bg-muted/10 flex flex-col justify-center min-w-[280px]">
+                  <div className="md:hidden absolute top-0 left-8 right-8 border-t border-dashed border-border" />
 
-                  <div className="grid grid-cols-3 md:grid-cols-1 gap-4 md:gap-5">
-                    <div className="text-center md:text-left">
-                      <div className="flex items-center justify-center md:justify-start gap-1.5 text-muted-foreground text-xs mb-1">
-                        <Ticket className="w-3.5 h-3.5" />
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between md:justify-start md:gap-4">
+                      <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                        <Ticket className="w-4 h-4" />
                         <span>Total</span>
                       </div>
-                      <span className="text-2xl md:text-3xl font-bold text-foreground">
+                      <span className="text-2xl font-bold font-display text-foreground">
                         {totalCoupons}
                       </span>
                     </div>
 
-                    <div className="text-center md:text-left">
-                      <div className="flex items-center justify-center md:justify-start gap-1.5 text-emerald-600 text-xs mb-1">
-                        <BadgeCheck className="w-3.5 h-3.5" />
+                    <div className="flex items-center justify-between md:justify-start md:gap-4">
+                      <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                        <BadgeCheck className="w-4 h-4" />
                         <span>Verified</span>
                       </div>
-                      <span className="text-2xl md:text-3xl font-bold text-emerald-600">
+                      <span className="text-2xl font-bold font-display text-emerald-600">
                         {verifiedCount}
                       </span>
                     </div>
 
-                    <div className="text-center md:text-left">
-                      <div className="flex items-center justify-center md:justify-start gap-1.5 text-amber-600 text-xs mb-1">
-                        <Timer className="w-3.5 h-3.5" />
+                    <div className="flex items-center justify-between md:justify-start md:gap-4">
+                      <div className="flex items-center gap-2 text-amber-600 text-sm font-medium">
+                        <Timer className="w-4 h-4" />
                         <span>Expiring</span>
                       </div>
-                      <span className="text-2xl md:text-3xl font-bold text-amber-600">
+                      <span className="text-2xl font-bold font-display text-amber-600">
                         {expiringCount}
                       </span>
                     </div>
@@ -160,10 +170,8 @@ export default async function CouponsPage(props: {
         </div>
       </section>
 
-      {/* Toolbar */}
       <CouponsToolbar />
 
-      {/* Coupons Grid */}
       <section className="container mx-auto px-4 py-8 md:py-12">
         {displayCoupons.length > 0 ? (
           <>
@@ -177,13 +185,16 @@ export default async function CouponsPage(props: {
             </div>
           </>
         ) : (
-          <EmptyState
-            icon="ticket"
-            title="No coupons found"
-            description="We couldn't find any coupons matching your criteria. Try adjusting your search or filters."
-          />
+          <div className="card-elevated p-12">
+            <EmptyState
+              icon="ticket"
+              title="No coupons found"
+              description="We couldn't find any coupons matching your criteria. Try adjusting your search or filters."
+            />
+          </div>
         )}
       </section>
-    </main>
+      </main>
+    </>
   );
 }

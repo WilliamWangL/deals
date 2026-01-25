@@ -51,9 +51,9 @@ export function StoresSearchBar({ placeholder = 'Search stores...', className }:
 
   return (
     <div className={`relative w-full group ${className || ''}`}>
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-primary transition-colors z-10">
+      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-primary transition-colors z-10">
         {isPending ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
         ) : (
           <Search className="h-5 w-5" />
         )}
@@ -63,7 +63,7 @@ export function StoresSearchBar({ placeholder = 'Search stores...', className }:
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all rounded-xl pr-10"
+        className="pl-12 h-12 bg-white border-slate-200 focus:border-primary/20 focus:ring-4 focus:ring-primary/10 transition-all rounded-full pr-12 shadow-sm hover:shadow-md"
       />
       {query && (
         <Button
@@ -71,7 +71,7 @@ export function StoresSearchBar({ placeholder = 'Search stores...', className }:
           variant="ghost"
           size="icon"
           onClick={handleClear}
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-slate-100"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-slate-100 rounded-full"
           aria-label="Clear search"
         >
           <X className="h-4 w-4" />

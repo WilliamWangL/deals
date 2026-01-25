@@ -6,6 +6,7 @@ import { Category } from '@/types';
 import DealCard from '@/components/deal/DealCard';
 import CouponCard from '@/components/coupon/CouponCard';
 import { EmptyState } from '@/components/ui/empty-state';
+import { JsonLd, BASE_URL, generateBreadcrumbJsonLd, generateItemListJsonLd } from '@/components/seo/JsonLd';
 import {
   Laptop,
   Shirt,
@@ -78,7 +79,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const categories = await fetchCategories();
   const category = findCategoryBySlug(categories, slug);
 
@@ -89,6 +90,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   return {
     title: `${category.name} Deals & Coupons | Ecommica`,
     description: `Find the best ${category.name.toLowerCase()} deals, discounts and coupon codes. Save money on your favorite ${category.name.toLowerCase()} products.`,
+    openGraph: {
+      title: `${category.name} Deals & Coupons | Ecommica`,
+      description: `Find the best ${category.name.toLowerCase()} deals, discounts and coupon codes. Save money on your favorite ${category.name.toLowerCase()} products.`,
+      url: `${BASE_URL}/${locale}/category/${category.slug}`,
+      type: 'website',
+    }
   };
 }
 
@@ -116,8 +123,37 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const isSubcategory = parentCategory?.slug !== slug;
   const subcategories = isSubcategory ? [] : (parentCategory?.children || []);
 
+  const breadcrumbJsonLdItems = [
+    { name: 'Home', url: `${BASE_URL}/${locale}` },
+    { name: 'Categories', url: `${BASE_URL}/${locale}/category` },
+    ...(parentCategory && parentCategory.slug !== slug
+      ? [{ name: parentCategory.name, url: `${BASE_URL}/${locale}/category/${parentCategory.slug}` }]
+      : []),
+    { name: category.name, url: `${BASE_URL}/${locale}/category/${category.slug}` },
+  ];
+  const dealItemList = deals
+    .filter(deal => deal.slug)
+    .map(deal => ({
+      name: deal.title,
+      url: `${BASE_URL}/${locale}/deals/${deal.slug}`
+    }));
+  const couponItemList = coupons
+    .filter(coupon => coupon.id)
+    .map(coupon => ({
+      name: `${coupon.merchant.name} - ${coupon.title || coupon.description}`,
+      url: `${BASE_URL}/${locale}/coupons#coupon-${coupon.id}`
+    }));
+
   return (
-    <main className="min-h-screen bg-background">
+    <>
+      <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
+      {dealItemList.length > 0 && (
+        <JsonLd data={generateItemListJsonLd(dealItemList, `${category.name} Deals`)} />
+      )}
+      {couponItemList.length > 0 && (
+        <JsonLd data={generateItemListJsonLd(couponItemList, `${category.name} Coupons`)} />
+      )}
+      <main className="min-h-screen bg-background">
       {/* Hero Header */}
       <section className="page-header py-12 md:py-16">
         {/* Background decoration */}
@@ -278,6 +314,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           />
         )}
       </section>
-    </main>
+      </main>
+    </>
   );
 }

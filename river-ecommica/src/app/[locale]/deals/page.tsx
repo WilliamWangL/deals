@@ -8,12 +8,12 @@ import DealCard from '@/components/deal/DealCard';
 import { DealsSearchBar } from '@/components/deal/DealsSearchBar';
 import { DealPagination } from '@/components/deal/DealPagination';
 import { EmptyState } from '@/components/ui/empty-state';
+import { JsonLd, BASE_URL, generateBreadcrumbJsonLd, generateItemListJsonLd } from '@/components/seo/JsonLd';
 import {
   Tag,
   Percent,
   Clock,
-  Zap,
-  ArrowRight
+  Zap
 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -23,6 +23,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t('meta.title'),
     description: t('meta.description'),
+    openGraph: {
+      title: t('meta.title'),
+      description: t('meta.description'),
+      url: `${BASE_URL}/${locale}/deals`,
+      type: 'website',
+    }
   };
 }
 
@@ -33,7 +39,7 @@ export default async function DealsPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ q?: string; page?: string; region?: string }>
 }) {
-  await params;
+  const { locale } = await params;
   const queryParams = await searchParams;
   const searchQuery = queryParams.q?.trim() || '';
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);
@@ -63,59 +69,76 @@ export default async function DealsPage({
     ? Math.round(allDeals.reduce((acc, d) => acc + (d.discountPercent || 0), 0) / Math.max(1, allDeals.length))
     : 0;
 
+  const breadcrumbJsonLdItems = [
+    { name: 'Home', url: `${BASE_URL}/${locale}` },
+    { name: 'Deals', url: `${BASE_URL}/${locale}/deals` },
+  ];
+  const itemListJsonLdItems = deals
+    .filter(deal => deal.slug)
+    .map(deal => ({
+      name: deal.title,
+      url: `${BASE_URL}/${locale}/deals/${deal.slug}`
+    }));
+
   return (
-    <main className="min-h-screen bg-background">
+    <>
+      <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
+      {itemListJsonLdItems.length > 0 && (
+        <JsonLd data={generateItemListJsonLd(itemListJsonLdItems, 'Deals')} />
+      )}
+      <main className="min-h-screen bg-background">
       {/* Hero Section - Compact & Urgent Style */}
-      <section className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+      <section className="relative section-gradient overflow-hidden border-b border-border/50">
         {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(251,146,60,0.1)_50%,transparent_75%)] bg-[length:250%_250%] animate-shimmer" />
+        <div className="absolute inset-0 bg-grid-pattern opacity-50" />
+        
+        {/* Glow effects */}
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
 
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
-
-        <div className="container mx-auto px-4 py-8 md:py-12 relative">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="container mx-auto px-4 py-12 md:py-16 relative">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             {/* Left: Title & Description */}
-            <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-4">
+            <div className="flex-1 max-w-2xl">
+              <div className="badge-deal mb-6">
                 <Zap className="w-3.5 h-3.5" />
                 LIVE DEALS
               </div>
 
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-3">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display tracking-tight mb-4 text-foreground">
                 Today's Best
-                <span className="block text-amber-400">Deals & Discounts</span>
+                <span className="block text-gradient-primary">Deals & Discounts</span>
               </h1>
 
-              <p className="text-slate-400 text-base md:text-lg max-w-xl">
-                Hand-picked savings updated every hour. Don't miss out.
+              <p className="text-muted-foreground text-lg md:text-xl max-w-xl leading-relaxed">
+                Hand-picked savings updated every hour. Don't miss out on the hottest drops.
               </p>
             </div>
 
             {/* Right: Stats Pills */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <Tag className="w-4 h-4 text-amber-400" />
-                <div>
-                  <span className="text-2xl font-bold text-white">{totalDeals}</span>
-                  <span className="text-slate-400 text-sm ml-1.5">deals</span>
+            <div className="flex flex-wrap gap-4">
+              <div className="stat-card min-w-[140px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Tag className="w-4 h-4 text-primary" />
+                  <span>Total Deals</span>
                 </div>
+                <span className="stat-value">{totalDeals}</span>
               </div>
 
-              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <Clock className="w-4 h-4 text-emerald-400" />
-                <div>
-                  <span className="text-2xl font-bold text-white">{activeDeals}</span>
-                  <span className="text-slate-400 text-sm ml-1.5">active</span>
+              <div className="stat-card min-w-[140px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
+                  <Clock className="w-4 h-4 text-emerald-500" />
+                  <span>Active Now</span>
                 </div>
+                <span className="stat-value text-emerald-600">{activeDeals}</span>
               </div>
 
-              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30">
-                <Percent className="w-4 h-4 text-amber-400" />
-                <div>
-                  <span className="text-2xl font-bold text-amber-400">{avgDiscount}%</span>
-                  <span className="text-amber-400/70 text-sm ml-1.5">avg off</span>
+              <div className="stat-card min-w-[140px] border-primary/20 bg-primary/5">
+                <div className="flex items-center gap-2 text-primary text-sm font-medium mb-1">
+                  <Percent className="w-4 h-4" />
+                  <span>Avg Savings</span>
                 </div>
+                <span className="stat-value text-gradient-primary">{avgDiscount}%</span>
               </div>
             </div>
           </div>
@@ -148,13 +171,16 @@ export default async function DealsPage({
             </div>
           </>
         ) : (
-          <EmptyState
-            icon="bag"
-            title="No deals found"
-            description="We couldn't find any deals matching your criteria. Try adjusting your search or check back later."
-          />
+          <div className="card-elevated p-12">
+            <EmptyState
+              icon="bag"
+              title="No deals found"
+              description="We couldn't find any deals matching your criteria. Try adjusting your search or check back later."
+            />
+          </div>
         )}
       </section>
-    </main>
+      </main>
+    </>
   );
 }

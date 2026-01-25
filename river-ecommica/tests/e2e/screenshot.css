@@ -1,0 +1,90 @@
+/* 
+ * Screenshot Styles for Visual Regression Testing
+ * 
+ * Disables animations, transitions, and dynamic elements for consistent visual snapshots.
+ * Applied during visual regression testing to ensure stable screenshots across browsers.
+ */
+
+/* Disable all animations and transitions */
+* {
+  animation: none !important;
+  transition: none !important;
+  transition-property: none !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  transition-timing-function: linear !important;
+}
+
+/* Disable specific animation classes commonly used in Tailwind */
+[class*="animate-"] {
+  animation: none !important;
+}
+
+[class*="transition-"] {
+  transition: none !important;
+}
+
+/* Disable hover/focus effects during screenshots */
+*:hover, *:focus {
+  outline: none !important;
+}
+
+/* Remove shimmer animations from elements */
+[class*="shimmer"],
+[class*="pulse"],
+[class*="bounce"],
+[class*="spin"],
+[class*="ping"] {
+  animation: none !important;
+}
+
+/* Disable CSS keyframe animations */
+@keyframes * {
+  animation: none !important;
+}
+
+/* Prevent any element from changing state during screenshot */
+*[class*="hover-"],
+*[class*="focus-"],
+*[class*="active-"] {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Ensure consistent scrollbar appearance */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+[style*="background-animation"],
+[style*="animate-gradient"] {
+  animation: none !important;
+}
+
+/* Disable loading spinners and rotating elements */
+[class*="spinner"],
+[class*="loader"],
+[class*="rotating"] {
+  animation: none !important;
+}
+
+/* Ensure consistent text rendering */
+* {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

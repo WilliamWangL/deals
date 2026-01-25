@@ -60,10 +60,13 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${plusJakarta.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground">
+          Skip to main content
+        </a>
         <NextIntlClientProvider messages={messages}>
           <div className="min-h-screen flex flex-col">
             <Header currentRegion={currentRegion} regions={regions} />
-            <main className="flex-grow">
+            <main id="main-content" className="flex-grow">
                {children}
             </main>
             <Footer locale={locale} />
