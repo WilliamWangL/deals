@@ -134,8 +134,16 @@ jobs:
           script: |
             cd /opt/river
 
-            # 创建数据目录
-            mkdir -p data/postgres data/redis
+            # 创建必要目录
+            mkdir -p data/postgres data/redis ssl nginx
+
+            # 如果没有 SSL 证书，创建自签名证书（用于首次部署测试）
+            if [ ! -f ssl/deals.ecommica.com_bundle.pem ]; then
+              openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -keyout ssl/deals.ecommica.com.key -out ssl/deals.ecommica.com_bundle.pem \
+                -subj "/CN=deals.ecommica.com"
+              echo "Created self-signed SSL certificate"
+            fi
 
             # 创建环境变量文件
             echo "GITHUB_REPO=${{ github.repository }}" > .env

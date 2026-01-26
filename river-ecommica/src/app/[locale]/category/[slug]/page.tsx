@@ -78,8 +78,13 @@ interface CategoryPageProps {
 }
 
 export async function generateStaticParams() {
-  const categories = await fetchCategories();
-  return collectCategorySlugs(categories);
+  try {
+    const categories = await fetchCategories();
+    return collectCategorySlugs(categories);
+  } catch {
+    // 构建时 API 不可用，返回空数组，页面将在运行时动态渲染
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {

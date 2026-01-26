@@ -11,6 +11,7 @@ COPY --from=builder /build/river-server/target/river-server.jar app.jar
 
 ENV TZ=Asia/Shanghai
 ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
+ENV SPRING_PROFILES_ACTIVE=prod
 ENV ARGS=""
 
 EXPOSE 48080

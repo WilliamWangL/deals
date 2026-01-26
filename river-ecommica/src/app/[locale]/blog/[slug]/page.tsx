@@ -12,17 +12,22 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const { list: posts } = await fetchPosts();
-  const locales = ['en', 'zh'];
+  try {
+    const { list: posts } = await fetchPosts();
+    const locales = ['en', 'zh'];
 
-  return locales.flatMap(locale =>
-    posts
-      .filter(post => post.slug && typeof post.slug === 'string')
-      .map(post => ({
-        locale,
-        slug: post.slug,
-      }))
-  );
+    return locales.flatMap(locale =>
+      posts
+        .filter(post => post.slug && typeof post.slug === 'string')
+        .map(post => ({
+          locale,
+          slug: post.slug,
+        }))
+    );
+  } catch {
+    // 构建时 API 不可用，返回空数组，页面将在运行时动态渲染
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
