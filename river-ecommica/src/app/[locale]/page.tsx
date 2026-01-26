@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { DealCard } from '@/components/deal/DealCard';
 import { StoreCard } from '@/components/store/StoreCard';
 import { AffiliateNetworks } from '@/components/home/AffiliateNetworks';
+import { CategorySection } from '@/components/home/CategorySection';
 import { fetchDeals, fetchStores, fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
 import { Button } from '@/components/ui/button';
@@ -16,33 +17,14 @@ import {
   Zap,
   ShieldCheck,
   Sparkles,
-  Laptop,
-  Shirt,
-  Home,
-  Dumbbell,
-  Baby,
-  ShoppingBasket,
-  Heart,
   BadgePercent,
   Gift,
   Clock,
   ChevronRight,
   Star,
-  Users,
-  type LucideIcon
+  Users
 } from 'lucide-react';
 import { JsonLd, generateWebSiteJsonLd } from '@/components/seo/JsonLd';
-
-const IconMap: Record<string, LucideIcon> = {
-  Laptop,
-  Shirt,
-  Home,
-  Sparkles,
-  Dumbbell,
-  Baby,
-  ShoppingBasket,
-  Heart
-};
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -162,28 +144,9 @@ export default async function HomePage({
       </section>
 
       {/* ============================================
-          CATEGORY BAR
+          CATEGORY SECTION
           ============================================ */}
-      <section className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 overflow-x-auto py-4 no-scrollbar">
-            {categories.map((category, index) => {
-              const Icon = IconMap[category.icon] || Tag;
-              return (
-                <Link
-                  key={category.id}
-                  href={`/${locale}/category/${category.slug}`}
-                  className="group flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full bg-card border border-border hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 whitespace-nowrap"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <Icon className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  <span>{category.name}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <CategorySection categories={categories} locale={locale} showViewAll />
 
       {/* ============================================
           FEATURED DEALS

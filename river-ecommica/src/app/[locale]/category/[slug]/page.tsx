@@ -106,20 +106,30 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const queryParams = await searchParams;
   const region = await getCurrentRegion(queryParams);
 
-  const [categories, allDealsResult, allCouponsResult] = await Promise.all([
-    fetchCategories({ regions: region ? [region] : undefined }),
-    fetchDeals({ regions: region ? [region] : undefined }),
-    fetchCoupons({ regions: region ? [region] : undefined }),
-  ]);
-
+  // First fetch categories to find the category by slug
+  const categories = await fetchCategories({ regions: region ? [region] : undefined });
   const category = findCategoryBySlug(categories, slug);
 
   if (!category) {
     notFound();
   }
 
-  const deals = allDealsResult.list.slice(0, 8);
-  const coupons = allCouponsResult.list.slice(0, 6);
+  // Then fetch deals and coupons filtered by categoryId
+  const [dealsResult, couponsResult] = await Promise.all([
+    fetchDeals({
+      categoryId: category.id,
+      regions: region ? [region] : undefined,
+      pageSize: 8
+    }),
+    fetchCoupons({
+      categoryId: category.id,
+      regions: region ? [region] : undefined,
+      pageSize: 6
+    }),
+  ]);
+
+  const deals = dealsResult.list;
+  const coupons = couponsResult.list;
 
   const IconComponent = iconMap[category.icon || 'Tag'] || Tag;
 

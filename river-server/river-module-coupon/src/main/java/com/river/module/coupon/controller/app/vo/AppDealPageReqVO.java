@@ -21,4 +21,7 @@ public class AppDealPageReqVO extends PageParam {
     @Schema(description = "地区列表（支持多地区查询）")
     private List<String> regions;
 
+    @Schema(description = "分类 ID")
+    private Long categoryId;
+
 }

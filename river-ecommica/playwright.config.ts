@@ -21,9 +21,8 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    timeout: 30000,
+    actionTimeout: 30000,
     navigationTimeout: 60000,
-    reducedMotion: 'reduce',
     viewport: { width: 1280, height: 720 },
   },
   projects: [

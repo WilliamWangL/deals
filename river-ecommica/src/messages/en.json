@@ -68,6 +68,18 @@
     "title": "Blog",
     "subtitle": "Tips, guides, and the latest deals news"
   },
+  "categories": {
+    "meta": {
+      "title": "All Categories | Ecommica",
+      "description": "Browse all categories to find the best deals and coupons."
+    },
+    "title": "Browse by Category",
+    "subtitle": "Find deals and coupons in your favorite categories.",
+    "viewAll": "View All Categories",
+    "more": "+{count} more",
+    "badge": "Browse by Category",
+    "sectionTitle": "Shop by Category"
+  },
   "about": {
     "meta": {
       "title": "About Us - Ecommica",
