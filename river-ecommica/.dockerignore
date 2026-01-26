@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+
+# IDE
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# Test
+playwright-report/
+test-results/
+
+# Misc
+*.md

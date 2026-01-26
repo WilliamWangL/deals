@@ -1,0 +1,18 @@
+# IDE
+.idea/
+*.iml
+
+# Build output
+**/target/
+
+# Git
+.git/
+.gitignore
+
+# Docs
+*.md
+docs/
+
+# Logs
+logs/
+*.log
