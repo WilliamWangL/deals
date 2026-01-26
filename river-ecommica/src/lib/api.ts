@@ -1,7 +1,19 @@
 import { Deal, Store, Coupon, BlogPost, Category } from '@/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:48080/app-api'
+// 服务端内部 API URL（Docker 内部网络）
+const INTERNAL_API_URL = process.env.INTERNAL_API_URL || 'http://localhost:48080/app-api'
+// 客户端 API URL（通过 nginx 代理）
+const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || '/app-api'
 const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID || '1'
+
+// 根据运行环境选择 API URL
+function getApiBaseUrl(): string {
+  // 服务端使用内部 URL，客户端使用公开 URL
+  if (typeof window === 'undefined') {
+    return INTERNAL_API_URL
+  }
+  return PUBLIC_API_URL
+}
 
 function fetchWithTenant(url: string, options: RequestInit = {}): Promise<Response> {
   return fetch(url, {
@@ -29,7 +41,7 @@ function mapPostType(post: Record<string, unknown>): BlogPost {
 }
 
 export async function fetchDeals(params?: { merchantId?: number; featured?: boolean; categoryId?: number; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Deal>> {
-  const url = new URL(`${API_BASE_URL}/coupon/deal/page`)
+  const url = new URL(`${getApiBaseUrl()}/coupon/deal/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
   if (params?.categoryId) url.searchParams.set('categoryId', String(params.categoryId))
@@ -46,7 +58,7 @@ export async function fetchDeals(params?: { merchantId?: number; featured?: bool
 }
 
 export async function fetchDealBySlug(slug: string): Promise<Deal | null> {
-  const res = await fetchWithTenant(`${API_BASE_URL}/coupon/deal/get-by-slug?slug=${encodeURIComponent(slug)}`, {
+  const res = await fetchWithTenant(`${getApiBaseUrl()}/coupon/deal/get-by-slug?slug=${encodeURIComponent(slug)}`, {
     next: { revalidate: 300 },
   })
   if (!res.ok) throw new Error('Fetch deal failed')
@@ -60,7 +72,7 @@ export interface PageResult<T> {
 }
 
 export async function fetchStores(params?: { pageNo?: number; pageSize?: number; name?: string; regions?: string[] }): Promise<PageResult<Store>> {
-  const url = new URL(`${API_BASE_URL}/affiliate/merchant/page`);
+  const url = new URL(`${getApiBaseUrl()}/affiliate/merchant/page`);
   if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo));
   if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize));
   if (params?.name) url.searchParams.set('name', params.name);
@@ -75,7 +87,7 @@ export async function fetchStores(params?: { pageNo?: number; pageSize?: number;
 }
 
 export async function fetchStoreBySlug(slug: string): Promise<Store | null> {
-  const res = await fetchWithTenant(`${API_BASE_URL}/affiliate/merchant/get-by-slug?slug=${encodeURIComponent(slug)}`, {
+  const res = await fetchWithTenant(`${getApiBaseUrl()}/affiliate/merchant/get-by-slug?slug=${encodeURIComponent(slug)}`, {
     next: { revalidate: 3600 },
   })
   if (!res.ok) throw new Error('Fetch store failed')
@@ -84,7 +96,7 @@ export async function fetchStoreBySlug(slug: string): Promise<Store | null> {
 }
 
 export async function fetchCoupons(params?: { merchantId?: number; verified?: boolean; categoryId?: number; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Coupon>> {
-  const url = new URL(`${API_BASE_URL}/coupon/coupon/page`)
+  const url = new URL(`${getApiBaseUrl()}/coupon/coupon/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.verified !== undefined) url.searchParams.set('verified', String(params.verified))
   if (params?.categoryId) url.searchParams.set('categoryId', String(params.categoryId))
@@ -101,7 +113,7 @@ export async function fetchCoupons(params?: { merchantId?: number; verified?: bo
 }
 
 export async function fetchPosts(params?: { type?: string; featured?: boolean; pageNo?: number; pageSize?: number }): Promise<PageResult<BlogPost>> {
-  const url = new URL(`${API_BASE_URL}/blog/post/page`)
+  const url = new URL(`${getApiBaseUrl()}/blog/post/page`)
   if (params?.type) url.searchParams.set('type', params.type)
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
   if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
@@ -118,7 +130,7 @@ export async function fetchPosts(params?: { type?: string; featured?: boolean; p
 }
 
 export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {
-  const res = await fetchWithTenant(`${API_BASE_URL}/blog/post/get-by-slug?slug=${encodeURIComponent(slug)}`, {
+  const res = await fetchWithTenant(`${getApiBaseUrl()}/blog/post/get-by-slug?slug=${encodeURIComponent(slug)}`, {
     next: { revalidate: 300 },
   })
   if (!res.ok) throw new Error('Fetch post failed')
@@ -127,7 +139,7 @@ export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {
 }
 
 export async function fetchCategories(params?: { regions?: string[] }): Promise<Category[]> {
-  const url = new URL(`${API_BASE_URL}/affiliate/category/tree`)
+  const url = new URL(`${getApiBaseUrl()}/affiliate/category/tree`)
   if (params?.regions?.length) {
     params.regions.forEach(r => url.searchParams.append('regions', r))
   }
@@ -143,7 +155,7 @@ export interface Region {
 }
 
 export async function fetchAvailableRegions(): Promise<Region[]> {
-  const res = await fetchWithTenant(`${API_BASE_URL}/affiliate/region/available`, {
+  const res = await fetchWithTenant(`${getApiBaseUrl()}/affiliate/region/available`, {
     next: { revalidate: 300 },
   })
   if (!res.ok) throw new Error('Fetch regions failed')

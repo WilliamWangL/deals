@@ -112,12 +112,65 @@ logging:
 
 debug: false
 
+--- #################### 微信公众号、小程序相关配置 ####################
+wx:
+  mp: # 公众号配置
+    app-id: ${WX_MP_APP_ID:}
+    secret: ${WX_MP_SECRET:}
+    config-storage:
+      type: RedisTemplate
+      key-prefix: wx
+      http-client-type: HttpClient
+  miniapp: # 小程序配置
+    appid: ${WX_MINIAPP_APP_ID:}
+    secret: ${WX_MINIAPP_SECRET:}
+    config-storage:
+      type: RedisTemplate
+      key-prefix: wa
+      http-client-type: HttpClient
+
 --- #################### 芋道相关配置 ####################
 river:
   captcha:
     enable: true
   security:
     mock-enable: false
+  pay:
+    order-notify-url: ${PAY_ORDER_NOTIFY_URL:https://deals.ecommica.com/admin-api/pay/notify/order}
+    refund-notify-url: ${PAY_REFUND_NOTIFY_URL:https://deals.ecommica.com/admin-api/pay/notify/refund}
+    transfer-notify-url: ${PAY_TRANSFER_NOTIFY_URL:https://deals.ecommica.com/admin-api/pay/notify/transfer}
   access-log:
     enable: true
   demo: false
+  wxa-code:
+    env-version: release # 小程序版本: 正式版为 "release"
+  wxa-subscribe-message:
+    miniprogram-state: formal # 跳转小程序类型：正式版为 "formal"
+  tencent-lbs-key: ${TENCENT_LBS_KEY:}
+
+--- #################### 社交登录相关配置 ####################
+justauth:
+  enabled: true
+  type:
+    DINGTALK:
+      client-id: ${DINGTALK_CLIENT_ID:}
+      client-secret: ${DINGTALK_CLIENT_SECRET:}
+      ignore-check-redirect-uri: true
+    WECHAT_ENTERPRISE:
+      client-id: ${WECHAT_ENTERPRISE_CLIENT_ID:}
+      client-secret: ${WECHAT_ENTERPRISE_CLIENT_SECRET:}
+      agent-id: ${WECHAT_ENTERPRISE_AGENT_ID:}
+      ignore-check-redirect-uri: true
+    WECHAT_MINI_PROGRAM:
+      client-id: ${wx.miniapp.appid}
+      client-secret: ${wx.miniapp.secret}
+      ignore-check-redirect-uri: true
+      ignore-check-state: true
+    WECHAT_MP:
+      client-id: ${wx.mp.app-id}
+      client-secret: ${wx.mp.secret}
+      ignore-check-redirect-uri: true
+  cache:
+    type: REDIS
+    prefix: 'social_auth_state:'
+    timeout: 24h
