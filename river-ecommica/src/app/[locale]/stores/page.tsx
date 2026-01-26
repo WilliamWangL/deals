@@ -46,6 +46,7 @@ export default async function StoresPage({
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);
   const pageSize = PAGINATION.PAGE_SIZE.STORE;
   const region = await getCurrentRegion(queryParams);
+  const t = await getTranslations({ locale, namespace: 'stores' });
 
   const storesResult = await fetchStores({
     pageNo: currentPage,
@@ -92,15 +93,15 @@ export default async function StoresPage({
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
               <Compass className="w-4 h-4" />
-              <span>Explore</span>
+              <span>{t('breadcrumbExplore')}</span>
               <span className="text-primary/40">/</span>
-              <span className="text-primary font-medium">All Brands</span>
+              <span className="text-primary font-medium">{t('breadcrumbStores')}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-foreground tracking-tight mb-4">
-              Discover
+              {t('heroTitle1')}
               <span className="relative ml-3">
-                <span className="relative z-10 text-gradient-primary">Top Stores</span>
+                <span className="relative z-10 text-gradient-primary">{t('heroTitle2')}</span>
                 <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/20" viewBox="0 0 100 12" preserveAspectRatio="none">
                   <path d="M0,8 Q50,0 100,8" stroke="currentColor" strokeWidth="4" fill="none" />
                 </svg>
@@ -108,14 +109,14 @@ export default async function StoresPage({
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 leading-relaxed">
-              Browse {totalStores}+ premium brands with exclusive deals and verified coupon codes.
+              {t('heroDescription', { count: totalStores })}
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <StoreIcon className="w-4 h-4 text-primary" />
-                  <span>Stores</span>
+                  <span>{t('statStores')}</span>
                 </div>
                 <span className="stat-value">{totalStores}</span>
               </div>
@@ -123,7 +124,7 @@ export default async function StoresPage({
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <Tag className="w-4 h-4 text-amber-500" />
-                  <span>Deals</span>
+                  <span>{t('statDeals')}</span>
                 </div>
                 <span className="stat-value">{totalDeals}</span>
               </div>
@@ -131,7 +132,7 @@ export default async function StoresPage({
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <Ticket className="w-4 h-4 text-emerald-500" />
-                  <span>Codes</span>
+                  <span>{t('statCodes')}</span>
                 </div>
                 <span className="stat-value">{totalCoupons}</span>
               </div>
@@ -144,7 +145,7 @@ export default async function StoresPage({
         <div className="container mx-auto px-4 py-3">
           <Suspense fallback={<div className="h-11 bg-muted animate-pulse rounded-xl max-w-md" />}>
             <StoresSearchBar
-              placeholder="Search stores..."
+              placeholder={t('searchPlaceholder')}
               className="max-w-md"
             />
           </Suspense>
@@ -168,12 +169,12 @@ export default async function StoresPage({
             <div className="w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-6">
               <StoreIcon className="w-10 h-10 text-muted-foreground/50" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">No stores found</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">{t('emptyTitle')}</h3>
             <p className="text-muted-foreground max-w-md mx-auto">
-              We couldn&apos;t find any stores matching your search. Try a different keyword.
+              {t('emptyDescription')}
             </p>
             <Button variant="outline" className="mt-6 rounded-xl" asChild>
-              <Link href={`/${locale}/stores`}>Clear search</Link>
+              <Link href={`/${locale}/stores`}>{t('clearSearch')}</Link>
             </Button>
           </div>
         )}

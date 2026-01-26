@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
 import { Category } from '@/types';
@@ -82,19 +83,21 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: 'CategoryDetail' });
   const categories = await fetchCategories();
   const category = findCategoryBySlug(categories, slug);
 
   if (!category) {
-    return { title: 'Category Not Found' };
+    return { title: t('meta.notFound') };
   }
 
+  const categoryNameLower = category.name.toLowerCase();
   return {
-    title: `${category.name} Deals & Coupons | Ecommica`,
-    description: `Find the best ${category.name.toLowerCase()} deals, discounts and coupon codes. Save money on your favorite ${category.name.toLowerCase()} products.`,
+    title: t('meta.title', { name: category.name }),
+    description: t('meta.description', { name: categoryNameLower }),
     openGraph: {
-      title: `${category.name} Deals & Coupons | Ecommica`,
-      description: `Find the best ${category.name.toLowerCase()} deals, discounts and coupon codes. Save money on your favorite ${category.name.toLowerCase()} products.`,
+      title: t('meta.title', { name: category.name }),
+      description: t('meta.description', { name: categoryNameLower }),
       url: `${BASE_URL}/${locale}/category/${category.slug}`,
       type: 'website',
     }
@@ -105,6 +108,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const { locale, slug } = await params;
   const queryParams = await searchParams;
   const region = await getCurrentRegion(queryParams);
+  const t = await getTranslations({ locale, namespace: 'CategoryDetail' });
 
   // GLOBAL region means no filtering needed
   const regionFilter = region && region !== 'GLOBAL' ? [region] : undefined;
@@ -141,8 +145,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const subcategories = isSubcategory ? [] : (parentCategory?.children || []);
 
   const breadcrumbJsonLdItems = [
-    { name: 'Home', url: `${BASE_URL}/${locale}` },
-    { name: 'Categories', url: `${BASE_URL}/${locale}/category` },
+    { name: t('breadcrumbHome'), url: `${BASE_URL}/${locale}` },
+    { name: t('breadcrumbCategories'), url: `${BASE_URL}/${locale}/category` },
     ...(parentCategory && parentCategory.slug !== slug
       ? [{ name: parentCategory.name, url: `${BASE_URL}/${locale}/category/${parentCategory.slug}` }]
       : []),
@@ -182,7 +186,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         <div className="container mx-auto px-4 relative">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-            <Link href={`/${locale}`} className="hover:text-primary transition-colors">Home</Link>
+            <Link href={`/${locale}`} className="hover:text-primary transition-colors">{t('breadcrumbHome')}</Link>
             <ChevronRight className="w-4 h-4" />
             {isSubcategory && parentCategory && (
               <>
@@ -204,15 +208,14 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 </div>
                 <div className="badge-exclusive">
                   <Sparkles className="w-3.5 h-3.5" />
-                  Best Deals
+                  {t('badgeBestDeals')}
                 </div>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight mb-4">
                 {category.name}
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Find the best {category.name.toLowerCase()} deals, discounts and coupon codes.
-                Save money on your favorite products.
+                {t('heroDescription', { name: category.name.toLowerCase() })}
               </p>
             </div>
 
@@ -221,14 +224,14 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <Tag className="w-4 h-4" />
-                  <span>Deals</span>
+                  <span>{t('statDeals')}</span>
                 </div>
                 <span className="stat-value">{deals.length}</span>
               </div>
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <Ticket className="w-4 h-4" />
-                  <span>Coupons</span>
+                  <span>{t('statCoupons')}</span>
                 </div>
                 <span className="stat-value text-gradient-savings">{coupons.length}</span>
               </div>
@@ -261,10 +264,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </div>
             <div>
               <h2 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
-                Top Deals
+                {t('sectionDeals')}
               </h2>
               <p className="text-muted-foreground text-sm mt-0.5">
-                {deals.length} deals available
+                {t('dealsAvailable', { count: deals.length })}
               </p>
             </div>
           </div>
@@ -272,7 +275,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             href={`/${locale}/deals`}
             className="group hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-colors"
           >
-            View all
+            {t('viewAll')}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -286,8 +289,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         ) : (
           <EmptyState
             icon="bag"
-            title="No deals yet"
-            description={`We don't have any ${category.name.toLowerCase()} deals at the moment. Check back soon!`}
+            title={t('emptyDealsTitle')}
+            description={t('emptyDealsDescription', { name: category.name.toLowerCase() })}
           />
         )}
       </section>
@@ -301,10 +304,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </div>
             <div>
               <h2 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
-                Coupon Codes
+                {t('sectionCoupons')}
               </h2>
               <p className="text-muted-foreground text-sm mt-0.5">
-                {coupons.length} coupons available
+                {t('couponsAvailable', { count: coupons.length })}
               </p>
             </div>
           </div>
@@ -312,7 +315,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             href={`/${locale}/coupons`}
             className="group hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-colors"
           >
-            View all
+            {t('viewAll')}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -326,8 +329,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         ) : (
           <EmptyState
             icon="ticket"
-            title="No coupons yet"
-            description={`We don't have any ${category.name.toLowerCase()} coupons at the moment. Check back soon!`}
+            title={t('emptyCouponsTitle')}
+            description={t('emptyCouponsDescription', { name: category.name.toLowerCase() })}
           />
         )}
       </section>

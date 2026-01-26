@@ -12,13 +12,14 @@ import {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'categories' });
 
   return {
-    title: 'All Categories | Ecommica',
-    description: 'Browse all categories to find the best deals and coupons. Shop electronics, fashion, home, beauty, and more.',
+    title: t('meta.title'),
+    description: t('meta.description'),
     openGraph: {
-      title: 'All Categories | Ecommica',
-      description: 'Browse all categories to find the best deals and coupons.',
+      title: t('meta.title'),
+      description: t('meta.description'),
       url: `${BASE_URL}/${locale}/categories`,
       type: 'website',
     }
@@ -68,15 +69,15 @@ export default async function CategoriesPage({
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
                 <Compass className="w-4 h-4" />
-                <span>Explore</span>
+                <span>{t('breadcrumbExplore')}</span>
                 <span className="text-primary/40">/</span>
-                <span className="text-primary font-medium">All Categories</span>
+                <span className="text-primary font-medium">{t('breadcrumbCategories')}</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-foreground tracking-tight mb-4">
-                Browse by
+                {t('heroTitle1')}
                 <span className="relative ml-3">
-                  <span className="relative z-10 text-gradient-primary">Category</span>
+                  <span className="relative z-10 text-gradient-primary">{t('heroTitle2')}</span>
                   <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/20" viewBox="0 0 100 12" preserveAspectRatio="none">
                     <path d="M0,8 Q50,0 100,8" stroke="currentColor" strokeWidth="4" fill="none" />
                   </svg>
@@ -84,7 +85,7 @@ export default async function CategoriesPage({
               </h1>
 
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 leading-relaxed">
-                Find deals and coupons in your favorite categories. From electronics to fashion, we&apos;ve got you covered.
+                {t('heroDescription')}
               </p>
 
               {/* Stats */}
@@ -92,7 +93,7 @@ export default async function CategoriesPage({
                 <div className="stat-card min-w-[120px]">
                   <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                     <Layers className="w-4 h-4 text-primary" />
-                    <span>Categories</span>
+                    <span>{t('statCategories')}</span>
                   </div>
                   <span className="stat-value">{totalCategories}</span>
                 </div>
@@ -100,7 +101,7 @@ export default async function CategoriesPage({
                 <div className="stat-card min-w-[120px]">
                   <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                     <Tag className="w-4 h-4 text-amber-500" />
-                    <span>Subcategories</span>
+                    <span>{t('statSubcategories')}</span>
                   </div>
                   <span className="stat-value">{totalSubcategories}</span>
                 </div>

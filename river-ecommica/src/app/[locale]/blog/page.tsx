@@ -44,6 +44,7 @@ export default async function BlogPage({
 }) {
   const { locale } = await params;
   const queryParams = await searchParams;
+  const t = await getTranslations({ locale, namespace: 'blog' });
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);
   const pageSize = PAGINATION.PAGE_SIZE.BLOG;
 
@@ -57,17 +58,17 @@ export default async function BlogPage({
 
   const getTypeConfig = (type: string) => {
     const configs: Record<string, { label: string; color: string; bg: string }> = {
-      deal: { label: 'Deal', color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' },
-      review: { label: 'Review', color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
-      tutorial: { label: 'Tutorial', color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
-      news: { label: 'News', color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100' }
+      deal: { label: t('typeDeal'), color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' },
+      review: { label: t('typeReview'), color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
+      tutorial: { label: t('typeTutorial'), color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
+      news: { label: t('typeNews'), color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100' }
     };
     return configs[type] || { label: type, color: 'text-muted-foreground', bg: 'bg-muted border-border' };
   };
 
   const breadcrumbJsonLdItems = [
-    { name: 'Home', url: `${BASE_URL}/${locale}` },
-    { name: 'Blog', url: `${BASE_URL}/${locale}/blog` },
+    { name: t('breadcrumbHome'), url: `${BASE_URL}/${locale}` },
+    { name: t('breadcrumbBlog'), url: `${BASE_URL}/${locale}/blog` },
   ];
   const itemListJsonLdItems = posts
     .filter(post => post.slug)
@@ -101,14 +102,14 @@ export default async function BlogPage({
                 </div>
                 <div className="badge-featured">
                   <Sparkles className="w-3.5 h-3.5" />
-                  Fresh Content
+                  {t('badgeFreshContent')}
                 </div>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight mb-4">
-                Blog & Guides
+                {t('heroTitle')}
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Tips, tutorials, reviews, and the latest deals news to help you save more on every purchase.
+                {t('heroDescription')}
               </p>
             </div>
 
@@ -117,23 +118,23 @@ export default async function BlogPage({
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <FileText className="w-4 h-4" />
-                  <span>Articles</span>
+                  <span>{t('statArticles')}</span>
                 </div>
                 <span className="stat-value">{totalPosts.toLocaleString()}</span>
               </div>
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <Star className="w-4 h-4 text-amber-500" />
-                  <span>Featured</span>
+                  <span>{t('statFeatured')}</span>
                 </div>
                 <span className="stat-value text-gradient-primary">{featuredCount.toLocaleString()}</span>
               </div>
               <div className="stat-card min-w-[120px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <TrendingUp className="w-4 h-4 text-emerald-500" />
-                  <span>This Week</span>
+                  <span>{t('statThisWeek')}</span>
                 </div>
-                <span className="stat-value">New</span>
+                <span className="stat-value">{t('statNew')}</span>
               </div>
             </div>
           </div>
@@ -176,7 +177,7 @@ export default async function BlogPage({
                           {post.featured && (
                             <div className="badge-featured">
                               <Star className="w-3 h-3" />
-                              Featured
+                              {t('badgeFeatured')}
                             </div>
                           )}
                         </div>
@@ -225,8 +226,8 @@ export default async function BlogPage({
           <div className="card-elevated p-12">
             <EmptyState
               icon="book"
-              title="No posts found"
-              description="We don't have any blog posts yet. Check back later for tips, guides, and deals news."
+              title={t('emptyTitle')}
+              description={t('emptyDescription')}
             />
           </div>
         )}

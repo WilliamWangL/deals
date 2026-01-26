@@ -111,21 +111,21 @@ export default async function CouponsPage(props: {
                     <div className="p-2 rounded-lg bg-emerald-100/50 text-emerald-600">
                       <Scissors className="w-5 h-5" />
                     </div>
-                    <span className="text-emerald-600 font-bold text-sm tracking-wide">COUPON CODES</span>
+                    <span className="text-emerald-600 font-bold text-sm tracking-wide">{t('badgeCouponCodes')}</span>
                   </div>
 
                   <h1 className="text-4xl md:text-5xl font-bold font-display text-foreground tracking-tight mb-4">
-                    Save More with
-                    <span className="text-gradient-savings block mt-1">Verified Codes</span>
+                    {t('heroTitle1')}
+                    <span className="text-gradient-savings block mt-1">{t('heroTitle2')}</span>
                   </h1>
 
                   <p className="text-muted-foreground text-lg max-w-lg leading-relaxed">
-                    {t('subtitle')}. Copy, paste, and save instantly at checkout.
+                    {t('heroDescription')}
                   </p>
 
                   <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 text-muted-foreground text-sm font-medium border border-border/50">
                     <Copy className="w-4 h-4" />
-                    <span>Click any code to copy</span>
+                    <span>{t('clickToCopy')}</span>
                   </div>
                 </div>
 
@@ -136,7 +136,7 @@ export default async function CouponsPage(props: {
                     <div className="flex items-center justify-between md:justify-start md:gap-4">
                       <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
                         <Ticket className="w-4 h-4" />
-                        <span>Total</span>
+                        <span>{t('statTotal')}</span>
                       </div>
                       <span className="text-2xl font-bold font-display text-foreground">
                         {totalCoupons}
@@ -146,7 +146,7 @@ export default async function CouponsPage(props: {
                     <div className="flex items-center justify-between md:justify-start md:gap-4">
                       <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
                         <BadgeCheck className="w-4 h-4" />
-                        <span>Verified</span>
+                        <span>{t('statVerified')}</span>
                       </div>
                       <span className="text-2xl font-bold font-display text-emerald-600">
                         {verifiedCount}
@@ -156,7 +156,7 @@ export default async function CouponsPage(props: {
                     <div className="flex items-center justify-between md:justify-start md:gap-4">
                       <div className="flex items-center gap-2 text-amber-600 text-sm font-medium">
                         <Timer className="w-4 h-4" />
-                        <span>Expiring</span>
+                        <span>{t('statExpiring')}</span>
                       </div>
                       <span className="text-2xl font-bold font-display text-amber-600">
                         {expiringCount}
@@ -188,8 +188,8 @@ export default async function CouponsPage(props: {
           <div className="card-elevated p-12">
             <EmptyState
               icon="ticket"
-              title="No coupons found"
-              description="We couldn't find any coupons matching your criteria. Try adjusting your search or filters."
+              title={t('emptyTitle')}
+              description={t('emptyDescription')}
             />
           </div>
         )}

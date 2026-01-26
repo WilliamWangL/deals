@@ -16,7 +16,41 @@
     "heroTitle": "为您喜爱的品牌省钱",
     "heroSubtitle": "发现每日验证的最新优惠码和折扣。",
     "featuredDeals": "精选优惠",
-    "popularStores": "热门商家"
+    "popularStores": "热门商家",
+    "trustedBy": "已有",
+    "shoppers": "用户信赖",
+    "heroHeadline1": "智慧省钱，",
+    "heroHeadline2": "每次购物",
+    "statVerifiedCodes": "已验证优惠码",
+    "statFreshUpdates": "每日更新",
+    "statFreshUpdatesLabel": "实时更新",
+    "statPartnerStores": "合作商家",
+    "badgeHotDeals": "热门优惠",
+    "featuredDealsSubtitle": "精选优惠，每小时由社区更新。",
+    "noDealsFound": "暂无优惠信息。",
+    "badgeTopBrands": "顶级品牌",
+    "popularStoresSubtitle": "直接在您信赖的品牌店铺购物。",
+    "whyBadge": "为什么选择 Ecommica",
+    "whyTitle": "更聪明地省钱",
+    "whySubtitle": "我们为您做繁重的工作，让您轻松享受优惠。",
+    "features": {
+      "verified": {
+        "title": "已验证优惠码",
+        "description": "每个优惠券在发布前都经过我们团队的测试和验证。绝无过期代码。"
+      },
+      "exclusive": {
+        "title": "独家优惠",
+        "description": "获取您在其他地方找不到的合作伙伴专属折扣。"
+      },
+      "realtime": {
+        "title": "实时更新",
+        "description": "每小时添加新鲜优惠和优惠券。成为第一个获取最佳优惠的人。"
+      }
+    },
+    "ctaTitle": "准备好开始省钱了吗？",
+    "ctaSubtitle": "加入数千名聪明的购物者，每天使用已验证的优惠券和独家优惠省钱。",
+    "ctaBrowseDeals": "浏览所有优惠",
+    "ctaGetCoupons": "获取优惠券代码"
   },
   "Deal": {
     "getDeal": "获取优惠",
@@ -36,7 +70,19 @@
     "subtitle": "浏览我们的商家列表，找到最佳优惠",
     "deals": "{count} 个优惠",
     "coupons": "{count} 个优惠券",
-    "visitStore": "访问商家"
+    "visitStore": "访问商家",
+    "breadcrumbExplore": "探索",
+    "breadcrumbStores": "所有品牌",
+    "heroTitle1": "发现",
+    "heroTitle2": "热门商家",
+    "heroDescription": "浏览 {count}+ 个优质品牌，享受独家优惠和验证优惠码。",
+    "statStores": "商家",
+    "statDeals": "优惠",
+    "statCodes": "优惠码",
+    "searchPlaceholder": "搜索商家...",
+    "emptyTitle": "未找到商家",
+    "emptyDescription": "我们找不到与您搜索匹配的商家。请尝试不同的关键词。",
+    "clearSearch": "清除搜索"
   },
   "deals": {
     "meta": {
@@ -46,7 +92,17 @@
     "title": "所有优惠",
     "subtitle": "找到顶级品牌的最佳优惠和折扣",
     "featured": "精选",
-    "endsIn": "{days} 天后结束"
+    "endsIn": "{days} 天后结束",
+    "badgeLiveDeals": "实时优惠",
+    "heroTitle1": "今日最佳",
+    "heroTitle2": "优惠与折扣",
+    "heroDescription": "精选优惠每小时更新。不要错过最热门的折扣。",
+    "statTotalDeals": "优惠总数",
+    "statActiveNow": "正在进行",
+    "statAvgSavings": "平均折扣",
+    "searchPlaceholder": "搜索优惠...",
+    "emptyTitle": "未找到优惠",
+    "emptyDescription": "我们找不到符合条件的优惠。请尝试调整搜索条件或稍后再试。"
   },
   "coupons": {
     "meta": {
@@ -58,7 +114,17 @@
     "percentOff": "{value}% 折扣",
     "fixedOff": "减 ¥{value}",
     "freeShipping": "免邮",
-    "minPurchase": "满 ¥{amount}"
+    "minPurchase": "满 ¥{amount}",
+    "badgeCouponCodes": "优惠券代码",
+    "heroTitle1": "使用已验证代码",
+    "heroTitle2": "省更多",
+    "heroDescription": "找到已验证的优惠券和促销码。复制、粘贴，结账时立即省钱。",
+    "clickToCopy": "点击任意代码复制",
+    "statTotal": "总数",
+    "statVerified": "已验证",
+    "statExpiring": "即将过期",
+    "emptyTitle": "未找到优惠券",
+    "emptyDescription": "我们找不到符合条件的优惠券。请尝试调整搜索或筛选条件。"
   },
   "blog": {
     "meta": {
@@ -66,7 +132,37 @@
       "description": "阅读最新的省钱攻略和优惠资讯"
     },
     "title": "博客",
-    "subtitle": "攻略、指南和最新优惠资讯"
+    "subtitle": "攻略、指南和最新优惠资讯",
+    "breadcrumbHome": "首页",
+    "breadcrumbBlog": "博客",
+    "badgeFreshContent": "最新内容",
+    "heroTitle": "博客与指南",
+    "heroDescription": "技巧、教程、评测和最新优惠资讯，助您每次购物省更多。",
+    "statArticles": "文章",
+    "statFeatured": "精选",
+    "statThisWeek": "本周",
+    "statNew": "新",
+    "typeDeal": "优惠",
+    "typeReview": "评测",
+    "typeTutorial": "教程",
+    "typeNews": "资讯",
+    "badgeFeatured": "精选",
+    "emptyTitle": "暂无文章",
+    "emptyDescription": "目前还没有博客文章。请稍后再来查看技巧、指南和优惠资讯。"
+  },
+  "BlogDetail": {
+    "meta": {
+      "notFound": "未找到文章"
+    },
+    "breadcrumbHome": "首页",
+    "breadcrumbBlog": "博客",
+    "badgeFeatured": "精选",
+    "typeDeal": "优惠",
+    "typeReview": "评测",
+    "typeTutorial": "教程",
+    "typeNews": "资讯",
+    "views": "{count} 次浏览",
+    "filedUnder": "分类: {type}"
   },
   "categories": {
     "meta": {
@@ -81,7 +177,14 @@
     "sectionTitle": "按分类购物",
     "emptyTitle": "未找到分类",
     "emptyDescription": "目前您所在的地区没有可用的分类。请稍后再试或尝试切换地区。",
-    "emptyShort": "目前没有可用的分类。"
+    "emptyShort": "目前没有可用的分类。",
+    "breadcrumbExplore": "探索",
+    "breadcrumbCategories": "所有分类",
+    "heroTitle1": "按分类",
+    "heroTitle2": "浏览",
+    "heroDescription": "在您喜爱的分类中找到优惠和折扣券。从电子产品到时尚，应有尽有。",
+    "statCategories": "分类",
+    "statSubcategories": "子分类"
   },
   "about": {
     "meta": {
@@ -304,5 +407,64 @@
         }
       }
     }
+  },
+  "CategoryDetail": {
+    "meta": {
+      "notFound": "未找到分类",
+      "title": "{name} 优惠与优惠券 | Ecommica",
+      "description": "找到最好的{name}优惠、折扣和优惠券代码。节省您喜爱的{name}产品开支。"
+    },
+    "breadcrumbHome": "首页",
+    "breadcrumbCategories": "分类",
+    "badgeBestDeals": "精选优惠",
+    "heroDescription": "找到最好的{name}优惠、折扣和优惠券代码。节省您喜爱产品的开支。",
+    "statDeals": "优惠",
+    "statCoupons": "优惠券",
+    "sectionDeals": "热门优惠",
+    "dealsAvailable": "{count} 个优惠",
+    "sectionCoupons": "优惠券代码",
+    "couponsAvailable": "{count} 个优惠券",
+    "viewAll": "查看全部",
+    "emptyDealsTitle": "暂无优惠",
+    "emptyDealsDescription": "目前没有{name}优惠。请稍后再来查看！",
+    "emptyCouponsTitle": "暂无优惠券",
+    "emptyCouponsDescription": "目前没有{name}优惠券。请稍后再来查看！"
+  },
+  "StoreDetail": {
+    "meta": {
+      "notFound": "未找到商家",
+      "title": "{name} 优惠与优惠券",
+      "description": "找到 {name} 的最佳优惠和优惠券"
+    },
+    "breadcrumbHome": "首页",
+    "breadcrumbStores": "商家",
+    "verified": "已验证",
+    "statDeals": "优惠",
+    "statCoupons": "优惠券",
+    "statRating": "评分",
+    "sectionTitle": "正在进行的优惠",
+    "offersAvailable": "{count} 个优惠可用",
+    "emptyTitle": "暂无优惠",
+    "emptyDescription": "稍后再来查看 {name} 的新优惠"
+  },
+  "DealDetail": {
+    "meta": {
+      "notFound": "未找到优惠",
+      "description": "在 {store} 享受 {percent}% 折扣"
+    },
+    "breadcrumbDeals": "优惠",
+    "badgeFeatured": "精选",
+    "verified": "已验证",
+    "trustedDeal": "可信优惠",
+    "updated": "更新时间",
+    "today": "今天",
+    "getThisDeal": "获取此优惠",
+    "verifiedWorking": "验证有效",
+    "expires": "过期时间: {date}",
+    "aboutThisDeal": "关于此优惠",
+    "termsTitle": "条款和条件:",
+    "termSupplies": "优惠数量有限，先到先得。",
+    "termPrices": "价格和库存可能随时变更，恕不另行通知。",
+    "termDetails": "详情请参阅商家网站。"
   }
 }

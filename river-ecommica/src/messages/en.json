@@ -16,7 +16,41 @@
     "heroTitle": "Save Money on Your Favorite Brands",
     "heroSubtitle": "Find the latest coupon codes and deals verified daily.",
     "featuredDeals": "Featured Deals",
-    "popularStores": "Popular Stores"
+    "popularStores": "Popular Stores",
+    "trustedBy": "Trusted by",
+    "shoppers": "Shoppers",
+    "heroHeadline1": "Smart Savings,",
+    "heroHeadline2": "Every Purchase",
+    "statVerifiedCodes": "Verified Codes",
+    "statFreshUpdates": "Daily",
+    "statFreshUpdatesLabel": "Fresh Updates",
+    "statPartnerStores": "Partner Stores",
+    "badgeHotDeals": "Hot Deals",
+    "featuredDealsSubtitle": "Handpicked savings, updated every hour by our community.",
+    "noDealsFound": "No deals found at the moment.",
+    "badgeTopBrands": "Top Brands",
+    "popularStoresSubtitle": "Shop directly from the brands you know and trust.",
+    "whyBadge": "Why Ecommica",
+    "whyTitle": "Save Smarter, Not Harder",
+    "whySubtitle": "We do the heavy lifting so you can enjoy the savings.",
+    "features": {
+      "verified": {
+        "title": "Verified Codes",
+        "description": "Every coupon is tested and verified by our team before publishing. No expired codes, ever."
+      },
+      "exclusive": {
+        "title": "Exclusive Deals",
+        "description": "Access to partner-exclusive discounts you won't find anywhere else online."
+      },
+      "realtime": {
+        "title": "Real-Time Updates",
+        "description": "Fresh deals and coupons added hourly. Be the first to grab the best offers."
+      }
+    },
+    "ctaTitle": "Ready to Start Saving?",
+    "ctaSubtitle": "Join thousands of smart shoppers saving money every day with verified coupons and exclusive deals.",
+    "ctaBrowseDeals": "Browse All Deals",
+    "ctaGetCoupons": "Get Coupon Codes"
   },
   "Deal": {
     "getDeal": "Get Deal",
@@ -36,7 +70,19 @@
     "subtitle": "Browse our collection of stores and find the best deals",
     "deals": "{count} deals",
     "coupons": "{count} coupons",
-    "visitStore": "Visit Store"
+    "visitStore": "Visit Store",
+    "breadcrumbExplore": "Explore",
+    "breadcrumbStores": "All Brands",
+    "heroTitle1": "Discover",
+    "heroTitle2": "Top Stores",
+    "heroDescription": "Browse {count}+ premium brands with exclusive deals and verified coupon codes.",
+    "statStores": "Stores",
+    "statDeals": "Deals",
+    "statCodes": "Codes",
+    "searchPlaceholder": "Search stores...",
+    "emptyTitle": "No stores found",
+    "emptyDescription": "We couldn't find any stores matching your search. Try a different keyword.",
+    "clearSearch": "Clear search"
   },
   "deals": {
     "meta": {
@@ -46,7 +92,17 @@
     "title": "All Deals",
     "subtitle": "Find the best deals and discounts from top brands",
     "featured": "Featured",
-    "endsIn": "Ends in {days} days"
+    "endsIn": "Ends in {days} days",
+    "badgeLiveDeals": "LIVE DEALS",
+    "heroTitle1": "Today's Best",
+    "heroTitle2": "Deals & Discounts",
+    "heroDescription": "Hand-picked savings updated every hour. Don't miss out on the hottest drops.",
+    "statTotalDeals": "Total Deals",
+    "statActiveNow": "Active Now",
+    "statAvgSavings": "Avg Savings",
+    "searchPlaceholder": "Search deals...",
+    "emptyTitle": "No deals found",
+    "emptyDescription": "We couldn't find any deals matching your criteria. Try adjusting your search or check back later."
   },
   "coupons": {
     "meta": {
@@ -58,7 +114,17 @@
     "percentOff": "{value}% Off",
     "fixedOff": "${value} Off",
     "freeShipping": "Free Shipping",
-    "minPurchase": "Min. ${amount}"
+    "minPurchase": "Min. ${amount}",
+    "badgeCouponCodes": "COUPON CODES",
+    "heroTitle1": "Save More with",
+    "heroTitle2": "Verified Codes",
+    "heroDescription": "Find verified coupon codes and promo codes. Copy, paste, and save instantly at checkout.",
+    "clickToCopy": "Click any code to copy",
+    "statTotal": "Total",
+    "statVerified": "Verified",
+    "statExpiring": "Expiring",
+    "emptyTitle": "No coupons found",
+    "emptyDescription": "We couldn't find any coupons matching your criteria. Try adjusting your search or filters."
   },
   "blog": {
     "meta": {
@@ -66,7 +132,37 @@
       "description": "Read our latest tips, guides, and news about the best deals and savings"
     },
     "title": "Blog",
-    "subtitle": "Tips, guides, and the latest deals news"
+    "subtitle": "Tips, guides, and the latest deals news",
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog",
+    "badgeFreshContent": "Fresh Content",
+    "heroTitle": "Blog & Guides",
+    "heroDescription": "Tips, tutorials, reviews, and the latest deals news to help you save more on every purchase.",
+    "statArticles": "Articles",
+    "statFeatured": "Featured",
+    "statThisWeek": "This Week",
+    "statNew": "New",
+    "typeDeal": "Deal",
+    "typeReview": "Review",
+    "typeTutorial": "Tutorial",
+    "typeNews": "News",
+    "badgeFeatured": "Featured",
+    "emptyTitle": "No posts found",
+    "emptyDescription": "We don't have any blog posts yet. Check back later for tips, guides, and deals news."
+  },
+  "BlogDetail": {
+    "meta": {
+      "notFound": "Post Not Found"
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog",
+    "badgeFeatured": "Featured",
+    "typeDeal": "Deal",
+    "typeReview": "Review",
+    "typeTutorial": "Tutorial",
+    "typeNews": "News",
+    "views": "{count} views",
+    "filedUnder": "Filed under: {type}"
   },
   "categories": {
     "meta": {
@@ -81,7 +177,14 @@
     "sectionTitle": "Shop by Category",
     "emptyTitle": "No categories found",
     "emptyDescription": "There are no categories available for your region at the moment. Please check back later or try a different region.",
-    "emptyShort": "No categories available at the moment."
+    "emptyShort": "No categories available at the moment.",
+    "breadcrumbExplore": "Explore",
+    "breadcrumbCategories": "All Categories",
+    "heroTitle1": "Browse by",
+    "heroTitle2": "Category",
+    "heroDescription": "Find deals and coupons in your favorite categories. From electronics to fashion, we've got you covered.",
+    "statCategories": "Categories",
+    "statSubcategories": "Subcategories"
   },
   "about": {
     "meta": {
@@ -304,5 +407,64 @@
         }
       }
     }
+  },
+  "CategoryDetail": {
+    "meta": {
+      "notFound": "Category Not Found",
+      "title": "{name} Deals & Coupons | Ecommica",
+      "description": "Find the best {name} deals, discounts and coupon codes. Save money on your favorite {name} products."
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbCategories": "Categories",
+    "badgeBestDeals": "Best Deals",
+    "heroDescription": "Find the best {name} deals, discounts and coupon codes. Save money on your favorite products.",
+    "statDeals": "Deals",
+    "statCoupons": "Coupons",
+    "sectionDeals": "Top Deals",
+    "dealsAvailable": "{count} deals available",
+    "sectionCoupons": "Coupon Codes",
+    "couponsAvailable": "{count} coupons available",
+    "viewAll": "View all",
+    "emptyDealsTitle": "No deals yet",
+    "emptyDealsDescription": "We don't have any {name} deals at the moment. Check back soon!",
+    "emptyCouponsTitle": "No coupons yet",
+    "emptyCouponsDescription": "We don't have any {name} coupons at the moment. Check back soon!"
+  },
+  "StoreDetail": {
+    "meta": {
+      "notFound": "Store Not Found",
+      "title": "{name} Deals & Coupons",
+      "description": "Find the best deals and coupons for {name}"
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbStores": "Stores",
+    "verified": "Verified",
+    "statDeals": "Deals",
+    "statCoupons": "Coupons",
+    "statRating": "Rating",
+    "sectionTitle": "Active Deals & Coupons",
+    "offersAvailable": "{count} Offers Available",
+    "emptyTitle": "No active deals",
+    "emptyDescription": "Check back later for new offers from {name}"
+  },
+  "DealDetail": {
+    "meta": {
+      "notFound": "Deal Not Found",
+      "description": "Get {percent}% off at {store}"
+    },
+    "breadcrumbDeals": "Deals",
+    "badgeFeatured": "Featured",
+    "verified": "Verified",
+    "trustedDeal": "Trusted Deal",
+    "updated": "Updated",
+    "today": "Today",
+    "getThisDeal": "Get This Deal",
+    "verifiedWorking": "Verified Working",
+    "expires": "Expires: {date}",
+    "aboutThisDeal": "About this deal",
+    "termsTitle": "Terms & Conditions:",
+    "termSupplies": "Offer valid while supplies last.",
+    "termPrices": "Prices and availability subject to change without notice.",
+    "termDetails": "See merchant website for full details."
   }
 }

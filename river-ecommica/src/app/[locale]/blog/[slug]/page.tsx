@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 import { fetchPosts, fetchPostBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { JsonLd, BASE_URL, generateBlogPostJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
@@ -26,12 +27,13 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: 'BlogDetail' });
   const post = await fetchPostBySlug(slug);
-  
+
   if (!post) {
-    return { title: 'Post Not Found' };
+    return { title: t('meta.notFound') };
   }
-  
+
   return {
     title: post.metaTitle || post.title,
     description: post.metaDescription || post.excerpt,
@@ -46,6 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: 'BlogDetail' });
   const post = await fetchPostBySlug(slug);
 
   if (!post) {
@@ -54,17 +57,17 @@ export default async function BlogPostPage({ params }: Props) {
 
   const getTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      deal: 'Deal',
-      review: 'Review',
-      tutorial: 'Tutorial',
-      news: 'News'
+      deal: t('typeDeal'),
+      review: t('typeReview'),
+      tutorial: t('typeTutorial'),
+      news: t('typeNews')
     };
     return labels[type] || type;
   };
 
   const breadcrumbJsonLdItems = [
-    { name: 'Home', url: `${BASE_URL}/${locale}` },
-    { name: 'Blog', url: `${BASE_URL}/${locale}/blog` },
+    { name: t('breadcrumbHome'), url: `${BASE_URL}/${locale}` },
+    { name: t('breadcrumbBlog'), url: `${BASE_URL}/${locale}/blog` },
     { name: post.title, url: `${BASE_URL}/${locale}/blog/${post.slug}` },
   ];
 
@@ -97,7 +100,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </Badge>
                 {post.featured && (
                   <Badge variant="secondary" className="bg-amber-500/90 text-white border-none backdrop-blur-sm">
-                    Featured
+                    {t('badgeFeatured')}
                   </Badge>
                 )}
               </div>
@@ -132,7 +135,7 @@ export default async function BlogPostPage({ params }: Props) {
                 {post.viewCount && (
                   <div className="flex items-center gap-2">
                     <Eye size={16} />
-                    <span>{post.viewCount} views</span>
+                    <span>{t('views', { count: post.viewCount })}</span>
                   </div>
                 )}
               </div>
@@ -153,7 +156,7 @@ export default async function BlogPostPage({ params }: Props) {
             <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Tag size={16} />
-                <span>Filed under: {getTypeLabel(post.type)}</span>
+                <span>{t('filedUnder', { type: getTypeLabel(post.type) })}</span>
               </div>
             </div>
           </div>

@@ -90,17 +90,17 @@ export default async function HomePage({
                   ))}
                 </div>
                 <span className="text-sm font-medium text-muted-foreground">
-                  Trusted by <span className="text-foreground font-bold">50,000+</span> Shoppers
+                  {t('trustedBy')} <span className="text-foreground font-bold">50,000+</span> {t('shoppers')}
                 </span>
               </div>
             </div>
 
             {/* Headline */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150">
-              <span className="text-foreground">Smart Savings,</span>
+              <span className="text-foreground">{t('heroHeadline1')}</span>
               <br />
               <span className="text-gradient-primary">
-                Every Purchase
+                {t('heroHeadline2')}
               </span>
             </h1>
 
@@ -124,15 +124,15 @@ export default async function HomePage({
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div className="stat-value">100%</div>
-                <div className="stat-label">Verified Codes</div>
+                <div className="stat-label">{t('statVerifiedCodes')}</div>
               </div>
-              
+
               <div className="stat-card group hover:border-primary/30 transition-colors">
                 <div className="mb-2 p-2 rounded-lg bg-amber-500/10 text-amber-600 group-hover:scale-110 transition-transform">
                   <TrendingUp className="w-6 h-6" />
                 </div>
-                <div className="stat-value">Daily</div>
-                <div className="stat-label">Fresh Updates</div>
+                <div className="stat-value">{t('statFreshUpdates')}</div>
+                <div className="stat-label">{t('statFreshUpdatesLabel')}</div>
               </div>
 
               <div className="stat-card group hover:border-primary/30 transition-colors">
@@ -140,7 +140,7 @@ export default async function HomePage({
                   <Users className="w-6 h-6" />
                 </div>
                 <div className="stat-value">10k+</div>
-                <div className="stat-label">Partner Stores</div>
+                <div className="stat-label">{t('statPartnerStores')}</div>
               </div>
             </div>
           </div>
@@ -188,14 +188,14 @@ export default async function HomePage({
             <div className="space-y-4">
               <div className="badge-deal">
                 <Zap className="w-3.5 h-3.5 fill-current" />
-                Hot Deals
+                {t('badgeHotDeals')}
               </div>
               <div>
                 <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-2">
                   {t('featuredDeals')}
                 </h2>
                 <p className="text-muted-foreground text-lg max-w-xl">
-                  Handpicked savings, updated every hour by our community.
+                  {t('featuredDealsSubtitle')}
                 </p>
               </div>
             </div>
@@ -223,7 +223,7 @@ export default async function HomePage({
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
                   <Tag className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground text-lg">No deals found at the moment.</p>
+                <p className="text-muted-foreground text-lg">{t('noDealsFound')}</p>
               </div>
             )}
           </div>
@@ -253,14 +253,14 @@ export default async function HomePage({
             <div className="space-y-4">
               <div className="badge-exclusive">
                 <Store className="w-3.5 h-3.5" />
-                Top Brands
+                {t('badgeTopBrands')}
               </div>
               <div>
                 <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-2">
                   {t('popularStores')}
                 </h2>
                 <p className="text-muted-foreground text-lg max-w-xl">
-                  Shop directly from the brands you know and trust.
+                  {t('popularStoresSubtitle')}
                 </p>
               </div>
             </div>
@@ -307,13 +307,13 @@ export default async function HomePage({
           <div className="text-center max-w-2xl mx-auto mb-16">
             <div className="badge-featured mb-6 mx-auto">
               <Sparkles className="w-3.5 h-3.5" />
-              Why Ecommica
+              {t('whyBadge')}
             </div>
             <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-4">
-              Save Smarter, Not Harder
+              {t('whyTitle')}
             </h2>
             <p className="text-muted-foreground text-lg">
-              We do the heavy lifting so you can enjoy the savings.
+              {t('whySubtitle')}
             </p>
           </div>
 
@@ -322,22 +322,22 @@ export default async function HomePage({
             {[
               {
                 icon: BadgePercent,
-                title: 'Verified Codes',
-                description: 'Every coupon is tested and verified by our team before publishing. No expired codes, ever.',
+                title: t('features.verified.title'),
+                description: t('features.verified.description'),
                 color: 'text-emerald-600',
                 bg: 'bg-emerald-100 dark:bg-emerald-900/30'
               },
               {
                 icon: Gift,
-                title: 'Exclusive Deals',
-                description: 'Access to partner-exclusive discounts you won\'t find anywhere else online.',
+                title: t('features.exclusive.title'),
+                description: t('features.exclusive.description'),
                 color: 'text-violet-600',
                 bg: 'bg-violet-100 dark:bg-violet-900/30'
               },
               {
                 icon: Clock,
-                title: 'Real-Time Updates',
-                description: 'Fresh deals and coupons added hourly. Be the first to grab the best offers.',
+                title: t('features.realtime.title'),
+                description: t('features.realtime.description'),
                 color: 'text-amber-600',
                 bg: 'bg-amber-100 dark:bg-amber-900/30'
               }
@@ -389,12 +389,12 @@ export default async function HomePage({
 
             {/* Headline */}
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
-              Ready to Start Saving?
+              {t('ctaTitle')}
             </h2>
 
             {/* Description */}
             <p className="text-white/90 text-xl mb-12 leading-relaxed max-w-2xl mx-auto">
-              Join thousands of smart shoppers saving money every day with verified coupons and exclusive deals.
+              {t('ctaSubtitle')}
             </p>
 
             {/* Buttons */}
@@ -405,7 +405,7 @@ export default async function HomePage({
                 asChild
               >
                 <Link href={`/${locale}/deals`}>
-                  Browse All Deals
+                  {t('ctaBrowseDeals')}
                   <ChevronRight className="w-5 h-5 ml-1" />
                 </Link>
               </Button>
@@ -415,7 +415,7 @@ export default async function HomePage({
                 asChild
               >
                 <Link href={`/${locale}/coupons`}>
-                  Get Coupon Codes
+                  {t('ctaGetCoupons')}
                 </Link>
               </Button>
             </div>

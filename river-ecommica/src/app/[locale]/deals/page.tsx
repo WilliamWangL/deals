@@ -45,6 +45,7 @@ export default async function DealsPage({
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);
   const pageSize = PAGINATION.PAGE_SIZE.DEAL;
   const region = await getCurrentRegion(queryParams);
+  const t = await getTranslations({ locale, namespace: 'deals' });
 
   const dealsResult = await fetchDeals({
     pageNo: currentPage,
@@ -102,16 +103,16 @@ export default async function DealsPage({
             <div className="flex-1 max-w-2xl">
               <div className="badge-deal mb-6">
                 <Zap className="w-3.5 h-3.5" />
-                LIVE DEALS
+                {t('badgeLiveDeals')}
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display tracking-tight mb-4 text-foreground">
-                Today's Best
-                <span className="block text-gradient-primary">Deals & Discounts</span>
+                {t('heroTitle1')}
+                <span className="block text-gradient-primary">{t('heroTitle2')}</span>
               </h1>
 
               <p className="text-muted-foreground text-lg md:text-xl max-w-xl leading-relaxed">
-                Hand-picked savings updated every hour. Don't miss out on the hottest drops.
+                {t('heroDescription')}
               </p>
             </div>
 
@@ -120,7 +121,7 @@ export default async function DealsPage({
               <div className="stat-card min-w-[140px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <Tag className="w-4 h-4 text-primary" />
-                  <span>Total Deals</span>
+                  <span>{t('statTotalDeals')}</span>
                 </div>
                 <span className="stat-value">{totalDeals}</span>
               </div>
@@ -128,7 +129,7 @@ export default async function DealsPage({
               <div className="stat-card min-w-[140px]">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium mb-1">
                   <Clock className="w-4 h-4 text-emerald-500" />
-                  <span>Active Now</span>
+                  <span>{t('statActiveNow')}</span>
                 </div>
                 <span className="stat-value text-emerald-600">{activeDeals}</span>
               </div>
@@ -136,7 +137,7 @@ export default async function DealsPage({
               <div className="stat-card min-w-[140px] border-primary/20 bg-primary/5">
                 <div className="flex items-center gap-2 text-primary text-sm font-medium mb-1">
                   <Percent className="w-4 h-4" />
-                  <span>Avg Savings</span>
+                  <span>{t('statAvgSavings')}</span>
                 </div>
                 <span className="stat-value text-gradient-primary">{avgDiscount}%</span>
               </div>
@@ -150,7 +151,7 @@ export default async function DealsPage({
         <div className="container mx-auto px-4 py-3">
           <Suspense fallback={<div className="h-11 bg-muted animate-pulse rounded-xl max-w-md" />}>
             <DealsSearchBar
-              placeholder="Search deals..."
+              placeholder={t('searchPlaceholder')}
               className="max-w-md"
             />
           </Suspense>
@@ -174,8 +175,8 @@ export default async function DealsPage({
           <div className="card-elevated p-12">
             <EmptyState
               icon="bag"
-              title="No deals found"
-              description="We couldn't find any deals matching your criteria. Try adjusting your search or check back later."
+              title={t('emptyTitle')}
+              description={t('emptyDescription')}
             />
           </div>
         )}

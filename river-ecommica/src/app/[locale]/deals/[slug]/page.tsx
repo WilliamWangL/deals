@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 import { fetchDeals, fetchDealBySlug } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { JsonLd, BASE_URL, generateDealJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
@@ -29,18 +30,20 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: 'DealDetail' });
   const deal = await fetchDealBySlug(slug);
-  
+
   if (!deal) {
-    return { title: 'Deal Not Found' };
+    return { title: t('meta.notFound') };
   }
-  
+
+  const description = deal.description || t('meta.description', { percent: deal.discountPercent, store: deal.merchant.name });
   return {
     title: `${deal.title} - ${deal.merchant.name}`,
-    description: deal.description || `Get ${deal.discountPercent}% off at ${deal.merchant.name}`,
+    description,
     openGraph: {
       title: `${deal.title} - ${deal.merchant.name}`,
-      description: deal.description || `Get ${deal.discountPercent}% off at ${deal.merchant.name}`,
+      description,
       url: `${BASE_URL}/${locale}/deals/${deal.slug}`,
       type: 'article',
     }
@@ -49,6 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function DealDetailPage({ params }: Props) {
   const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: 'DealDetail' });
   const deal = await fetchDealBySlug(slug);
 
   if (!deal) {
@@ -58,7 +62,7 @@ export default async function DealDetailPage({ params }: Props) {
   const trackingUrl = getTrackingLink(deal.trackingLinkId, deal.gotoUrl);
 
   const breadcrumbs = [
-    { label: 'Deals', href: `/${locale}/deals` },
+    { label: t('breadcrumbDeals'), href: `/${locale}/deals` },
     { label: deal.title, href: `/${locale}/deals/${deal.slug}` }
   ];
 
@@ -95,7 +99,7 @@ export default async function DealDetailPage({ params }: Props) {
                     )}
                     
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
-                      {deal.featured && <span className="badge-featured shadow-lg">Featured</span>}
+                      {deal.featured && <span className="badge-featured shadow-lg">{t('badgeFeatured')}</span>}
                       {deal.discountPercent > 0 && (
                         <span className="badge-deal shadow-lg">-{deal.discountPercent}%</span>
                       )}
@@ -109,8 +113,8 @@ export default async function DealDetailPage({ params }: Props) {
                       <ShieldCheck size={20} />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-medium">Verified</p>
-                      <p className="text-sm font-bold text-foreground">Trusted Deal</p>
+                      <p className="text-xs text-muted-foreground font-medium">{t('verified')}</p>
+                      <p className="text-sm font-bold text-foreground">{t('trustedDeal')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white/50 border border-white/60 shadow-sm">
@@ -118,8 +122,8 @@ export default async function DealDetailPage({ params }: Props) {
                       <Clock size={20} />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-medium">Updated</p>
-                      <p className="text-sm font-bold text-foreground">Today</p>
+                      <p className="text-xs text-muted-foreground font-medium">{t('updated')}</p>
+                      <p className="text-sm font-bold text-foreground">{t('today')}</p>
                     </div>
                   </div>
                 </div>
@@ -160,37 +164,37 @@ export default async function DealDetailPage({ params }: Props) {
                     <Button asChild size="lg" className="btn-accent w-full text-lg h-14 glow-accent group relative overflow-hidden">
                       <a href={trackingUrl} target="_blank" rel="noopener noreferrer">
                         <span className="relative z-10 flex items-center justify-center gap-2">
-                          Get This Deal <ExternalLink size={20} />
+                          {t('getThisDeal')} <ExternalLink size={20} />
                         </span>
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                       </a>
                     </Button>
                   </div>
-                  
+
                   <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle size={14} className="text-green-500" /> Verified Working
+                      <CheckCircle size={14} className="text-green-500" /> {t('verifiedWorking')}
                     </span>
                     {deal.endTime && (
                       <span className="flex items-center gap-1.5">
-                        <Clock size={14} className="text-orange-500" /> 
-                        Expires: {new Date(deal.endTime).toLocaleDateString()}
+                        <Clock size={14} className="text-orange-500" />
+                        {t('expires', { date: new Date(deal.endTime).toLocaleDateString() })}
                       </span>
                     )}
                   </div>
                 </div>
 
                 <div className="prose prose-gray max-w-none">
-                  <h3 className="text-lg font-bold font-display mb-2">About this deal</h3>
+                  <h3 className="text-lg font-bold font-display mb-2">{t('aboutThisDeal')}</h3>
                   <p className="text-gray-600 leading-relaxed">{deal.description}</p>
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-500 border border-gray-100">
-                  <p className="font-medium mb-1 text-gray-700">Terms & Conditions:</p>
+                  <p className="font-medium mb-1 text-gray-700">{t('termsTitle')}</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li>Offer valid while supplies last.</li>
-                    <li>Prices and availability subject to change without notice.</li>
-                    <li>See merchant website for full details.</li>
+                    <li>{t('termSupplies')}</li>
+                    <li>{t('termPrices')}</li>
+                    <li>{t('termDetails')}</li>
                   </ul>
                 </div>
 
