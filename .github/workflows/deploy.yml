@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./river-server
-          file: ./river-server/river-server/Dockerfile
+          file: ./river-server/Dockerfile
           push: true
           tags: ${{ env.IMAGE_PREFIX }}/river-server:latest
 
