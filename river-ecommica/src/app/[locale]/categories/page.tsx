@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
+import { getRegionFilter } from '@/lib/region-constants';
 import { CategorySection } from '@/components/home/CategorySection';
 import { JsonLd, BASE_URL, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import {
@@ -38,8 +39,7 @@ export default async function CategoriesPage({
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({ locale, namespace: 'categories' });
 
-  // GLOBAL region means no filtering needed
-  const regionFilter = region && region !== 'GLOBAL' ? [region] : undefined;
+  const regionFilter = getRegionFilter(region);
   const categories = await fetchCategories({ regions: regionFilter });
 
   const totalCategories = categories.length;

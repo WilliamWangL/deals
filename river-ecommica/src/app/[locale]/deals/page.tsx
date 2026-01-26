@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { fetchDeals } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
+import { getRegionFilter } from '@/lib/region-constants';
 import { PAGINATION } from '@/constants/pagination';
 import DealCard from '@/components/deal/DealCard';
 import { DealsSearchBar } from '@/components/deal/DealsSearchBar';
@@ -47,10 +48,12 @@ export default async function DealsPage({
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({ locale, namespace: 'deals' });
 
+  const regionFilter = getRegionFilter(region);
+
   const dealsResult = await fetchDeals({
     pageNo: currentPage,
     pageSize,
-    regions: region ? [region] : undefined
+    regions: regionFilter
   });
   const allDeals = dealsResult.list || [];
   const total = dealsResult.total || 0;

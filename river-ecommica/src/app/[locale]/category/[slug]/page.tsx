@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
+import { getRegionFilter } from '@/lib/region-constants';
 import { Category } from '@/types';
 import DealCard from '@/components/deal/DealCard';
 import CouponCard from '@/components/coupon/CouponCard';
@@ -110,8 +111,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({ locale, namespace: 'CategoryDetail' });
 
-  // GLOBAL region means no filtering needed
-  const regionFilter = region && region !== 'GLOBAL' ? [region] : undefined;
+  const regionFilter = getRegionFilter(region);
 
   // First fetch categories to find the category by slug
   const categories = await fetchCategories({ regions: regionFilter });

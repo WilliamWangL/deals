@@ -6,6 +6,7 @@ import { AffiliateNetworks } from '@/components/home/AffiliateNetworks';
 import { CategorySection } from '@/components/home/CategorySection';
 import { fetchDeals, fetchStores, fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
+import { getRegionFilter } from '@/lib/region-constants';
 import { Button } from '@/components/ui/button';
 import { HeroSearchForm } from '@/components/home/HeroSearchForm';
 import Link from 'next/link';
@@ -46,8 +47,7 @@ export default async function HomePage({
   const tCommon = await getTranslations({locale, namespace: 'Common'});
   const tCategories = await getTranslations({locale, namespace: 'categories'});
 
-  // GLOBAL region means no filtering needed
-  const regionFilter = region && region !== 'GLOBAL' ? [region] : undefined;
+  const regionFilter = getRegionFilter(region);
 
   const [dealsResult, storesResult, categories] = await Promise.all([
     fetchDeals({ featured: true, regions: regionFilter }),

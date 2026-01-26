@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { fetchStores } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
+import { getRegionFilter } from '@/lib/region-constants';
 import { PAGINATION } from '@/constants/pagination';
 import StoreCard from '@/components/store/StoreCard';
 import { StoresSearchBar } from '@/components/store/StoresSearchBar';
@@ -48,11 +49,13 @@ export default async function StoresPage({
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({ locale, namespace: 'stores' });
 
+  const regionFilter = getRegionFilter(region);
+
   const storesResult = await fetchStores({
     pageNo: currentPage,
     pageSize,
     name: searchQuery || undefined,
-    regions: region ? [region] : undefined
+    regions: regionFilter
   });
   const stores = storesResult.list || [];
   const total = storesResult.total || 0;
