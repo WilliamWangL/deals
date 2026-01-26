@@ -2,6 +2,9 @@ import { MetadataRoute } from 'next';
 import { fetchStores, fetchDeals, fetchPosts, fetchCategories } from '@/lib/api';
 import { Category } from '@/types';
 
+// 强制动态生成，确保每次访问都获取最新数据
+export const dynamic = 'force-dynamic';
+
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://deals.ecommica.com';
 
 // Helper function to build category pages from category tree
