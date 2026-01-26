@@ -156,9 +156,14 @@ export function RegionSelector({ currentRegion, regions }: RegionSelectorProps) 
   const currentTheme = REGION_THEMES[currentRegionData.code] || defaultTheme
 
   const handleSelect = (code: string) => {
+    if (code === currentRegion) {
+      setIsOpen(false)
+      return
+    }
     setCookie(REGION_COOKIE_NAME, code, { maxAge: REGION_COOKIE_MAX_AGE })
     setIsOpen(false)
-    router.refresh()
+    // Full page reload to ensure all data refreshes with new region
+    window.location.reload()
   }
 
   const getFlag = (code: string) => countryCodeToFlag(code)
