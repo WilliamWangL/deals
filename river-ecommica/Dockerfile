@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 # 启用 corepack 并安装 pnpm
@@ -18,7 +18,7 @@ COPY . .
 RUN pnpm build
 
 # 运行阶段
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 # 从构建阶段复制 standalone 输出
