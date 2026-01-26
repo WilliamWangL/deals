@@ -28,11 +28,17 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
     const router = useRouter();
     const searchInputRef = useRef<HTMLInputElement>(null);
     const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+    const [mounted, setMounted] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+
+    // Prevent hydration mismatch from Radix UI components
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleSearch = () => {
         const query = searchQuery.trim();
@@ -95,11 +101,12 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
             <div className="container mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
                 {/* Mobile: Menu + Logo */}
                 <div className="flex items-center md:hidden">
+                    {mounted ? (
                     <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                         <SheetTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
+                            <Button
+                                variant="ghost"
+                                size="icon"
                                 className="mr-2 -ml-2 hover:bg-muted/50 h-9 w-9"
                                 aria-expanded={isMobileMenuOpen}
                             >
@@ -144,8 +151,8 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                                                 href={link.href}
                                                 className={cn(
                                                     "flex items-center gap-3 text-base font-medium transition-all py-3 px-3 rounded-xl group",
-                                                    isActive 
-                                                        ? "bg-primary/5 text-primary" 
+                                                    isActive
+                                                        ? "bg-primary/5 text-primary"
                                                         : "text-foreground/80 hover:text-foreground hover:bg-muted/50"
                                                 )}
                                             >
@@ -175,6 +182,16 @@ export function Header({ currentRegion = 'GLOBAL', regions = [] }: HeaderProps) 
                             </div>
                         </SheetContent>
                     </Sheet>
+                    ) : (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="mr-2 -ml-2 hover:bg-muted/50 h-9 w-9"
+                        >
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Menu</span>
+                        </Button>
+                    )}
 
                     <Link href="/" className="font-display font-bold text-lg flex items-center gap-1.5">
                         <ShoppingBag className="h-5 w-5 text-primary" />
