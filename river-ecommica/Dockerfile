@@ -2,8 +2,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# 安装 pnpm
-RUN npm install -g pnpm
+# 启用 corepack 并安装 pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # 复制依赖文件
 COPY package.json pnpm-lock.yaml ./
