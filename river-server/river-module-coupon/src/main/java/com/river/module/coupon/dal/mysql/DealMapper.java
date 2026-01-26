@@ -33,6 +33,11 @@ public interface DealMapper extends BaseMapperX<DealDO> {
         if (!regionSql.isEmpty()) {
             qry.apply(regionSql);
         }
+        // PostgreSQL 使用 string_to_array + @> 操作符检查 category_ids 是否包含指定的 categoryId
+        if (reqVO.getCategoryId() != null) {
+            qry.apply("string_to_array(category_ids, ',') @> ARRAY[{0}]::varchar[]",
+                    String.valueOf(reqVO.getCategoryId()));
+        }
         return selectPage(reqVO, qry);
     }
 
