@@ -68,6 +68,18 @@
     "title": "博客",
     "subtitle": "攻略、指南和最新优惠资讯"
   },
+  "categories": {
+    "meta": {
+      "title": "所有分类 | Ecommica",
+      "description": "浏览所有分类，找到最优惠的折扣和优惠券。"
+    },
+    "title": "按分类浏览",
+    "subtitle": "在您喜爱的分类中找到优惠。",
+    "viewAll": "查看所有分类",
+    "more": "+{count} 更多",
+    "badge": "按分类浏览",
+    "sectionTitle": "按分类购物"
+  },
   "about": {
     "meta": {
       "title": "关于我们 - Ecommica",
