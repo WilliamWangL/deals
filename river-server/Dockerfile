@@ -2,7 +2,10 @@
 FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /build
 COPY . .
-RUN mvn clean package -DskipTests -pl river-server -am
+
+# 缓存 Maven 依赖到 /root/.m2/repository
+RUN --mount=type=cache,target=/root/.m2/repository \
+    mvn clean package -DskipTests -pl river-server -am
 
 # 运行阶段
 FROM eclipse-temurin:21-jre
