@@ -175,14 +175,13 @@ public class CategoryServiceImpl implements CategoryService {
     private Set<Long> getCategoryIdsWithDataIncludingAncestors(List<String> regions) {
         // 1. 获取所有有效的 Deals（未过期 + 启用 + 地区匹配）
         LambdaQueryWrapperX<DealDO> dealWrapper = new LambdaQueryWrapperX<DealDO>()
-                .eq(DealDO::getStatus, CommonStatusEnum.ENABLE.getStatus())
-                .eq(DealDO::getDeleted, false);
+                .eq(DealDO::getStatus, CommonStatusEnum.ENABLE.getStatus());
         dealWrapper.and(w -> w.isNull(DealDO::getEndTime).or().gt(DealDO::getEndTime, LocalDateTime.now()));
         if (CollUtil.isNotEmpty(regions)) {
             dealWrapper.and(w -> {
-                w.and(sub -> sub.isNull(DealDO::getRegions).or().apply("string_to_array(regions, ',') @> ARRAY['00']"));
+                w.and(sub -> sub.isNull(DealDO::getRegions).or().apply("string_to_array(regions, ',') @> ARRAY['00']::text[]"));
                 for (String region : regions) {
-                    w.or().apply("string_to_array(regions, ',') @> ARRAY[{0}]", region);
+                    w.or().apply("string_to_array(regions, ',') @> ARRAY[{0}]::text[]", region);
                 }
             });
         }
@@ -190,14 +189,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         // 2. 获取所有有效的 Coupons（未过期 + 激活 + 地区匹配）
         LambdaQueryWrapperX<CouponDO> couponWrapper = new LambdaQueryWrapperX<CouponDO>()
-                .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE.getCode())
-                .eq(CouponDO::getDeleted, false);
+                .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE.getCode());
         couponWrapper.and(w -> w.isNull(CouponDO::getEndTime).or().gt(CouponDO::getEndTime, LocalDateTime.now()));
         if (CollUtil.isNotEmpty(regions)) {
             couponWrapper.and(w -> {
-                w.and(sub -> sub.isNull(CouponDO::getRegions).or().apply("string_to_array(regions, ',') @> ARRAY['00']"));
+                w.and(sub -> sub.isNull(CouponDO::getRegions).or().apply("string_to_array(regions, ',') @> ARRAY['00']::text[]"));
                 for (String region : regions) {
-                    w.or().apply("string_to_array(regions, ',') @> ARRAY[{0}]", region);
+                    w.or().apply("string_to_array(regions, ',') @> ARRAY[{0}]::text[]", region);
                 }
             });
         }

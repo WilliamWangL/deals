@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
 import { CategorySection } from '@/components/home/CategorySection';
@@ -34,8 +35,11 @@ export default async function CategoriesPage({
   const { locale } = await params;
   const queryParams = await searchParams;
   const region = await getCurrentRegion(queryParams);
+  const t = await getTranslations({ locale, namespace: 'categories' });
 
-  const categories = await fetchCategories({ regions: region ? [region] : undefined });
+  // GLOBAL region means no filtering needed
+  const regionFilter = region && region !== 'GLOBAL' ? [region] : undefined;
+  const categories = await fetchCategories({ regions: regionFilter });
 
   const totalCategories = categories.length;
   const totalSubcategories = categories.reduce((acc, c) => acc + (c.children?.length || 0), 0);
@@ -106,7 +110,25 @@ export default async function CategoriesPage({
         </section>
 
         {/* Categories Grid */}
-        <CategorySection categories={categories} locale={locale} />
+        {categories.length > 0 ? (
+          <CategorySection categories={categories} locale={locale} />
+        ) : (
+          <section className="py-16 lg:py-20 bg-background">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-muted mb-6">
+                  <Layers className="w-10 h-10 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-display font-bold text-foreground mb-2">
+                  {t('emptyTitle')}
+                </h3>
+                <p className="text-muted-foreground max-w-md">
+                  {t('emptyDescription')}
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </>
   );

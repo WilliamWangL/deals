@@ -106,8 +106,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const queryParams = await searchParams;
   const region = await getCurrentRegion(queryParams);
 
+  // GLOBAL region means no filtering needed
+  const regionFilter = region && region !== 'GLOBAL' ? [region] : undefined;
+
   // First fetch categories to find the category by slug
-  const categories = await fetchCategories({ regions: region ? [region] : undefined });
+  const categories = await fetchCategories({ regions: regionFilter });
   const category = findCategoryBySlug(categories, slug);
 
   if (!category) {
@@ -118,12 +121,12 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const [dealsResult, couponsResult] = await Promise.all([
     fetchDeals({
       categoryId: category.id,
-      regions: region ? [region] : undefined,
+      regions: regionFilter,
       pageSize: 8
     }),
     fetchCoupons({
       categoryId: category.id,
-      regions: region ? [region] : undefined,
+      regions: regionFilter,
       pageSize: 6
     }),
   ]);

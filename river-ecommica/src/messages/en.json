@@ -78,7 +78,10 @@
     "viewAll": "View All Categories",
     "more": "+{count} more",
     "badge": "Browse by Category",
-    "sectionTitle": "Shop by Category"
+    "sectionTitle": "Shop by Category",
+    "emptyTitle": "No categories found",
+    "emptyDescription": "There are no categories available for your region at the moment. Please check back later or try a different region.",
+    "emptyShort": "No categories available at the moment."
   },
   "about": {
     "meta": {

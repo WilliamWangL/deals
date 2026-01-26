@@ -78,7 +78,10 @@
     "viewAll": "查看所有分类",
     "more": "+{count} 更多",
     "badge": "按分类浏览",
-    "sectionTitle": "按分类购物"
+    "sectionTitle": "按分类购物",
+    "emptyTitle": "未找到分类",
+    "emptyDescription": "目前您所在的地区没有可用的分类。请稍后再试或尝试切换地区。",
+    "emptyShort": "目前没有可用的分类。"
   },
   "about": {
     "meta": {

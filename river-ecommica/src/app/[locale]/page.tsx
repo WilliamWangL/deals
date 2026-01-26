@@ -44,14 +44,18 @@ export default async function HomePage({
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({locale, namespace: 'Home'});
   const tCommon = await getTranslations({locale, namespace: 'Common'});
+  const tCategories = await getTranslations({locale, namespace: 'categories'});
+
+  // GLOBAL region means no filtering needed
+  const regionFilter = region && region !== 'GLOBAL' ? [region] : undefined;
 
   const [dealsResult, storesResult, categories] = await Promise.all([
-    fetchDeals({ featured: true, regions: region ? [region] : undefined }),
-    fetchStores({ pageNo: 1, pageSize: 6, regions: region ? [region] : undefined }),
-    fetchCategories({ regions: region ? [region] : undefined })
+    fetchDeals({ featured: true, regions: regionFilter }),
+    fetchStores({ pageNo: 1, pageSize: 6, regions: regionFilter }),
+    fetchCategories({ regions: regionFilter })
   ]);
 
-  const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals({ regions: region ? [region] : undefined })).list;
+  const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals({ regions: regionFilter })).list;
   const featuredDeals = featuredDealsRaw.slice(0, 8);
   const popularStores = storesResult.list.slice(0, 6);
 
@@ -146,7 +150,33 @@ export default async function HomePage({
       {/* ============================================
           CATEGORY SECTION
           ============================================ */}
-      <CategorySection categories={categories} locale={locale} showViewAll />
+      {categories.length > 0 ? (
+        <CategorySection categories={categories} locale={locale} showViewAll />
+      ) : (
+        <section className="py-16 lg:py-20 bg-background">
+          <div className="container mx-auto px-4">
+            {/* Section Header */}
+            <div className="flex items-end justify-between mb-10">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                  <Tag className="w-3.5 h-3.5" />
+                  {tCategories('badge')}
+                </div>
+                <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground">
+                  {tCategories('sectionTitle')}
+                </h2>
+              </div>
+            </div>
+            {/* Empty State */}
+            <div className="flex flex-col items-center justify-center py-16 text-center card-elevated rounded-2xl">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
+                <Tag className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground text-lg">{tCategories('emptyShort')}</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ============================================
           FEATURED DEALS

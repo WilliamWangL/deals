@@ -13,6 +13,7 @@ export function Footer({ locale = 'en' }: FooterProps) {
     { label: 'Deals', href: `/${locale}/deals` },
     { label: 'Coupons', href: `/${locale}/coupons` },
     { label: 'Stores', href: `/${locale}/stores` },
+    { label: 'Categories', href: `/${locale}/categories` },
   ];
 
   const supportLinks = [
