@@ -65,6 +65,15 @@ public interface CategoryService {
     List<CategoryDO> getCategoryListByParentId(Long parentId);
 
     /**
+     * 获得子分类列表（按地区过滤有数据的分类）
+     *
+     * @param parentId 父分类编号
+     * @param regions 地区代码列表，为空则返回所有分类
+     * @return 子分类列表
+     */
+    List<CategoryDO> getCategoryListByParentId(Long parentId, List<String> regions);
+
+    /**
      * 校验分类是否存在
      *
      * @param id 编号
@@ -79,12 +88,29 @@ public interface CategoryService {
     List<CategoryDO> getCategoryTree();
 
     /**
+     * 获取分类树（按地区过滤有数据的分类）
+     *
+     * @param regions 地区代码列表，为空则返回所有分类
+     * @return 分类树列表
+     */
+    List<CategoryDO> getCategoryTree(List<String> regions);
+
+    /**
      * 根据 slug 获取分类
      *
      * @param slug 分类标识
      * @return 分类
      */
     CategoryDO getCategoryBySlug(String slug);
+
+    /**
+     * 根据 slug 获取分类（按地区过滤）
+     *
+     * @param slug 分类标识
+     * @param regions 地区代码列表，为空则不过滤
+     * @return 分类
+     */
+    CategoryDO getCategoryBySlug(String slug, List<String> regions);
 
     /**
      * 获取分类的祖先链路（面包屑）

@@ -1,5 +1,6 @@
 package com.river.module.coupon.service;
 
+import com.river.framework.common.enums.CommonStatusEnum;
 import com.river.framework.common.pojo.PageResult;
 import com.river.module.coupon.controller.admin.deal.vo.DealPageReqVO;
 import com.river.module.coupon.dal.dataobject.DealDO;
@@ -8,6 +9,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.river.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -63,6 +65,17 @@ public class DealServiceImpl implements DealService {
     @Override
     public DealDO getDealBySlug(String slug) {
         return dealMapper.selectBySlug(slug);
+    }
+
+    @Override
+    public int updateExpiredDeals() {
+        DealDO updateObj = new DealDO().setStatus(CommonStatusEnum.DISABLE.getStatus());
+        return dealMapper.update(updateObj,
+                new com.river.framework.mybatis.core.query.LambdaQueryWrapperX<DealDO>()
+                        .eq(DealDO::getStatus, CommonStatusEnum.ENABLE.getStatus())
+                        .isNotNull(DealDO::getEndTime)
+                        .lt(DealDO::getEndTime, LocalDateTime.now())
+                        .eq(DealDO::getDeleted, false));
     }
 
 }

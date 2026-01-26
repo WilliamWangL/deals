@@ -124,8 +124,12 @@ export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {
   return json.data ? mapPostType(json.data) : null
 }
 
-export async function fetchCategories(): Promise<Category[]> {
-  const res = await fetchWithTenant(`${API_BASE_URL}/affiliate/category/tree`, { next: { revalidate: 3600 } })
+export async function fetchCategories(params?: { regions?: string[] }): Promise<Category[]> {
+  const url = new URL(`${API_BASE_URL}/affiliate/category/tree`)
+  if (params?.regions?.length) {
+    params.regions.forEach(r => url.searchParams.append('regions', r))
+  }
+  const res = await fetchWithTenant(url.toString(), { next: { revalidate: 3600 } })
   if (!res.ok) throw new Error('Fetch categories failed')
   const json = await res.json()
   return json.data || []

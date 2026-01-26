@@ -66,7 +66,7 @@ export default async function HomePage({
   const [dealsResult, storesResult, categories] = await Promise.all([
     fetchDeals({ featured: true, regions: region ? [region] : undefined }),
     fetchStores({ pageNo: 1, pageSize: 6, regions: region ? [region] : undefined }),
-    fetchCategories()
+    fetchCategories({ regions: region ? [region] : undefined })
   ]);
 
   const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals({ regions: region ? [region] : undefined })).list;

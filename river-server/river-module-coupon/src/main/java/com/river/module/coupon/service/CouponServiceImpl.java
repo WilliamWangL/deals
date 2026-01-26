@@ -4,10 +4,12 @@ import com.river.framework.common.pojo.PageResult;
 import com.river.module.coupon.controller.admin.coupon.vo.CouponPageReqVO;
 import com.river.module.coupon.dal.dataobject.CouponDO;
 import com.river.module.coupon.dal.mysql.CouponMapper;
+import com.river.module.coupon.enums.CouponStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.river.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -58,6 +60,17 @@ public class CouponServiceImpl implements CouponService {
         if (couponMapper.selectById(id) == null) {
             throw exception(COUPON_NOT_EXISTS);
         }
+    }
+
+    @Override
+    public int updateExpiredCoupons() {
+        CouponDO updateObj = new CouponDO().setStatus(CouponStatusEnum.EXPIRED.getCode());
+        return couponMapper.update(updateObj,
+                new com.river.framework.mybatis.core.query.LambdaQueryWrapperX<CouponDO>()
+                        .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE.getCode())
+                        .isNotNull(CouponDO::getEndTime)
+                        .lt(CouponDO::getEndTime, LocalDateTime.now())
+                        .eq(CouponDO::getDeleted, false));
     }
 
 }

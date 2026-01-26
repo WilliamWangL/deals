@@ -10,6 +10,7 @@ import com.river.module.affiliate.controller.admin.merchant.vo.MerchantPageReqVO
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper
@@ -43,6 +44,23 @@ public interface MerchantMapper extends BaseMapperX<MerchantDO> {
         return selectOne(new LambdaQueryWrapperX<MerchantDO>()
                 .eq(MerchantDO::getNetworkId, networkId)
                 .eq(MerchantDO::getExternalId, externalId));
+    }
+
+    /**
+     * 批量查询联盟网络下的商家（按 externalId 列表）
+     * 用于同步时预加载已存在数据，实现幂等写入
+     *
+     * @param networkId   联盟网络 ID
+     * @param externalIds 外部 ID 列表
+     * @return 商家列表
+     */
+    default List<MerchantDO> selectListByNetworkAndExternalIds(Long networkId, List<String> externalIds) {
+        if (externalIds == null || externalIds.isEmpty()) {
+            return List.of();
+        }
+        return selectList(new LambdaQueryWrapperX<MerchantDO>()
+                .eq(MerchantDO::getNetworkId, networkId)
+                .in(MerchantDO::getExternalId, externalIds));
     }
 
 }
