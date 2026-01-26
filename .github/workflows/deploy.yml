@@ -134,8 +134,12 @@ jobs:
           script: |
             cd /opt/river
 
-            # 设置环境变量
-            export GITHUB_REPO=${{ github.repository }}
+            # 创建数据目录
+            mkdir -p data/postgres data/redis
+
+            # 创建环境变量文件
+            echo "GITHUB_REPO=${{ github.repository }}" > .env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
 
             # 拉取最新镜像并重启服务
             docker-compose -f docker-compose.prod.yml pull
