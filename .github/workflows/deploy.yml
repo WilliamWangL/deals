@@ -1,0 +1,145 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-server:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push river-server
+        uses: docker/build-push-action@v5
+        with:
+          context: ./river-server
+          file: ./river-server/river-server/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/river-server:latest
+
+  build-ui-admin:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push river-ui-admin
+        uses: docker/build-push-action@v5
+        with:
+          context: ./river-ui-admin
+          file: ./river-ui-admin/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/river-ui-admin:latest
+
+  build-ecommica:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push river-ecommica
+        uses: docker/build-push-action@v5
+        with:
+          context: ./river-ecommica
+          file: ./river-ecommica/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/river-ecommica:latest
+
+  deploy:
+    needs: [build-server, build-ui-admin, build-ecommica]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "docker/docker-compose.prod.yml,docker/nginx/nginx.conf"
+          target: "/opt/river"
+          strip_components: 1
+
+      - name: Extract admin static files
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            cd /opt/river
+
+            # 登录 ghcr.io
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # 提取 admin 静态文件
+            docker pull ${{ env.IMAGE_PREFIX }}/river-ui-admin:latest
+            docker create --name temp-admin ${{ env.IMAGE_PREFIX }}/river-ui-admin:latest
+            rm -rf /opt/river/admin-dist
+            docker cp temp-admin:/usr/share/nginx/html /opt/river/admin-dist
+            docker rm temp-admin
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            cd /opt/river
+
+            # 设置环境变量
+            export GITHUB_REPO=${{ github.repository }}
+
+            # 拉取最新镜像并重启服务
+            docker-compose -f docker-compose.prod.yml pull
+            docker-compose -f docker-compose.prod.yml up -d
+
+            # 清理旧镜像
+            docker image prune -f
