@@ -8,6 +8,8 @@ import com.river.module.coupon.controller.admin.deal.vo.DealPageReqVO;
 import com.river.module.coupon.dal.dataobject.DealDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper
@@ -51,6 +53,23 @@ public interface DealMapper extends BaseMapperX<DealDO> {
         return selectOne(new LambdaQueryWrapperX<DealDO>()
                 .eq(DealDO::getNetworkId, networkId)
                 .eq(DealDO::getExternalId, externalId));
+    }
+
+    /**
+     * 批量查询联盟网络下的 Deals（按 externalId 列表）
+     * 用于同步时预加载已存在数据，实现幂等写入
+     *
+     * @param networkId   联盟网络 ID
+     * @param externalIds 外部 ID 列表
+     * @return Deal 列表
+     */
+    default List<DealDO> selectListByNetworkAndExternalIds(Long networkId, List<String> externalIds) {
+        if (externalIds == null || externalIds.isEmpty()) {
+            return List.of();
+        }
+        return selectList(new LambdaQueryWrapperX<DealDO>()
+                .eq(DealDO::getNetworkId, networkId)
+                .in(DealDO::getExternalId, externalIds));
     }
 
 }

@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
+import { getCurrentRegion } from '@/lib/region';
 import { Category } from '@/types';
 import DealCard from '@/components/deal/DealCard';
 import CouponCard from '@/components/coupon/CouponCard';
@@ -71,6 +72,7 @@ function collectCategorySlugs(categories: Category[]): { slug: string }[] {
 
 interface CategoryPageProps {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ region?: string }>;
 }
 
 export async function generateStaticParams() {
@@ -99,13 +101,15 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   };
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { locale, slug } = await params;
+  const queryParams = await searchParams;
+  const region = await getCurrentRegion(queryParams);
 
   const [categories, allDealsResult, allCouponsResult] = await Promise.all([
-    fetchCategories(),
-    fetchDeals(),
-    fetchCoupons(),
+    fetchCategories({ regions: region ? [region] : undefined }),
+    fetchDeals({ regions: region ? [region] : undefined }),
+    fetchCoupons({ regions: region ? [region] : undefined }),
   ]);
 
   const category = findCategoryBySlug(categories, slug);

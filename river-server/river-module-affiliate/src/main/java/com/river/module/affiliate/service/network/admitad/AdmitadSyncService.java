@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import com.river.framework.common.biz.tracking.TrackingLinkCommonApi;
@@ -118,16 +120,10 @@ public class AdmitadSyncService {
                 break;
             }
 
-            for (AdmitadCampaign campaign : campaigns) {
-                try {
-                    syncSingleCampaign(credential.getNetworkId(), campaign);
-                    totalSynced++;
-                    this.lastSyncMerchants++;
-                } catch (Exception e) {
-                    this.lastSyncFailed++;
-                    log.error("Failed to sync campaign {}: {}", campaign.getId(), e.getMessage());
-                }
-            }
+            // Batch sync: preload existing merchants and process in batch
+            syncCampaignsBatch(credential.getNetworkId(), campaigns);
+            totalSynced += campaigns.size();
+            this.lastSyncMerchants += campaigns.size();
 
             offset += limit;
             if (campaigns.size() < limit) {
@@ -135,10 +131,394 @@ public class AdmitadSyncService {
             }
         }
 
-        log.info("Admitad sync completed for network {}, synced {} campaigns", 
+        log.info("Admitad sync completed for network {}, synced {} campaigns",
             credential.getNetworkId(), totalSynced);
     }
 
+    /**
+     * 批量同步 Campaigns/Merchants
+     * 1. 预加载已存在的商家（减少重复查询）
+     * 2. 去重：同一批次内按 externalId 去重
+     * 3. 幂等写入：区分 insert vs update
+     * 4. 批量操作：使用 insertBatch/updateBatch
+     */
+    @Transactional
+    public void syncCampaignsBatch(Long networkId, List<AdmitadCampaign> campaigns) {
+        if (campaigns == null || campaigns.isEmpty()) {
+            return;
+        }
+
+        // 1. 去重：同一批次内按 externalId 去重（保留最后一条）
+        Map<String, AdmitadCampaign> campaignMap = new HashMap<>();
+        for (AdmitadCampaign campaign : campaigns) {
+            campaignMap.put(String.valueOf(campaign.getId()), campaign);
+        }
+
+        // 2. 预加载已存在的商家（批量查询）
+        List<String> externalIds = campaignMap.keySet().stream().toList();
+        List<MerchantDO> existingMerchants = merchantMapper.selectListByNetworkAndExternalIds(networkId, externalIds);
+
+        // 构建 existing merchant map: externalId -> MerchantDO
+        Map<String, MerchantDO> existingMerchantMap = existingMerchants.stream()
+            .collect(Collectors.toMap(MerchantDO::getExternalId, m -> m));
+
+        // 3. 分类：toInsert 和 toUpdate
+        List<MerchantDO> toInsert = new ArrayList<>();
+        List<MerchantDO> toUpdate = new ArrayList<>();
+
+        // 4. 为 Offer 同步准备数据
+        Map<Long, List<OfferDO>> merchantOffersMap = new HashMap<>();
+
+        for (AdmitadCampaign campaign : campaignMap.values()) {
+            String externalId = String.valueOf(campaign.getId());
+            MerchantDO existing = existingMerchantMap.get(externalId);
+
+            MerchantDO merchant;
+            if (existing != null) {
+                merchant = existing;
+                updateMerchant(merchant, campaign);
+                toUpdate.add(merchant);
+            } else {
+                merchant = createMerchant(networkId, campaign);
+                toInsert.add(merchant);
+            }
+
+            // 收集 Offers 以便批量处理
+            if (campaign.getActions() != null && !campaign.getActions().isEmpty()) {
+                List<OfferDO> offers = new ArrayList<>();
+                for (AdmitadCampaign.Action action : campaign.getActions()) {
+                    String offerExternalId = campaign.getId() + "_" + action.getId();
+                    offers.add(createOffer(networkId, merchant.getId(), campaign, action));
+                }
+                merchantOffersMap.put(merchant.getId(), offers);
+            }
+        }
+
+        // 5. 批量插入/更新 Merchants
+        if (!toInsert.isEmpty()) {
+            merchantMapper.insertBatch(toInsert);
+            log.info("Batch inserted {} merchants", toInsert.size());
+        }
+        if (!toUpdate.isEmpty()) {
+            merchantMapper.updateBatch(toUpdate);
+            log.info("Batch updated {} merchants", toUpdate.size());
+        }
+
+        // 6. 批量处理 Offers（按 merchant 分组）
+        for (Map.Entry<Long, List<OfferDO>> entry : merchantOffersMap.entrySet()) {
+            Long merchantId = entry.getKey();
+            List<OfferDO> offers = entry.getValue();
+            syncOffersBatch(networkId, merchantId, offers);
+            this.lastSyncOffers += offers.size();
+
+            // 设置默认 Offer ID（如果还没有设置）
+            MerchantDO merchant = existingMerchantMap.values().stream()
+                .filter(m -> m.getId().equals(merchantId))
+                .findFirst()
+                .orElseGet(() -> toInsert.stream().filter(m -> m.getId().equals(merchantId)).findFirst().orElse(null));
+
+            if (merchant != null && merchant.getDefaultOfferId() == null && !offers.isEmpty()) {
+                merchant.setDefaultOfferId(offers.get(0).getId());
+                merchantMapper.updateById(merchant);
+            }
+
+            // 创建 TrackingLinks
+            for (OfferDO offer : offers) {
+                createOrUpdateOfferTrackingLink(offer);
+            }
+        }
+
+        // 创建 Merchant TrackingLinks
+        for (MerchantDO merchant : toInsert) {
+            createOrUpdateMerchantTrackingLink(merchant);
+        }
+        for (MerchantDO merchant : toUpdate) {
+            createOrUpdateMerchantTrackingLink(merchant);
+        }
+    }
+
+    /**
+     * 批量同步 Offers
+     */
+    @Transactional
+    public void syncOffersBatch(Long networkId, Long merchantId, List<OfferDO> offers) {
+        if (offers == null || offers.isEmpty()) {
+            return;
+        }
+
+        // 预加载已存在的 Offers
+        List<String> externalIds = offers.stream().map(OfferDO::getExternalId).toList();
+        List<OfferDO> existingOffers = offerMapper.selectListByMerchantAndExternalIds(merchantId, externalIds);
+
+        Map<String, OfferDO> existingOfferMap = existingOffers.stream()
+            .collect(Collectors.toMap(OfferDO::getExternalId, o -> o));
+
+        List<OfferDO> toInsert = new ArrayList<>();
+        List<OfferDO> toUpdate = new ArrayList<>();
+
+        for (OfferDO offer : offers) {
+            OfferDO existing = existingOfferMap.get(offer.getExternalId());
+            if (existing != null) {
+                offer.setId(existing.getId());
+                toUpdate.add(offer);
+            } else {
+                toInsert.add(offer);
+            }
+        }
+
+        if (!toInsert.isEmpty()) {
+            offerMapper.insertBatch(toInsert);
+        }
+        if (!toUpdate.isEmpty()) {
+            offerMapper.updateBatch(toUpdate);
+        }
+    }
+
+    /**
+     * 同步优惠券数据（优化版：批量处理）
+     * 根据 species 字段分流到 Coupon 或 Deal 表
+     */
+    public void syncCoupons(NetworkCredentialDO credential) {
+        // Reset statistics at start (offers may be synced from campaigns)
+        this.lastSyncCoupons = 0;
+        this.lastSyncDeals = 0;
+        this.lastSyncFailed = 0;
+        this.lastSyncTime = LocalDateTime.now();
+
+        Long websiteId = extractWebsiteId(credential);
+        if (websiteId == null) {
+            log.error("No websiteId found in credential {}", credential.getId());
+            this.lastSyncFailed++;
+            return;
+        }
+
+        int offset = 0;
+        int limit = 100;
+        int couponCount = 0;
+        int dealCount = 0;
+
+        while (true) {
+            List<AdmitadCoupon> coupons = admitadClient.getCoupons(credential, websiteId, offset, limit);
+            if (coupons.isEmpty()) {
+                break;
+            }
+
+            // 批量处理
+            syncCouponsBatch(credential.getNetworkId(), coupons);
+            
+            for (AdmitadCoupon coupon : coupons) {
+                if ("promocode".equalsIgnoreCase(coupon.getSpecies())) {
+                    couponCount++;
+                    this.lastSyncCoupons++;
+                } else {
+                    dealCount++;
+                    this.lastSyncDeals++;
+                }
+            }
+
+            offset += limit;
+            if (coupons.size() < limit) {
+                break;
+            }
+        }
+
+        log.info("Admitad coupon sync completed for network {}: {} coupons, {} deals",
+            credential.getNetworkId(), couponCount, dealCount);
+    }
+
+    /**
+     * 批量同步 Coupons 和 Deals
+     * 1. 预加载已存在的数据
+     * 2. 去重：同一批次内按 externalId 去重
+     * 3. 幂等写入：区分 insert vs update
+     * 4. 批量操作
+     */
+    @Transactional
+    public void syncCouponsBatch(Long networkId, List<AdmitadCoupon> coupons) {
+        if (coupons == null || coupons.isEmpty()) {
+            return;
+        }
+
+        // 1. 去重：同一批次内按 externalId 去重
+        Map<String, AdmitadCoupon> couponMap = new HashMap<>();
+        for (AdmitadCoupon coupon : coupons) {
+            couponMap.put(String.valueOf(coupon.getId()), coupon);
+        }
+
+        // 2. 分离 coupons 和 deals
+        List<AdmitadCoupon> promoCodes = new ArrayList<>();
+        List<AdmitadCoupon> deals = new ArrayList<>();
+
+        for (AdmitadCoupon coupon : couponMap.values()) {
+            if ("promocode".equalsIgnoreCase(coupon.getSpecies())) {
+                promoCodes.add(coupon);
+            } else {
+                deals.add(coupon);
+            }
+        }
+
+        // 3. 批量处理 promocodes -> Coupon
+        if (!promoCodes.isEmpty()) {
+            syncPromoCodesBatch(networkId, promoCodes);
+        }
+
+        // 4. 批量处理 deals -> Deal
+        if (!deals.isEmpty()) {
+            syncDealsBatch(networkId, deals);
+        }
+    }
+
+    /**
+     * 批量同步 PromoCodes 到 Coupon 表
+     */
+    @Transactional
+    public void syncPromoCodesBatch(Long networkId, List<AdmitadCoupon> promoCodes) {
+        if (promoCodes == null || promoCodes.isEmpty()) {
+            return;
+        }
+
+        // 预加载已存在的 Coupons
+        List<String> externalIds = promoCodes.stream().map(c -> String.valueOf(c.getId())).toList();
+        List<CouponDO> existingCoupons = couponMapper.selectListByNetworkAndExternalIds(networkId, externalIds);
+
+        Map<String, CouponDO> existingCouponMap = existingCoupons.stream()
+            .collect(Collectors.toMap(CouponDO::getExternalId, c -> c));
+
+        // 预加载 Merchants（批量查询所有关联的 merchants）
+        Set<String> merchantExternalIds = promoCodes.stream()
+            .filter(c -> c.getCampaign() != null)
+            .map(c -> String.valueOf(c.getCampaign().getId()))
+            .collect(Collectors.toSet());
+
+        Map<String, MerchantDO> merchantMap = new HashMap<>();
+        if (!merchantExternalIds.isEmpty()) {
+            List<MerchantDO> merchants = merchantMapper.selectListByNetworkAndExternalIds(networkId, new ArrayList<>(merchantExternalIds));
+            merchantMap = merchants.stream().collect(Collectors.toMap(MerchantDO::getExternalId, m -> m));
+        }
+
+        List<CouponDO> toInsert = new ArrayList<>();
+        List<CouponDO> toUpdate = new ArrayList<>();
+
+        for (AdmitadCoupon admitadCoupon : promoCodes) {
+            String externalId = String.valueOf(admitadCoupon.getId());
+            CouponDO existing = existingCouponMap.get(externalId);
+
+            Long merchantId = null;
+            if (admitadCoupon.getCampaign() != null) {
+                MerchantDO merchant = merchantMap.get(String.valueOf(admitadCoupon.getCampaign().getId()));
+                if (merchant != null) {
+                    merchantId = merchant.getId();
+                }
+            }
+
+            CouponDO coupon;
+            if (existing != null) {
+                coupon = existing;
+                updateCoupon(coupon, networkId, merchantId, admitadCoupon);
+                toUpdate.add(coupon);
+            } else {
+                coupon = createCoupon(networkId, merchantId, admitadCoupon);
+                toInsert.add(coupon);
+            }
+        }
+
+        if (!toInsert.isEmpty()) {
+            couponMapper.insertBatch(toInsert);
+            log.info("Batch inserted {} coupons", toInsert.size());
+        }
+        if (!toUpdate.isEmpty()) {
+            couponMapper.updateBatch(toUpdate);
+            log.info("Batch updated {} coupons", toUpdate.size());
+        }
+
+        // 创建 TrackingLinks
+        for (CouponDO coupon : toInsert) {
+            createOrUpdateCouponTrackingLink(coupon);
+        }
+        for (CouponDO coupon : toUpdate) {
+            createOrUpdateCouponTrackingLink(coupon);
+        }
+    }
+
+    /**
+     * 批量同步 Deals 到 Deal 表
+     */
+    @Transactional
+    public void syncDealsBatch(Long networkId, List<AdmitadCoupon> deals) {
+        if (deals == null || deals.isEmpty()) {
+            return;
+        }
+
+        // 预加载已存在的 Deals
+        List<String> externalIds = deals.stream().map(c -> String.valueOf(c.getId())).toList();
+        List<DealDO> existingDeals = dealMapper.selectListByNetworkAndExternalIds(networkId, externalIds);
+
+        Map<String, DealDO> existingDealMap = existingDeals.stream()
+            .collect(Collectors.toMap(DealDO::getExternalId, d -> d));
+
+        // 预加载 Merchants
+        Set<String> merchantExternalIds = deals.stream()
+            .filter(c -> c.getCampaign() != null)
+            .map(c -> String.valueOf(c.getCampaign().getId()))
+            .collect(Collectors.toSet());
+
+        Map<String, MerchantDO> merchantMap = new HashMap<>();
+        if (!merchantExternalIds.isEmpty()) {
+            List<MerchantDO> merchants = merchantMapper.selectListByNetworkAndExternalIds(networkId, new ArrayList<>(merchantExternalIds));
+            merchantMap = merchants.stream().collect(Collectors.toMap(MerchantDO::getExternalId, m -> m));
+        }
+
+        List<DealDO> toInsert = new ArrayList<>();
+        List<DealDO> toUpdate = new ArrayList<>();
+
+        for (AdmitadCoupon admitadCoupon : deals) {
+            String externalId = String.valueOf(admitadCoupon.getId());
+            DealDO existing = existingDealMap.get(externalId);
+
+            Long merchantId = null;
+            if (admitadCoupon.getCampaign() != null) {
+                MerchantDO merchant = merchantMap.get(String.valueOf(admitadCoupon.getCampaign().getId()));
+                if (merchant != null) {
+                    merchantId = merchant.getId();
+                }
+            }
+
+            DealDO deal;
+            if (existing != null) {
+                deal = existing;
+                updateDeal(deal, networkId, merchantId, admitadCoupon);
+                toUpdate.add(deal);
+            } else {
+                deal = createDeal(networkId, merchantId, admitadCoupon);
+                toInsert.add(deal);
+            }
+        }
+
+        if (!toInsert.isEmpty()) {
+            dealMapper.insertBatch(toInsert);
+            log.info("Batch inserted {} deals", toInsert.size());
+        }
+        if (!toUpdate.isEmpty()) {
+            dealMapper.updateBatch(toUpdate);
+            log.info("Batch updated {} deals", toUpdate.size());
+        }
+
+        // 创建 TrackingLinks
+        for (DealDO deal : toInsert) {
+            createOrUpdateDealTrackingLink(deal);
+        }
+        for (DealDO deal : toUpdate) {
+            createOrUpdateDealTrackingLink(deal);
+        }
+    }
+
+    // ==================== 单个同步方法（向后兼容） ====================
+
+    /**
+     * 同步单个 Campaign/Merchant
+     * @deprecated 使用 {@link #syncCampaignsBatch(Long, List)} 替代
+     */
+    @Deprecated
     @Transactional
     public void syncSingleCampaign(Long networkId, AdmitadCampaign campaign) {
         MerchantDO existingMerchant = merchantMapper.selectByNetworkAndExternalId(
@@ -154,7 +534,6 @@ public class AdmitadSyncService {
             merchantMapper.insert(merchant);
         }
 
-        // 同步 Offers 并记录第一个 Offer ID
         Long firstOfferId = null;
         if (campaign.getActions() != null) {
             for (AdmitadCampaign.Action action : campaign.getActions()) {
@@ -166,14 +545,12 @@ public class AdmitadSyncService {
             }
         }
 
-        // 设置默认 Offer ID（如果还没有设置）
         if (merchant.getDefaultOfferId() == null && firstOfferId != null) {
             merchant.setDefaultOfferId(firstOfferId);
             merchantMapper.updateById(merchant);
             log.info("Set default_offer_id={} for merchant={}", firstOfferId, merchant.getId());
         }
 
-        // 创建或更新 Merchant 的 TrackingLink
         createOrUpdateMerchantTrackingLink(merchant);
     }
 
@@ -201,7 +578,6 @@ public class AdmitadSyncService {
             merchant.setRegions(regions);
         }
 
-        // 映射分类
         if (campaign.getCategories() != null && !campaign.getCategories().isEmpty()) {
             String categoryIds = mapCategories(merchant.getNetworkId(), campaign.getCategories());
             merchant.setCategoryIds(categoryIds);
@@ -222,9 +598,7 @@ public class AdmitadSyncService {
             offerMapper.insert(offer);
         }
 
-        // 创建或更新 Offer 的 TrackingLink
         createOrUpdateOfferTrackingLink(offer);
-
         return offer;
     }
 
@@ -249,13 +623,11 @@ public class AdmitadSyncService {
             campaign.getId());
         offer.setGotoUrl(trackingUrl);
 
-        // 设置 Offer 的分类（继承自 Campaign）
         if (campaign.getCategories() != null && !campaign.getCategories().isEmpty()) {
             String categoryIds = mapCategories(offer.getNetworkId(), campaign.getCategories());
             offer.setCategoryIds(categoryIds);
         }
 
-        // 设置 Offer 的地区
         if (campaign.getRegions() != null && !campaign.getRegions().isEmpty()) {
             List<String> regions = campaign.getRegions().stream()
                 .map(AdmitadCampaign.Region::getRegion)
@@ -271,7 +643,6 @@ public class AdmitadSyncService {
             .replaceAll("\\s+", "-")
             .replaceAll("-+", "-")
             .replaceAll("^-|-$", "");
-        // 添加 campaign ID 后缀确保唯一性
         return baseSlug.isEmpty() ? String.valueOf(campaignId) : baseSlug + "-" + campaignId;
     }
 
@@ -290,29 +661,18 @@ public class AdmitadSyncService {
         return PayoutModelEnum.fromAdmitadType(type).getCode();
     }
 
-    /**
-     * 映射联盟分类到本地分类
-     * 如果映射不存在，自动创建本地分类和映射记录
-     *
-     * @param networkId  联盟网络 ID
-     * @param categories 联盟分类列表
-     * @return 逗号分隔的本地分类 ID
-     */
     private String mapCategories(Long networkId, List<AdmitadCampaign.Category> categories) {
         List<Long> mappedCategoryIds = new ArrayList<>();
 
         for (AdmitadCampaign.Category category : categories) {
             String externalId = String.valueOf(category.getId());
 
-            // 查找现有映射
             CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
 
             if (mapping == null) {
-                // 自动创建本地分类
                 CategoryDO localCategory = createLocalCategory(category.getName());
                 categoryMapper.insert(localCategory);
 
-                // 创建映射记录并绑定本地分类
                 mapping = new CategoryMappingDO();
                 mapping.setNetworkId(networkId);
                 mapping.setExternalId(externalId);
@@ -322,7 +682,6 @@ public class AdmitadSyncService {
                 categoryMappingMapper.insert(mapping);
                 log.info("Auto-created category: {} -> local id={}", category.getName(), localCategory.getId());
             } else if (mapping.getCategoryId() == null) {
-                // 已有映射但未绑定本地分类，自动创建并绑定
                 CategoryDO localCategory = createLocalCategory(category.getName());
                 categoryMapper.insert(localCategory);
                 mapping.setCategoryId(localCategory.getId());
@@ -330,7 +689,6 @@ public class AdmitadSyncService {
                 log.info("Auto-bound category: {} -> local id={}", category.getName(), localCategory.getId());
             }
 
-            // 加入结果
             if (mapping.getCategoryId() != null) {
                 mappedCategoryIds.add(mapping.getCategoryId());
             }
@@ -340,9 +698,6 @@ public class AdmitadSyncService {
             mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
-    /**
-     * 创建本地分类
-     */
     private CategoryDO createLocalCategory(String name) {
         CategoryDO category = new CategoryDO();
         category.setParentId(0L);
@@ -354,27 +709,112 @@ public class AdmitadSyncService {
         return category;
     }
 
-    /**
-     * 生成分类 slug
-     */
     private String generateCategorySlug(String name) {
         if (name == null) return "category-" + System.currentTimeMillis();
-        // 尝试音译，简单处理：移除非ASCII字符，转小写，空格转连字符
         String slug = name.toLowerCase()
             .replaceAll("[^a-z0-9\\s-]", "")
             .replaceAll("\\s+", "-")
             .replaceAll("-+", "-")
             .replaceAll("^-|-$", "");
-        // 如果slug为空（如全是中文/俄文），使用时间戳
         return slug.isEmpty() ? "category-" + System.currentTimeMillis() : slug;
+    }
+
+    private Long extractWebsiteId(NetworkCredentialDO credential) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> creds = objectMapper.readValue(credential.getCredentials(), Map.class);
+            Object websiteId = creds.get("websiteId");
+            if (websiteId instanceof Number) {
+                return ((Number) websiteId).longValue();
+            } else if (websiteId instanceof String) {
+                return Long.parseLong((String) websiteId);
+            }
+        } catch (Exception e) {
+            log.error("Failed to extract websiteId from credential {}: {}", credential.getId(), e.getMessage());
+        }
+        return null;
+    }
+
+    private Integer mapCouponType(String species) {
+        return CouponTypeEnum.fromAdmitadSpecies(species).getCode();
+    }
+
+    private void parseDiscount(CouponDO coupon, String discount) {
+        if (discount == null || discount.isEmpty()) return;
+
+        if (discount.endsWith("%")) {
+            try {
+                String value = discount.replace("%", "").trim();
+                coupon.setDiscountValue(new BigDecimal(value));
+                coupon.setDiscountType(DiscountTypeEnum.PERCENT.getCode());
+                return;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        String numericPart = discount.replaceAll("[^0-9.]", "");
+        if (!numericPart.isEmpty()) {
+            try {
+                coupon.setDiscountValue(new BigDecimal(numericPart));
+                coupon.setDiscountType(DiscountTypeEnum.FIXED.getCode());
+            } catch (NumberFormatException ignored) {}
+        }
+    }
+
+    private Integer parseDiscountPercent(String discount) {
+        if (discount == null || discount.isEmpty()) return null;
+
+        if (discount.endsWith("%")) {
+            try {
+                String value = discount.replace("%", "").trim();
+                return Integer.parseInt(value);
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
+    }
+
+    private String mapCouponCategories(Long networkId, List<AdmitadCoupon.Category> categories) {
+        List<Long> mappedCategoryIds = new ArrayList<>();
+
+        for (AdmitadCoupon.Category category : categories) {
+            String externalId = String.valueOf(category.getId());
+
+            CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
+
+            if (mapping == null) {
+                CategoryDO localCategory = createLocalCategory(category.getName());
+                categoryMapper.insert(localCategory);
+
+                mapping = new CategoryMappingDO();
+                mapping.setNetworkId(networkId);
+                mapping.setExternalId(externalId);
+                mapping.setExternalName(category.getName());
+                mapping.setCategoryId(localCategory.getId());
+                mapping.setAutoCreated(true);
+                categoryMappingMapper.insert(mapping);
+                log.info("Auto-created category: {} -> local id={}", category.getName(), localCategory.getId());
+            } else if (mapping.getCategoryId() == null) {
+                CategoryDO localCategory = createLocalCategory(category.getName());
+                categoryMapper.insert(localCategory);
+                mapping.setCategoryId(localCategory.getId());
+                categoryMappingMapper.updateById(mapping);
+                log.info("Auto-bound category: {} -> local id={}", category.getName(), localCategory.getId());
+            }
+
+            if (mapping.getCategoryId() != null) {
+                mappedCategoryIds.add(mapping.getCategoryId());
+            }
+        }
+
+        return mappedCategoryIds.isEmpty() ? null :
+            mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
     /**
      * 同步优惠券数据
-     * 根据 species 字段分流到 Coupon 或 Deal 表
+     * @deprecated 使用 {@link #syncCoupons(NetworkCredentialDO)} 替代
      */
-    public void syncCoupons(NetworkCredentialDO credential) {
-        // Reset statistics at start (offers may be synced from campaigns)
+    @Deprecated
+    public void syncCouponsLegacy(NetworkCredentialDO credential) {
         this.lastSyncCoupons = 0;
         this.lastSyncDeals = 0;
         this.lastSyncFailed = 0;
@@ -430,7 +870,6 @@ public class AdmitadSyncService {
         String externalId = String.valueOf(admitadCoupon.getId());
         CouponDO existingCoupon = couponMapper.selectByNetworkAndExternalId(networkId, externalId);
 
-        // 查找关联的 Merchant
         Long merchantId = null;
         if (admitadCoupon.getCampaign() != null) {
             MerchantDO merchant = merchantMapper.selectByNetworkAndExternalId(
@@ -471,12 +910,10 @@ public class AdmitadSyncService {
         coupon.setCouponType(mapCouponType(admitadCoupon.getSpecies()));
         coupon.setStatus(CommonStatusEnum.ENABLE.getStatus());
 
-        // 解析折扣
         if (admitadCoupon.getDiscount() != null) {
             parseDiscount(coupon, admitadCoupon.getDiscount());
         }
 
-        // 解析日期
         if (admitadCoupon.getDateStart() != null) {
             coupon.setStartTime(parseDateTime(admitadCoupon.getDateStart()));
         }
@@ -484,12 +921,10 @@ public class AdmitadSyncService {
             coupon.setEndTime(parseDateTime(admitadCoupon.getDateEnd()));
         }
 
-        // 设置地区
         if (admitadCoupon.getRegions() != null && !admitadCoupon.getRegions().isEmpty()) {
             coupon.setRegions(new ArrayList<>(admitadCoupon.getRegions()));
         }
 
-        // 映射分类
         if (admitadCoupon.getCategories() != null && !admitadCoupon.getCategories().isEmpty()) {
             String categoryIds = mapCouponCategories(networkId, admitadCoupon.getCategories());
             coupon.setCategoryIds(categoryIds);
@@ -501,7 +936,6 @@ public class AdmitadSyncService {
         String externalId = String.valueOf(admitadCoupon.getId());
         DealDO existingDeal = dealMapper.selectByNetworkAndExternalId(networkId, externalId);
 
-        // 查找关联的 Merchant
         Long merchantId = null;
         if (admitadCoupon.getCampaign() != null) {
             MerchantDO merchant = merchantMapper.selectByNetworkAndExternalId(
@@ -539,12 +973,10 @@ public class AdmitadSyncService {
         deal.setExclusive(admitadCoupon.getExclusive());
         deal.setStatus(CommonStatusEnum.ENABLE.getStatus());
 
-        // 解析折扣百分比
         if (admitadCoupon.getDiscount() != null) {
             deal.setDiscountPercent(parseDiscountPercent(admitadCoupon.getDiscount()));
         }
 
-        // 解析日期
         if (admitadCoupon.getDateStart() != null) {
             deal.setStartTime(parseDateTime(admitadCoupon.getDateStart()));
         }
@@ -552,220 +984,20 @@ public class AdmitadSyncService {
             deal.setEndTime(parseDateTime(admitadCoupon.getDateEnd()));
         }
 
-        // 设置地区
         if (admitadCoupon.getRegions() != null && !admitadCoupon.getRegions().isEmpty()) {
             deal.setRegions(new ArrayList<>(admitadCoupon.getRegions()));
         }
 
-        // 映射分类
         if (admitadCoupon.getCategories() != null && !admitadCoupon.getCategories().isEmpty()) {
             String categoryIds = mapCouponCategories(networkId, admitadCoupon.getCategories());
             deal.setCategoryIds(categoryIds);
         }
     }
 
-    private Long extractWebsiteId(NetworkCredentialDO credential) {
-        try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> creds = objectMapper.readValue(credential.getCredentials(), Map.class);
-            Object websiteId = creds.get("websiteId");
-            if (websiteId instanceof Number) {
-                return ((Number) websiteId).longValue();
-            } else if (websiteId instanceof String) {
-                return Long.parseLong((String) websiteId);
-            }
-        } catch (Exception e) {
-            log.error("Failed to extract websiteId from credential {}: {}", credential.getId(), e.getMessage());
-        }
-        return null;
-    }
-
-    private Integer mapCouponType(String species) {
-        return CouponTypeEnum.fromAdmitadSpecies(species).getCode();
-    }
-
-    private void parseDiscount(CouponDO coupon, String discount) {
-        if (discount == null || discount.isEmpty()) return;
-
-        // 尝试解析 "20%" 格式
-        if (discount.endsWith("%")) {
-            try {
-                String value = discount.replace("%", "").trim();
-                coupon.setDiscountValue(new BigDecimal(value));
-                coupon.setDiscountType(DiscountTypeEnum.PERCENT.getCode());
-                return;
-            } catch (NumberFormatException ignored) {}
-        }
-
-        // 尝试解析 "$10" 或 "10 USD" 格式
-        String numericPart = discount.replaceAll("[^0-9.]", "");
-        if (!numericPart.isEmpty()) {
-            try {
-                coupon.setDiscountValue(new BigDecimal(numericPart));
-                coupon.setDiscountType(DiscountTypeEnum.FIXED.getCode());
-            } catch (NumberFormatException ignored) {}
-        }
-    }
-
-    private Integer parseDiscountPercent(String discount) {
-        if (discount == null || discount.isEmpty()) return null;
-
-        if (discount.endsWith("%")) {
-            try {
-                String value = discount.replace("%", "").trim();
-                return Integer.parseInt(value);
-            } catch (NumberFormatException ignored) {}
-        }
-        return null;
-    }
-
-    private LocalDateTime parseDateTime(String dateStr) {
-        if (dateStr == null || dateStr.isEmpty()) return null;
-        try {
-            // 优先使用 ISO 格式（API 返回 "2026-01-14T00:00:00"）
-            return LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        } catch (Exception e1) {
-            try {
-                // 备用格式（旧格式 "2026-01-14 00:00:00"）
-                return LocalDateTime.parse(dateStr, DATE_FORMATTER);
-            } catch (Exception e2) {
-                log.debug("Failed to parse date: {}", dateStr);
-                return null;
-            }
-        }
-    }
-
-    /**
-     * 映射 Coupon 分类（AdmitadCoupon.Category 类型）
-     * 如果映射不存在，自动创建本地分类和映射记录
-     */
-    private String mapCouponCategories(Long networkId, List<AdmitadCoupon.Category> categories) {
-        List<Long> mappedCategoryIds = new ArrayList<>();
-
-        for (AdmitadCoupon.Category category : categories) {
-            String externalId = String.valueOf(category.getId());
-
-            CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
-
-            if (mapping == null) {
-                // 自动创建本地分类
-                CategoryDO localCategory = createLocalCategory(category.getName());
-                categoryMapper.insert(localCategory);
-
-                // 创建映射记录并绑定本地分类
-                mapping = new CategoryMappingDO();
-                mapping.setNetworkId(networkId);
-                mapping.setExternalId(externalId);
-                mapping.setExternalName(category.getName());
-                mapping.setCategoryId(localCategory.getId());
-                mapping.setAutoCreated(true);
-                categoryMappingMapper.insert(mapping);
-                log.info("Auto-created category: {} -> local id={}", category.getName(), localCategory.getId());
-            } else if (mapping.getCategoryId() == null) {
-                // 已有映射但未绑定本地分类，自动创建并绑定
-                CategoryDO localCategory = createLocalCategory(category.getName());
-                categoryMapper.insert(localCategory);
-                mapping.setCategoryId(localCategory.getId());
-                categoryMappingMapper.updateById(mapping);
-                log.info("Auto-bound category: {} -> local id={}", category.getName(), localCategory.getId());
-            }
-
-            if (mapping.getCategoryId() != null) {
-                mappedCategoryIds.add(mapping.getCategoryId());
-            }
-        }
-
-        return mappedCategoryIds.isEmpty() ? null :
-            mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
-    }
-
-    /**
-     * 创建或更新 Merchant 的 TrackingLink
-     */
-    private void createOrUpdateMerchantTrackingLink(MerchantDO merchant) {
-        try {
-            // 构建追踪 URL
-            String trackingUrl;
-            if (merchant.getDefaultOfferId() != null) {
-                // 如果有默认 Offer，使用 Offer 的 goto_url
-                OfferDO defaultOffer = offerMapper.selectById(merchant.getDefaultOfferId());
-                if (defaultOffer != null && defaultOffer.getGotoUrl() != null) {
-                    trackingUrl = defaultOffer.getGotoUrl();
-                } else {
-                    trackingUrl = generateMerchantTrackingUrl(merchant);
-                }
-            } else {
-                trackingUrl = generateMerchantTrackingUrl(merchant);
-            }
-
-            // trackingUrl 已通过上述逻辑生成，确保不为 null
-            // 如果仍为 null，记录警告并继续尝试创建（使用空 URL）
-            if (trackingUrl == null) {
-                log.warn("No tracking URL available for merchant {}, attempting to create with generated URL", merchant.getId());
-            }
-
-            // 使用 Merchant 的 slug 作为 TrackingLink 的 slug
-            String slug = merchant.getSlug() != null ? merchant.getSlug() : "m-" + merchant.getId();
-
-            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
-            reqDTO.setTargetType(TARGET_TYPE_MERCHANT);
-            reqDTO.setTargetId(merchant.getId());
-            reqDTO.setSlug(slug);
-            reqDTO.setTrackingUrl(trackingUrl);
-
-            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
-            log.debug("Created/updated tracking link for merchant={}", merchant.getId());
-        } catch (Exception e) {
-            log.error("Failed to create/update tracking link for merchant {}: {}", merchant.getId(), e.getMessage());
-        }
-    }
-
-    /**
-     * 创建或更新 Offer 的 TrackingLink
-     */
-    private void createOrUpdateOfferTrackingLink(OfferDO offer) {
-        try {
-            // 获取或生成 tracking URL
-            String trackingUrl = offer.getGotoUrl();
-            if (trackingUrl == null) {
-                // 生成默认追踪 URL，使用 merchant 的 external_id
-                MerchantDO merchant = merchantMapper.selectById(offer.getMerchantId());
-                if (merchant != null && merchant.getExternalId() != null) {
-                    trackingUrl = String.format(
-                        "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
-                        merchant.getExternalId());
-                }
-            }
-
-            if (trackingUrl == null) {
-                log.warn("Cannot create tracking link for offer {}: no tracking URL available", offer.getId());
-                return;
-            }
-
-            String slug = "offer-" + offer.getId();
-
-            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
-            reqDTO.setTargetType(TARGET_TYPE_OFFER);
-            reqDTO.setTargetId(offer.getId());
-            reqDTO.setSlug(slug);
-            reqDTO.setTrackingUrl(trackingUrl);
-
-            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
-            log.debug("Created/updated tracking link for offer={}", offer.getId());
-        } catch (Exception e) {
-            log.error("Failed to create/update tracking link for offer {}: {}", offer.getId(), e.getMessage());
-        }
-    }
-
-    /**
-     * 创建或更新 Coupon 的 TrackingLink
-     */
     private void createOrUpdateCouponTrackingLink(CouponDO coupon) {
         try {
-            // 获取或生成 tracking URL
             String trackingUrl = coupon.getGotoUrl();
             if (trackingUrl == null && coupon.getMerchantId() != null) {
-                // 生成默认追踪 URL，使用 merchant 的 external_id
                 MerchantDO merchant = merchantMapper.selectById(coupon.getMerchantId());
                 if (merchant != null && merchant.getExternalId() != null) {
                     trackingUrl = String.format(
@@ -794,15 +1026,10 @@ public class AdmitadSyncService {
         }
     }
 
-    /**
-     * 创建或更新 Deal 的 TrackingLink
-     */
     private void createOrUpdateDealTrackingLink(DealDO deal) {
         try {
-            // 获取或生成 tracking URL
             String trackingUrl = deal.getGotoUrl();
             if (trackingUrl == null && deal.getMerchantId() != null) {
-                // 生成默认追踪 URL，使用 merchant 的 external_id
                 MerchantDO merchant = merchantMapper.selectById(deal.getMerchantId());
                 if (merchant != null && merchant.getExternalId() != null) {
                     trackingUrl = String.format(
@@ -816,7 +1043,6 @@ public class AdmitadSyncService {
                 return;
             }
 
-            // 优先使用 deal 的 slug
             String slug = deal.getSlug() != null ? deal.getSlug() : "deal-" + deal.getId();
 
             TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
@@ -832,11 +1058,87 @@ public class AdmitadSyncService {
         }
     }
 
-    /**
-     * 生成 Merchant 的追踪 URL
-     */
+    private void createOrUpdateMerchantTrackingLink(MerchantDO merchant) {
+        try {
+            String trackingUrl;
+            if (merchant.getDefaultOfferId() != null) {
+                OfferDO defaultOffer = offerMapper.selectById(merchant.getDefaultOfferId());
+                if (defaultOffer != null && defaultOffer.getGotoUrl() != null) {
+                    trackingUrl = defaultOffer.getGotoUrl();
+                } else {
+                    trackingUrl = generateMerchantTrackingUrl(merchant);
+                }
+            } else {
+                trackingUrl = generateMerchantTrackingUrl(merchant);
+            }
+
+            if (trackingUrl == null) {
+                log.warn("No tracking URL available for merchant {}", merchant.getId());
+                return;
+            }
+
+            String slug = merchant.getSlug() != null ? merchant.getSlug() : "m-" + merchant.getId();
+
+            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
+            reqDTO.setTargetType(TARGET_TYPE_MERCHANT);
+            reqDTO.setTargetId(merchant.getId());
+            reqDTO.setSlug(slug);
+            reqDTO.setTrackingUrl(trackingUrl);
+
+            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
+            log.debug("Created/updated tracking link for merchant={}", merchant.getId());
+        } catch (Exception e) {
+            log.error("Failed to create/update tracking link for merchant {}: {}", merchant.getId(), e.getMessage());
+        }
+    }
+
+    private void createOrUpdateOfferTrackingLink(OfferDO offer) {
+        try {
+            String trackingUrl = offer.getGotoUrl();
+            if (trackingUrl == null) {
+                MerchantDO merchant = merchantMapper.selectById(offer.getMerchantId());
+                if (merchant != null && merchant.getExternalId() != null) {
+                    trackingUrl = String.format(
+                        "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
+                        merchant.getExternalId());
+                }
+            }
+
+            if (trackingUrl == null) {
+                log.warn("Cannot create tracking link for offer {}: no tracking URL available", offer.getId());
+                return;
+            }
+
+            String slug = "offer-" + offer.getId();
+
+            TrackingLinkCreateReqDTO reqDTO = new TrackingLinkCreateReqDTO();
+            reqDTO.setTargetType(TARGET_TYPE_OFFER);
+            reqDTO.setTargetId(offer.getId());
+            reqDTO.setSlug(slug);
+            reqDTO.setTrackingUrl(trackingUrl);
+
+            trackingLinkCommonApi.createOrUpdateTrackingLink(reqDTO);
+            log.debug("Created/updated tracking link for offer={}", offer.getId());
+        } catch (Exception e) {
+            log.error("Failed to create/update tracking link for offer {}: {}", offer.getId(), e.getMessage());
+        }
+    }
+
+    private LocalDateTime parseDateTime(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return null;
+        try {
+            return LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        } catch (Exception e1) {
+            try {
+                return LocalDateTime.parse(dateStr, DATE_FORMATTER);
+            } catch (Exception e2) {
+                log.debug("Failed to parse date: {}", dateStr);
+                return null;
+            }
+        }
+    }
+
     private String generateMerchantTrackingUrl(MerchantDO merchant) {
-        // 根据 merchant 的 external_id 生成 Admitad 追踪链接
         if (merchant.getExternalId() != null) {
             return String.format("https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
                 merchant.getExternalId());
@@ -846,15 +1148,12 @@ public class AdmitadSyncService {
 
     /**
      * 同步数据（Merchant + Offer，通过 code 调用）
-     * @param networkCode 联盟网络编码
-     * @return 同步结果
      */
     public AffiliateNetworkController.SyncResult syncData(String networkCode) {
         NetworkCredentialDO credential = getEnabledCredentialByNetworkCode(networkCode);
         if (credential == null) {
             return AffiliateNetworkController.SyncResult.error("No enabled credentials found for network: " + networkCode);
         }
-        // 执行同步（Merchant + Offer）
         syncCampaigns(credential);
         Map<String, Object> stats = new HashMap<>();
         stats.put("merchants", lastSyncMerchants);
@@ -865,8 +1164,6 @@ public class AdmitadSyncService {
 
     /**
      * 同步 Deal 数据（通过 code 调用）
-     * @param networkCode 联盟网络编码
-     * @return 同步结果
      */
     public AffiliateNetworkController.SyncResult syncDeals(String networkCode) {
         NetworkCredentialDO credential = getEnabledCredentialByNetworkCode(networkCode);
@@ -883,8 +1180,6 @@ public class AdmitadSyncService {
 
     /**
      * 同步优惠券和Deal数据（通过 code 调用）
-     * @param networkCode 联盟网络编码
-     * @return 同步结果
      */
     public AffiliateNetworkController.SyncResult syncCouponsOnly(String networkCode) {
         NetworkCredentialDO credential = getEnabledCredentialByNetworkCode(networkCode);
@@ -899,11 +1194,6 @@ public class AdmitadSyncService {
         return AffiliateNetworkController.SyncResult.success("Coupon sync completed", stats);
     }
 
-    /**
-     * 根据 network code 获取启用的凭证
-     * @param networkCode 联盟网络编码
-     * @return 凭证对象，不存在返回 null
-     */
     private NetworkCredentialDO getEnabledCredentialByNetworkCode(String networkCode) {
         List<NetworkCredentialDO> credentials = credentialMapper.selectEnabledByNetworkCode(networkCode);
         return credentials.isEmpty() ? null : credentials.get(0);

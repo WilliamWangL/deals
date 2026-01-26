@@ -7,6 +7,8 @@ import com.river.module.affiliate.controller.admin.offer.vo.OfferPageReqVO;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface OfferMapper extends BaseMapperX<OfferDO> {
 
@@ -25,6 +27,23 @@ public interface OfferMapper extends BaseMapperX<OfferDO> {
         return selectOne(new LambdaQueryWrapperX<OfferDO>()
                 .eq(OfferDO::getMerchantId, merchantId)
                 .eq(OfferDO::getExternalId, externalId));
+    }
+
+    /**
+     * 批量查询商家下的 Offers（按 externalId 列表）
+     * 用于同步时预加载已存在数据，实现幂等写入
+     *
+     * @param merchantId  商家 ID
+     * @param externalIds 外部 ID 列表
+     * @return Offer 列表
+     */
+    default List<OfferDO> selectListByMerchantAndExternalIds(Long merchantId, List<String> externalIds) {
+        if (externalIds == null || externalIds.isEmpty()) {
+            return List.of();
+        }
+        return selectList(new LambdaQueryWrapperX<OfferDO>()
+                .eq(OfferDO::getMerchantId, merchantId)
+                .in(OfferDO::getExternalId, externalIds));
     }
 
 }

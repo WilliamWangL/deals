@@ -8,6 +8,7 @@ import com.river.module.coupon.controller.admin.coupon.vo.CouponPageReqVO;
 import com.river.module.coupon.dal.dataobject.CouponDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper
@@ -49,6 +50,23 @@ public interface CouponMapper extends BaseMapperX<CouponDO> {
         return selectOne(new LambdaQueryWrapperX<CouponDO>()
                 .eq(CouponDO::getNetworkId, networkId)
                 .eq(CouponDO::getExternalId, externalId));
+    }
+
+    /**
+     * 批量查询联盟网络下的优惠券（按 externalId 列表）
+     * 用于同步时预加载已存在数据，实现幂等写入
+     *
+     * @param networkId   联盟网络 ID
+     * @param externalIds 外部 ID 列表
+     * @return 优惠券列表
+     */
+    default List<CouponDO> selectListByNetworkAndExternalIds(Long networkId, List<String> externalIds) {
+        if (externalIds == null || externalIds.isEmpty()) {
+            return List.of();
+        }
+        return selectList(new LambdaQueryWrapperX<CouponDO>()
+                .eq(CouponDO::getNetworkId, networkId)
+                .in(CouponDO::getExternalId, externalIds));
     }
 
 }

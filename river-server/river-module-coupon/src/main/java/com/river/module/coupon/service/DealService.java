@@ -24,4 +24,6 @@ public interface DealService {
 
     DealDO getDealBySlug(String slug);
 
+    int updateExpiredDeals();
+
 }

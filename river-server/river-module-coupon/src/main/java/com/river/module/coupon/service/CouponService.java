@@ -22,4 +22,6 @@ public interface CouponService {
 
     void validateCouponExists(Long id);
 
+    int updateExpiredCoupons();
+
 }
