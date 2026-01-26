@@ -28,10 +28,11 @@ function mapPostType(post: Record<string, unknown>): BlogPost {
   } as BlogPost
 }
 
-export async function fetchDeals(params?: { merchantId?: number; featured?: boolean; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Deal>> {
+export async function fetchDeals(params?: { merchantId?: number; featured?: boolean; categoryId?: number; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Deal>> {
   const url = new URL(`${API_BASE_URL}/coupon/deal/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.featured !== undefined) url.searchParams.set('featured', String(params.featured))
+  if (params?.categoryId) url.searchParams.set('categoryId', String(params.categoryId))
   if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
   if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize))
   if (params?.regions?.length) {
@@ -82,10 +83,11 @@ export async function fetchStoreBySlug(slug: string): Promise<Store | null> {
   return json.data || null
 }
 
-export async function fetchCoupons(params?: { merchantId?: number; verified?: boolean; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Coupon>> {
+export async function fetchCoupons(params?: { merchantId?: number; verified?: boolean; categoryId?: number; pageNo?: number; pageSize?: number; regions?: string[] }): Promise<PageResult<Coupon>> {
   const url = new URL(`${API_BASE_URL}/coupon/coupon/page`)
   if (params?.merchantId) url.searchParams.set('merchantId', String(params.merchantId))
   if (params?.verified !== undefined) url.searchParams.set('verified', String(params.verified))
+  if (params?.categoryId) url.searchParams.set('categoryId', String(params.categoryId))
   if (params?.pageNo) url.searchParams.set('pageNo', String(params.pageNo))
   if (params?.pageSize) url.searchParams.set('pageSize', String(params.pageSize))
   if (params?.regions?.length) {
