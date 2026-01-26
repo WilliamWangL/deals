@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  river-server:
+    image: ghcr.io/${GITHUB_REPO:-river}/river-server:latest
+    container_name: river-server
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - TZ=Asia/Shanghai
+    networks:
+      - river-network
+
+  river-ecommica:
+    image: ghcr.io/${GITHUB_REPO:-river}/river-ecommica:latest
+    container_name: river-ecommica
+    restart: always
+    environment:
+      - NODE_ENV=production
+    networks:
+      - river-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: river-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./admin-dist:/usr/share/nginx/html:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - river-server
+      - river-ecommica
+    networks:
+      - river-network
+
+networks:
+  river-network:
+    driver: bridge
