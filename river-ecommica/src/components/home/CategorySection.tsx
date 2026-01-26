@@ -30,13 +30,19 @@ interface CategorySectionProps {
   categories: Category[];
   locale: string;
   showViewAll?: boolean;
+  /** 最多展示的分类数量，默认 8 */
+  maxCategories?: number;
 }
 
-export function CategorySection({ categories, locale, showViewAll = false }: CategorySectionProps) {
+export function CategorySection({ categories, locale, showViewAll = false, maxCategories = 8 }: CategorySectionProps) {
   if (categories.length === 0) return null;
 
+  // 限制展示的分类数量
+  const displayCategories = categories.slice(0, maxCategories);
+  const hasMore = categories.length > maxCategories;
+
   return (
-    <section className="py-16 lg:py-20 bg-background">
+    <section className="py-12 lg:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="flex items-end justify-between mb-10">
@@ -62,7 +68,7 @@ export function CategorySection({ categories, locale, showViewAll = false }: Cat
 
         {/* Category Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {categories.map((category, index) => {
+          {displayCategories.map((category, index) => {
             const Icon = IconMap[category.icon] || Tag;
             const maxChildren = 5;
             const visibleChildren = category.children?.slice(0, maxChildren) || [];

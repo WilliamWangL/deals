@@ -22,7 +22,7 @@ const networks = [...affiliateNetworks, ...affiliateNetworks];
 
 export function AffiliateNetworks() {
   return (
-    <section className="relative py-20 lg:py-28 overflow-hidden">
+    <section className="relative py-12 lg:py-16 overflow-hidden">
       {/* Background - matches the overall dark theme */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950" />
 

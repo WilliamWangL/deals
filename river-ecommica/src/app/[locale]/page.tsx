@@ -76,7 +76,7 @@ export default async function HomePage({
           <div className="absolute top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-accent/10 blur-[100px]" />
         </div>
 
-        <div className="container relative mx-auto px-4 pt-20 pb-32 lg:pt-32 lg:pb-40">
+        <div className="container relative mx-auto px-4 pt-16 pb-16 lg:pt-24 lg:pb-20">
           <div className="mx-auto max-w-4xl flex flex-col items-center text-center">
             
             {/* Trust Badge */}
@@ -153,7 +153,7 @@ export default async function HomePage({
       {categories.length > 0 ? (
         <CategorySection categories={categories} locale={locale} showViewAll />
       ) : (
-        <section className="py-16 lg:py-20 bg-background">
+        <section className="py-12 lg:py-16 bg-background">
           <div className="container mx-auto px-4">
             {/* Section Header */}
             <div className="flex items-end justify-between mb-10">
@@ -181,7 +181,7 @@ export default async function HomePage({
       {/* ============================================
           FEATURED DEALS
           ============================================ */}
-      <section className="py-20 lg:py-28 section-gradient">
+      <section className="py-12 lg:py-16 section-gradient">
         <div className="container mx-auto px-4">
           {/* Section Header */}
           <div className="flex items-end justify-between mb-12">
@@ -243,7 +243,7 @@ export default async function HomePage({
       {/* ============================================
           POPULAR STORES
           ============================================ */}
-      <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
+      <section className="py-12 lg:py-16 bg-background relative overflow-hidden">
         {/* Decorative background */}
         <div className="absolute inset-0 bg-dots-pattern opacity-30" />
         
@@ -301,7 +301,7 @@ export default async function HomePage({
       {/* ============================================
           FEATURES SECTION
           ============================================ */}
-      <section className="py-20 lg:py-28 section-gradient">
+      <section className="py-12 lg:py-16 section-gradient">
         <div className="container mx-auto px-4">
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -369,7 +369,7 @@ export default async function HomePage({
       {/* ============================================
           CTA SECTION
           ============================================ */}
-      <section className="relative py-24 lg:py-32 overflow-hidden">
+      <section className="relative py-16 lg:py-20 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-primary" />
         <div className="absolute inset-0 bg-grid-pattern opacity-10 mix-blend-overlay" />
