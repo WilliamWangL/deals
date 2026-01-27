@@ -136,7 +136,8 @@ jobs:
             docker pull ${{ env.IMAGE_PREFIX }}/river-ui-admin:latest
             docker create --name temp-admin ${{ env.IMAGE_PREFIX }}/river-ui-admin:latest
             rm -rf /opt/river/admin-dist
-            docker cp temp-admin:/usr/share/nginx/html /opt/river/admin-dist
+            mkdir -p /opt/river/admin-dist
+            docker cp temp-admin:/usr/share/nginx/html/. /opt/river/admin-dist/
             docker rm temp-admin
 
       - name: Deploy to server

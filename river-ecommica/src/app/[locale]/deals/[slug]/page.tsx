@@ -12,6 +12,7 @@ import { getTrackingLink } from '@/lib/tracking';
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
 export const dynamicParams = true;
+export const dynamic = 'force-dynamic';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
