@@ -36,6 +36,19 @@ export interface Store {
   regions?: string[];
 }
 
+export interface Offer {
+  id: number;
+  merchantId: number;
+  name: string;
+  description?: string;
+  commissionType: number;
+  commissionValue: number;
+  currency?: string;
+  regions?: string[];
+  trackingLinkId?: string;
+  trackingUrl?: string;
+}
+
 export interface Coupon {
   id: number;
   code: string;

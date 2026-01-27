@@ -80,4 +80,13 @@ public interface OfferService {
      */
     void validateOfferExists(Long id);
 
+    /**
+     * 根据商家和地区获得 Offer 列表
+     *
+     * @param merchantId 商家编号
+     * @param region     地区代码（ISO），为空则返回全部
+     * @return Offer 列表
+     */
+    List<OfferDO> getOfferListByMerchantAndRegion(Long merchantId, String region);
+
 }

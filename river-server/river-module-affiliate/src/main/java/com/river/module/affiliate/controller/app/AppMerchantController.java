@@ -25,7 +25,6 @@ import java.util.Map;
 import jakarta.validation.Valid;
 
 import static com.river.framework.common.pojo.CommonResult.success;
-import static java.awt.SystemColor.info;
 
 @Tag(name = "用户 App - 商家")
 @RestController
@@ -88,6 +87,7 @@ public class AppMerchantController {
         vo.setRegions(merchant.getRegions() != null ? merchant.getRegions() : Collections.emptyList());
         vo.setDealCount(dealCount != null ? dealCount.intValue() : 0);
         vo.setCouponCount(couponCount != null ? couponCount.intValue() : 0);
+
         return vo;
     }
 
@@ -113,6 +113,7 @@ public class AppMerchantController {
             Long couponCount = couponCounts.getOrDefault(merchant.getId(), 0L);
             vo.setDealCount(dealCount.intValue());
             vo.setCouponCount(couponCount.intValue());
+
             return vo;
         }).toList();
     }

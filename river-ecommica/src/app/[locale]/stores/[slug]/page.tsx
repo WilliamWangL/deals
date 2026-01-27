@@ -2,12 +2,15 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
-import { fetchStores, fetchStoreBySlug, fetchDeals } from '@/lib/api';
+import { fetchStores, fetchStoreBySlug, fetchDeals, fetchOffersByMerchant } from '@/lib/api';
+import { getTrackingLink } from '@/lib/tracking';
 import DealCard from '@/components/deal/DealCard';
+import OfferCard from '@/components/offer/OfferCard';
 import { Badge } from '@/components/ui/badge';
 import { JsonLd, BASE_URL, generateStoreJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
-import { Star, ShoppingBag, Ticket, ShieldCheck, Store as StoreIcon } from 'lucide-react';
+import { Star, ShoppingBag, Ticket, ShieldCheck, Store as StoreIcon, ArrowUpRight, Gift } from 'lucide-react';
+import Link from 'next/link';
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
 export const dynamicParams = true;
@@ -66,7 +69,18 @@ export default async function StoreDetailPage({ params }: Props) {
     notFound();
   }
 
-  const { list: deals } = await fetchDeals({ merchantId: store.id });
+  // 并行获取 deals 和 offers
+  const [{ list: deals }, offers] = await Promise.all([
+    fetchDeals({ merchantId: store.id }),
+    fetchOffersByMerchant(store.id),
+  ]);
+
+  // 获取第一个可用的 Offer（用于 Visit Store 按钮）
+  const firstOffer = offers.length > 0 ? offers[0] : null;
+  // Visit Store URL：有可用 Offer 使用其 tracking link，否则跳转商家官网
+  const visitStoreUrl = firstOffer?.trackingLinkId
+    ? getTrackingLink(firstOffer.trackingLinkId, firstOffer.trackingUrl)
+    : `https://${store.domain}`;
 
   const breadcrumbs = [
     { label: t('breadcrumbHome'), href: `/${locale}` },
@@ -141,6 +155,19 @@ export default async function StoreDetailPage({ params }: Props) {
                     </div>
                   )}
                 </div>
+
+                {/* Visit Store Button */}
+                <div className="flex justify-center md:justify-start mt-6">
+                  <Link
+                    href={visitStoreUrl}
+                    target="_blank"
+                    rel="noopener"
+                    className="inline-flex items-center justify-center gap-2 py-3 px-8 rounded-xl bg-primary text-primary-foreground font-semibold text-base transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <span>{t('visitStore')}</span>
+                    <ArrowUpRight className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -167,6 +194,31 @@ export default async function StoreDetailPage({ params }: Props) {
                 </div>
                 <h3 className="text-lg font-medium text-gray-900">{t('emptyTitle')}</h3>
                 <p className="text-gray-500">{t('emptyDescription', { name: store.name })}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Offers Section */}
+          <div className="flex items-center justify-between mb-8 mt-12">
+            <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+              <span className="w-1 h-8 bg-emerald-500 rounded-full block"></span>
+              {t('offersSectionTitle')}
+            </h2>
+            <Badge variant="outline" className="text-sm px-3 py-1">
+              {t('offersCount', { count: offers.length })}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {offers.length > 0 ? offers.map(offer => (
+              <OfferCard key={offer.id} offer={offer} />
+            )) : (
+              <div className="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Gift size={24} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900">{t('emptyOffersTitle')}</h3>
+                <p className="text-gray-500">{t('emptyOffersDescription')}</p>
               </div>
             )}
           </div>

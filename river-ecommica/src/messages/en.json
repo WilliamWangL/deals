@@ -445,7 +445,12 @@
     "sectionTitle": "Active Deals & Coupons",
     "offersAvailable": "{count} Offers Available",
     "emptyTitle": "No active deals",
-    "emptyDescription": "Check back later for new offers from {name}"
+    "emptyDescription": "Check back later for new offers from {name}",
+    "visitStore": "Visit Store",
+    "offersSectionTitle": "Affiliate Programs",
+    "offersCount": "{count} Programs",
+    "emptyOffersTitle": "No programs yet",
+    "emptyOffersDescription": "No affiliate programs available at the moment"
   },
   "DealDetail": {
     "meta": {
@@ -466,5 +471,17 @@
     "termSupplies": "Offer valid while supplies last.",
     "termPrices": "Prices and availability subject to change without notice.",
     "termDetails": "See merchant website for full details."
+  },
+  "Offer": {
+    "type": {
+      "cps": "Commission",
+      "cpa": "Per Action",
+      "cpc": "Per Click",
+      "cpl": "Per Lead",
+      "cpm": "Per 1000 Views"
+    },
+    "commissionLabel": "Commission Rate",
+    "commissionNA": "Variable",
+    "visitOffer": "Shop Now"
   }
 }

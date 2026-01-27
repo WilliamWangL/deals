@@ -10,8 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TrackingLinkStatusEnum {
 
-    DISABLED(0, "禁用"),
-    ENABLED(1, "启用");
+    DISABLED(1, "禁用"),
+    ENABLED(0, "启用");
 
     private final Integer code;
     private final String name;

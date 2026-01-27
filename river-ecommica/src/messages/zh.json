@@ -445,7 +445,24 @@
     "sectionTitle": "正在进行的优惠",
     "offersAvailable": "{count} 个优惠可用",
     "emptyTitle": "暂无优惠",
-    "emptyDescription": "稍后再来查看 {name} 的新优惠"
+    "emptyDescription": "稍后再来查看 {name} 的新优惠",
+    "visitStore": "访问商家",
+    "offersSectionTitle": "联盟推广计划",
+    "offersCount": "{count} 个推广计划",
+    "emptyOffersTitle": "暂无推广计划",
+    "emptyOffersDescription": "目前没有可用的推广计划"
+  },
+  "Offer": {
+    "type": {
+      "cps": "销售佣金",
+      "cpa": "行动佣金",
+      "cpc": "点击佣金",
+      "cpl": "线索佣金",
+      "cpm": "千次展示"
+    },
+    "commissionLabel": "佣金比例",
+    "commissionNA": "浮动佣金",
+    "visitOffer": "立即购买"
   },
   "DealDetail": {
     "meta": {

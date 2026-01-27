@@ -49,6 +49,6 @@ public class TrackingLinkDO extends TenantBaseDO {
     /** UTM 参数 */
     private String utmParams;
 
-    /** 状态: 0=禁用, 1=启用 */
+    /** 状态: 1=禁用, 0=启用 */
     private Integer status;
 }

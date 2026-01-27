@@ -80,4 +80,16 @@ public class OfferServiceImpl implements OfferService {
         }
     }
 
+    @Override
+    public List<OfferDO> getOfferListByMerchantAndRegion(Long merchantId, String region) {
+        List<OfferDO> offers = getOfferListByMerchantId(merchantId);
+        if (region == null || region.isBlank()) {
+            return offers;
+        }
+        // 按地区过滤：offer.regions 包含指定 region
+        return offers.stream()
+                .filter(offer -> offer.getRegions() != null && offer.getRegions().contains(region))
+                .toList();
+    }
+
 }

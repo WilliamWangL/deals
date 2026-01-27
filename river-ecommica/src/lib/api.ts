@@ -1,4 +1,4 @@
-import { Deal, Store, Coupon, BlogPost, Category } from '@/types'
+import { Deal, Store, Coupon, BlogPost, Category, Offer } from '@/types'
 
 // 服务端内部 API URL（Docker 内部网络）
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL || 'http://localhost:48080/app-api'
@@ -159,6 +159,19 @@ export async function fetchAvailableRegions(): Promise<Region[]> {
     next: { revalidate: 300 },
   })
   if (!res.ok) throw new Error('Fetch regions failed')
+  const json = await res.json()
+  return json.data || []
+}
+
+export async function fetchOffersByMerchant(merchantId: number, region?: string): Promise<Offer[]> {
+  const url = new URL(`${getApiBaseUrl()}/affiliate/offer/list-by-merchant`)
+  url.searchParams.set('merchantId', String(merchantId))
+  if (region) {
+    url.searchParams.set('region', region)
+  }
+
+  const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } })
+  if (!res.ok) throw new Error('Fetch offers failed')
   const json = await res.json()
   return json.data || []
 }
