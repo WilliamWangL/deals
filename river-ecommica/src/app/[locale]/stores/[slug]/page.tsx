@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { JsonLd, BASE_URL, generateStoreJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Star, ShoppingBag, Ticket, ShieldCheck, Store as StoreIcon, ArrowUpRight, Gift } from 'lucide-react';
-import Link from 'next/link';
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
 export const dynamicParams = true;
@@ -156,17 +155,17 @@ export default async function StoreDetailPage({ params }: Props) {
                   )}
                 </div>
 
-                {/* Visit Store Button */}
+                {/* Visit Store Button - 使用原生 <a> 标签避免 Next.js Link 的 prefetch 行为 */}
                 <div className="flex justify-center md:justify-start mt-6">
-                  <Link
+                  <a
                     href={visitStoreUrl}
                     target="_blank"
-                    rel="noopener"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 py-3 px-8 rounded-xl bg-primary text-primary-foreground font-semibold text-base transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span>{t('visitStore')}</span>
                     <ArrowUpRight className="w-5 h-5" />
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>

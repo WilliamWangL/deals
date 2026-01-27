@@ -189,11 +189,11 @@ export function DealCard({ deal }: DealCardProps) {
         </h3>
 
         <div className="mt-auto">
-          {/* CTA Button */}
-          <Link
+          {/* CTA Button - 使用原生 <a> 标签避免 Next.js Link 的 prefetch 行为 */}
+          <a
             href={getTrackingLink(deal.trackingLinkId, deal.gotoUrl)}
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             className={cn(
               "flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl",
               "bg-muted text-foreground font-semibold text-sm",
@@ -204,7 +204,7 @@ export function DealCard({ deal }: DealCardProps) {
           >
             <span>{t('getDeal')}</span>
             <ArrowUpRight className="w-4 h-4" />
-          </Link>
+          </a>
         </div>
       </div>
 

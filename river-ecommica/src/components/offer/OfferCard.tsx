@@ -1,7 +1,6 @@
 'use client';
 
 import { Offer } from "@/types"
-import Link from "next/link"
 import { useTranslations } from 'next-intl';
 import { ArrowUpRight, Percent, DollarSign } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -68,12 +67,12 @@ export function OfferCard({ offer }: OfferCardProps) {
           {offer.name}
         </h3>
 
-        {/* CTA Button */}
+        {/* CTA Button - 使用原生 <a> 标签避免 Next.js Link 的 prefetch 行为 */}
         <div className="mt-auto">
-          <Link
+          <a
             href={trackingUrl}
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             className={cn(
               "flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl",
               "bg-emerald-500 text-white font-semibold text-sm",
@@ -85,7 +84,7 @@ export function OfferCard({ offer }: OfferCardProps) {
           >
             <span>{t('visitOffer')}</span>
             <ArrowUpRight className="w-4 h-4" />
-          </Link>
+          </a>
         </div>
       </div>
     </article>
