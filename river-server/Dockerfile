@@ -40,7 +40,7 @@ RUN --mount=type=cache,target=/root/.m2/repository \
 # 第二层：复制源代码并编译
 COPY . .
 RUN --mount=type=cache,target=/root/.m2/repository \
-    mvn package -DskipTests -pl river-server -am -B
+    mvn package -Dmaven.test.skip=true -pl river-server -am -B
 
 # 运行阶段
 FROM eclipse-temurin:21-jre

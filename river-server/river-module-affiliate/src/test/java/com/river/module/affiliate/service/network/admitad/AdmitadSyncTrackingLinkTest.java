@@ -5,6 +5,7 @@ import com.river.module.affiliate.dal.mysql.MerchantMapper;
 import com.river.module.affiliate.dal.mysql.OfferMapper;
 import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
+import com.river.framework.mybatis.core.query.LambdaQueryWrapperX;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +56,15 @@ class AdmitadSyncTrackingLinkTest {
         // 执行同步
         admitadSyncService.syncCampaigns(credential);
 
-        // 验证 Merchant 的 default_offer_id 是否被设置
+        // 验证 Merchant 是否被创建
         MerchantDO merchant = merchantMapper.selectByNetworkAndExternalId(1L, "158686");
         assertNotNull(merchant, "Merchant should exist after sync");
-        assertNotNull(merchant.getDefaultOfferId(), "Merchant should have default_offer_id set");
 
-        // 验证 Offer 是否被创建
-        OfferDO offer = offerMapper.selectById(merchant.getDefaultOfferId());
-        assertNotNull(offer, "Default Offer should exist");
+        // 验证 Offer 是否被创建（通过 merchantId 查询第一个）
+        OfferDO offer = offerMapper.selectOne(new LambdaQueryWrapperX<OfferDO>()
+                .eq(OfferDO::getMerchantId, merchant.getId())
+                .last("LIMIT 1"));
+        assertNotNull(offer, "Offer should exist for merchant");
         assertNotNull(offer.getGotoUrl(), "Offer should have goto_url");
 
         // TODO: 验证 TrackingLink 是否被创建
@@ -72,7 +74,7 @@ class AdmitadSyncTrackingLinkTest {
         System.out.println("========================================");
         System.out.println("Merchant ID: " + merchant.getId());
         System.out.println("Merchant Name: " + merchant.getName());
-        System.out.println("Default Offer ID: " + merchant.getDefaultOfferId());
+        System.out.println("Offer ID: " + offer.getId());
         System.out.println("Offer Name: " + offer.getName());
         System.out.println("Offer goto_url: " + offer.getGotoUrl());
         System.out.println("========================================");

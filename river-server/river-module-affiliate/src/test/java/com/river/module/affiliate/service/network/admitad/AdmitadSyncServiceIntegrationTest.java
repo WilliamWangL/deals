@@ -108,14 +108,15 @@ class AdmitadSyncServiceIntegrationTest {
         // 对比手工构建的链接和 API 返回的 deeplink
         Long campaignId = 92L; // 使用 Lineage 2 的 campaign ID
         String subid = "test_click_123";
+        String targetUrl = "https://lineage2m.plaync.com"; // 目标 URL
 
         // 手工构建的链接（当前实现方式）
         String manualLink = String.format(
             "https://ad.admitad.com/g/%s/?subid=%s&subid1={sub1}&subid2={sub2}",
             campaignId, subid);
 
-        // API 生成的 deeplink
-        String apiDeeplink = admitadClient.generateDeeplink(credential, campaignId, subid);
+        // API 生成的 deeplink（需要 4 个参数：credential, campaignId, targetUrl, subid）
+        String apiDeeplink = admitadClient.generateDeeplink(credential, campaignId, targetUrl, subid);
 
         System.out.println("========================================");
         System.out.println("Deeplink 对比测试 (Campaign ID: " + campaignId + ")");
