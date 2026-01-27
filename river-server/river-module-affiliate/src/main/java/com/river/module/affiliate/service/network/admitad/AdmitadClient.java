@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,10 +27,26 @@ public class AdmitadClient {
 
     private final ConcurrentHashMap<Long, TokenCache> tokenCacheMap = new ConcurrentHashMap<>();
 
+    /**
+     * 获取已加入的广告活动列表
+     * Admitad API: GET /advcampaigns/website/{w_id}/
+     * 注意：只获取已加入该 website 的 campaigns，这样才能生成 Deeplink
+     *
+     * @param credential 凭证
+     * @param offset     偏移量
+     * @param limit      每页数量
+     * @return 已加入的广告活动列表
+     */
     public List<AdmitadCampaign> getCampaigns(NetworkCredentialDO credential, int offset, int limit) {
         String token = getValidToken(credential);
 
-        String url = String.format("%s/advcampaigns/?offset=%d&limit=%d", BASE_URL, offset, limit);
+        // 获取 websiteId，用于获取已加入的 campaigns
+        Map<String, String> creds = parseCredentials(credential.getCredentials());
+        String websiteId = creds.get("websiteId");
+
+        // 使用 /advcampaigns/website/{w_id}/ 获取已加入的 campaigns
+        String url = String.format("%s/advcampaigns/website/%s/?offset=%d&limit=%d",
+            BASE_URL, websiteId, offset, limit);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -39,8 +56,8 @@ public class AdmitadClient {
                 url, HttpMethod.GET, new HttpEntity<>(headers), CampaignResponse.class);
 
             if (response.getBody() != null) {
-                log.info("Fetched {} campaigns from Admitad for credential {}",
-                    response.getBody().getResults().size(), credential.getId());
+                log.info("Fetched {} connected campaigns from Admitad for website {}",
+                    response.getBody().getResults().size(), websiteId);
                 return response.getBody().getResults();
             }
         } catch (Exception e) {
@@ -87,68 +104,57 @@ public class AdmitadClient {
 
     /**
      * 生成 Deeplink（通过 Admitad API）
-     * 尝试多种 API 格式
+     * API: GET /deeplink/{w_id}/advcampaign/{c_id}/?ulp={targetUrl}
      *
      * @param credential 凭证
      * @param campaignId 活动 ID
+     * @param targetUrl  目标 URL（必需，商家网站 URL）
      * @param subid      子 ID（可选）
      * @return 生成的 deeplink
      */
-    public String generateDeeplink(NetworkCredentialDO credential, Long campaignId, String subid) {
+    public String generateDeeplink(NetworkCredentialDO credential, Long campaignId, String targetUrl, String subid) {
         String token = getValidToken(credential);
 
         // 获取 website_id
         Map<String, String> creds = parseCredentials(credential.getCredentials());
         String websiteId = creds.get("websiteId");
 
-        // 尝试不同的 API 格式
-        String[][] urlFormats = {
-            // 格式 1: POST with campaign_id only
-            {String.format("%s/deeplink/%d/", BASE_URL, campaignId), "POST", "{}"},
-            // 格式 2: POST with subid
-            {String.format("%s/deeplink/%d/subid/%s/", BASE_URL, campaignId, subid != null ? subid : "123"), "POST", "{}"},
-            // 格式 3: GET format
-            {String.format("%s/deeplink/%d/?subid=%s", BASE_URL, campaignId, subid != null ? subid : "123"), "GET", null},
-            // 格式 4: POST with campaign_id and website_id
-            {String.format("%s/deeplink/%d/?w=%s", BASE_URL, campaignId, websiteId), "POST", "{}"},
-        };
-
-        for (String[] format : urlFormats) {
-            String url = format[0];
-            String method = format[1];
-            String body = format[2];
-
-            try {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setBearerAuth(token);
-                if ("POST".equals(method)) {
-                    headers.setContentType(MediaType.APPLICATION_JSON);
-                }
-
-                HttpEntity<?> entity;
-                if ("POST".equals(method)) {
-                    entity = new HttpEntity<>(body, headers);
-                } else {
-                    entity = new HttpEntity<>(headers);
-                }
-
-                log.info("Trying deeplink API: {} {}", method, url);
-                ResponseEntity<DeeplinkResponse> response = restTemplate.exchange(
-                    url, "POST".equals(method) ? HttpMethod.POST : HttpMethod.GET,
-                    entity, DeeplinkResponse.class);
-
-                if (response.getBody() != null && response.getBody().getProducts() != null
-                    && !response.getBody().getProducts().isEmpty()) {
-                    String deeplink = response.getBody().getProducts().get(0).getDeeplink();
-                    log.info("Generated deeplink for campaign {} using {}: {}", campaignId, url, deeplink);
-                    return deeplink;
-                }
-            } catch (Exception e) {
-                log.info("Failed format {} ({}) for campaign {}: {}", url, method, campaignId, e.getMessage());
-            }
+        if (targetUrl == null || targetUrl.isBlank()) {
+            log.error("Cannot generate deeplink: targetUrl is required");
+            return null;
         }
 
-        log.error("Failed to generate deeplink for campaign {} using all formats", campaignId);
+        // 正确的 API URL: /deeplink/{websiteId}/advcampaign/{campaignId}/
+        String url = String.format("%s/deeplink/%s/advcampaign/%d/", BASE_URL, websiteId, campaignId);
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+            .queryParam("ulp", targetUrl);
+
+        if (subid != null && !subid.isBlank()) {
+            builder.queryParam("subid", subid);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        try {
+            log.debug("Calling Deeplink API: {}", builder.toUriString());
+            // API 返回 JSON 数组: [{"link": "...", "is_affiliate_product": true}]
+            ResponseEntity<DeeplinkItem[]> response = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                DeeplinkItem[].class);
+
+            if (response.getBody() != null && response.getBody().length > 0) {
+                String deeplink = response.getBody()[0].getLink();
+                log.info("Generated deeplink for campaign {}: {}", campaignId, deeplink);
+                return deeplink;
+            }
+        } catch (Exception e) {
+            log.error("Failed to generate deeplink for campaign {}: {}", campaignId, e.getMessage());
+        }
+
         return null;
     }
 
@@ -266,13 +272,10 @@ public class AdmitadClient {
     }
 
     @Data
-    public static class DeeplinkResponse {
-        private List<DeeplinkProduct> products;
-
-        @Data
-        public static class DeeplinkProduct {
-            private String deeplink;
-        }
+    public static class DeeplinkItem {
+        private String link;
+        @JsonProperty("is_affiliate_product")
+        private Boolean isAffiliateProduct;
     }
 
 }

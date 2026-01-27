@@ -46,4 +46,21 @@ public interface OfferMapper extends BaseMapperX<OfferDO> {
                 .in(OfferDO::getExternalId, externalIds));
     }
 
+    /**
+     * 批量查询网络下的 Offers（按 externalId 列表）
+     * 用于同步时预加载已存在数据，基于唯一约束 (network_id, external_id, tenant_id)
+     *
+     * @param networkId   网络 ID
+     * @param externalIds 外部 ID 列表
+     * @return Offer 列表
+     */
+    default List<OfferDO> selectListByNetworkAndExternalIds(Long networkId, List<String> externalIds) {
+        if (externalIds == null || externalIds.isEmpty()) {
+            return List.of();
+        }
+        return selectList(new LambdaQueryWrapperX<OfferDO>()
+                .eq(OfferDO::getNetworkId, networkId)
+                .in(OfferDO::getExternalId, externalIds));
+    }
+
 }

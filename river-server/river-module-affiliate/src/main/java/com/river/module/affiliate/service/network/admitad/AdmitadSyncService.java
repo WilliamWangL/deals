@@ -120,7 +120,7 @@ public class AdmitadSyncService {
             }
 
             // Batch sync: preload existing merchants and process in batch
-            syncCampaignsBatch(credential.getNetworkId(), campaigns);
+            syncCampaignsBatch(credential.getNetworkId(), campaigns, credential);
             totalSynced += campaigns.size();
             this.lastSyncMerchants += campaigns.size();
 
@@ -142,7 +142,7 @@ public class AdmitadSyncService {
      * 4. 批量操作：使用 insertBatch/updateBatch
      */
     @Transactional
-    public void syncCampaignsBatch(Long networkId, List<AdmitadCampaign> campaigns) {
+    public void syncCampaignsBatch(Long networkId, List<AdmitadCampaign> campaigns, NetworkCredentialDO credential) {
         if (campaigns == null || campaigns.isEmpty()) {
             return;
         }
@@ -203,7 +203,7 @@ public class AdmitadSyncService {
             if (campaign.getActions() != null && !campaign.getActions().isEmpty()) {
                 List<OfferDO> offers = new ArrayList<>();
                 for (AdmitadCampaign.Action action : campaign.getActions()) {
-                    offers.add(createOffer(networkId, merchant.getId(), campaign, action));
+                    offers.add(createOffer(networkId, merchant.getId(), campaign, action, credential));
                 }
                 merchantOffersMap.put(merchant.getId(), offers);
             }
@@ -225,6 +225,7 @@ public class AdmitadSyncService {
 
     /**
      * 批量同步 Offers
+     * 基于唯一约束 (network_id, external_id, tenant_id) 进行幂等写入
      */
     @Transactional
     public void syncOffersBatch(Long networkId, Long merchantId, List<OfferDO> offers) {
@@ -232,9 +233,9 @@ public class AdmitadSyncService {
             return;
         }
 
-        // 预加载已存在的 Offers
+        // 预加载已存在的 Offers（基于 network_id + external_id，匹配唯一约束）
         List<String> externalIds = offers.stream().map(OfferDO::getExternalId).toList();
-        List<OfferDO> existingOffers = offerMapper.selectListByMerchantAndExternalIds(merchantId, externalIds);
+        List<OfferDO> existingOffers = offerMapper.selectListByNetworkAndExternalIds(networkId, externalIds);
 
         Map<String, OfferDO> existingOfferMap = existingOffers.stream()
             .collect(Collectors.toMap(OfferDO::getExternalId, o -> o));
@@ -246,6 +247,8 @@ public class AdmitadSyncService {
             OfferDO existing = existingOfferMap.get(offer.getExternalId());
             if (existing != null) {
                 offer.setId(existing.getId());
+                // 更新 merchantId（如果 merchant 被重新创建）
+                offer.setMerchantId(merchantId);
                 toUpdate.add(offer);
             } else {
                 toInsert.add(offer);
@@ -502,11 +505,11 @@ public class AdmitadSyncService {
 
     /**
      * 同步单个 Campaign/Merchant
-     * @deprecated 使用 {@link #syncCampaignsBatch(Long, List)} 替代
+     * @deprecated 使用 {@link #syncCampaignsBatch(Long, List, NetworkCredentialDO)} 替代
      */
     @Deprecated
     @Transactional
-    public void syncSingleCampaign(Long networkId, AdmitadCampaign campaign) {
+    public void syncSingleCampaign(Long networkId, AdmitadCampaign campaign, NetworkCredentialDO credential) {
         MerchantDO existingMerchant = merchantMapper.selectByNetworkAndExternalId(
             networkId, String.valueOf(campaign.getId()));
 
@@ -522,7 +525,7 @@ public class AdmitadSyncService {
 
         if (campaign.getActions() != null) {
             for (AdmitadCampaign.Action action : campaign.getActions()) {
-                syncOffer(networkId, merchant.getId(), campaign, action);
+                syncOffer(networkId, merchant.getId(), campaign, action, credential);
                 this.lastSyncOffers++;
             }
         }
@@ -558,17 +561,18 @@ public class AdmitadSyncService {
         }
     }
 
-    private OfferDO syncOffer(Long networkId, Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
+    private OfferDO syncOffer(Long networkId, Long merchantId, AdmitadCampaign campaign,
+                              AdmitadCampaign.Action action, NetworkCredentialDO credential) {
         String externalId = campaign.getId() + "_" + action.getId();
         OfferDO existingOffer = offerMapper.selectByMerchantAndExternalId(merchantId, externalId);
 
         OfferDO offer;
         if (existingOffer != null) {
             offer = existingOffer;
-            updateOffer(offer, campaign, action);
+            updateOffer(offer, campaign, action, credential);
             offerMapper.updateById(offer);
         } else {
-            offer = createOffer(networkId, merchantId, campaign, action);
+            offer = createOffer(networkId, merchantId, campaign, action, credential);
             offerMapper.insert(offer);
         }
 
@@ -576,26 +580,38 @@ public class AdmitadSyncService {
         return offer;
     }
 
-    private OfferDO createOffer(Long networkId, Long merchantId, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
+    private OfferDO createOffer(Long networkId, Long merchantId, AdmitadCampaign campaign,
+                                AdmitadCampaign.Action action, NetworkCredentialDO credential) {
         OfferDO offer = new OfferDO();
         offer.setNetworkId(networkId);
         offer.setMerchantId(merchantId);
         offer.setExternalId(campaign.getId() + "_" + action.getId());
-        updateOffer(offer, campaign, action);
+        updateOffer(offer, campaign, action, credential);
         return offer;
     }
 
-    private void updateOffer(OfferDO offer, AdmitadCampaign campaign, AdmitadCampaign.Action action) {
+    private void updateOffer(OfferDO offer, AdmitadCampaign campaign, AdmitadCampaign.Action action,
+                             NetworkCredentialDO credential) {
         offer.setName(action.getName() != null ? action.getName() : campaign.getName());
         offer.setDescription(campaign.getDescription());
         offer.setCommissionType(mapCommissionType(action.getType()));
         offer.setCommissionValue(action.getPayment());
         offer.setStatus(mapStatus(campaign.getStatus()));
 
-        String trackingUrl = String.format(
-            "https://ad.admitad.com/g/%s/?subid={click_id}&subid1={sub1}&subid2={sub2}",
-            campaign.getId());
-        offer.setGotoUrl(trackingUrl);
+        // 使用 Deeplink API 生成正确的 tracking URL
+        String siteUrl = campaign.getSiteUrl();
+        if (siteUrl != null && !siteUrl.isBlank() && credential != null) {
+            String deeplink = admitadClient.generateDeeplink(credential, campaign.getId(), siteUrl, null);
+            if (deeplink != null) {
+                offer.setGotoUrl(deeplink);
+            } else {
+                // 降级使用商家官网 URL
+                offer.setGotoUrl(siteUrl);
+                log.warn("Failed to generate deeplink for campaign {}, using site URL as fallback", campaign.getId());
+            }
+        } else if (siteUrl != null && !siteUrl.isBlank()) {
+            offer.setGotoUrl(siteUrl);
+        }
 
         if (campaign.getCategories() != null && !campaign.getCategories().isEmpty()) {
             String categoryIds = mapCategories(offer.getNetworkId(), campaign.getCategories());
