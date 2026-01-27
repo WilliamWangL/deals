@@ -457,6 +457,7 @@
       "notFound": "Deal Not Found",
       "description": "Get {percent}% off at {store}"
     },
+    "breadcrumbHome": "Home",
     "breadcrumbDeals": "Deals",
     "badgeFeatured": "Featured",
     "verified": "Verified",

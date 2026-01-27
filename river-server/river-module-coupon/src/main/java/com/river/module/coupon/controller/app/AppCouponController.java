@@ -2,6 +2,8 @@ package com.river.module.coupon.controller.app;
 
 import com.river.framework.common.biz.affiliate.MerchantCommonApi;
 import com.river.framework.common.biz.affiliate.dto.MerchantSimpleRespDTO;
+import com.river.framework.common.biz.tracking.TrackingLinkCommonApi;
+import com.river.framework.common.biz.tracking.dto.TrackingLinkRespDTO;
 import com.river.framework.common.pojo.CommonResult;
 import com.river.framework.common.pojo.PageResult;
 import com.river.framework.common.util.collection.CollectionUtils;
@@ -32,11 +34,16 @@ import static com.river.framework.common.pojo.CommonResult.success;
 @PermitAll
 public class AppCouponController {
 
+    private static final int TARGET_TYPE_COUPON = 4;
+
     @Resource
     private CouponService couponService;
 
     @Resource
     private MerchantCommonApi merchantApi;
+
+    @Resource
+    private TrackingLinkCommonApi trackingLinkApi;
 
     @GetMapping("/page")
     @Operation(summary = "获取优惠券分页")
@@ -65,6 +72,10 @@ public class AppCouponController {
         List<MerchantSimpleRespDTO> merchants = merchantApi.getMerchantList(merchantIds);
         Map<Long, MerchantSimpleRespDTO> merchantMap = CollectionUtils.convertMap(merchants, MerchantSimpleRespDTO::getId);
 
+        // 批量获取追踪链接，避免 N+1 问题
+        List<Long> couponIds = coupons.stream().map(CouponDO::getId).toList();
+        Map<Long, TrackingLinkRespDTO> trackingLinkMap = trackingLinkApi.getTrackingLinks(TARGET_TYPE_COUPON, couponIds);
+
         // 转换结果
         return coupons.stream().map(coupon -> {
             AppCouponRespVO vo = BeanUtils.toBean(coupon, AppCouponRespVO.class);
@@ -74,6 +85,11 @@ public class AppCouponController {
                 vo.setMerchant(BeanUtils.toBean(merchant, AppCouponMerchantRespVO.class));
                 vo.setMerchantName(merchant.getName());
                 vo.setMerchantLogo(merchant.getLogoUrl());
+            }
+            // 填充追踪链接 ID（使用 slug）
+            TrackingLinkRespDTO trackingLink = trackingLinkMap.get(coupon.getId());
+            if (trackingLink != null) {
+                vo.setTrackingLinkId(trackingLink.getSlug());
             }
             return vo;
         }).toList();

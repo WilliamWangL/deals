@@ -8,6 +8,9 @@ import com.river.module.tracking.dal.dataobject.TrackingLinkDO;
 import com.river.module.tracking.enums.TrackingLinkStatusEnum;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Collections;
+import java.util.List;
+
 @Mapper
 public interface TrackingLinkMapper extends BaseMapperX<TrackingLinkDO> {
 
@@ -21,6 +24,15 @@ public interface TrackingLinkMapper extends BaseMapperX<TrackingLinkDO> {
         return selectOne(new LambdaQueryWrapperX<TrackingLinkDO>()
                 .eq(TrackingLinkDO::getTargetType, targetType)
                 .eq(TrackingLinkDO::getTargetId, targetId));
+    }
+
+    default List<TrackingLinkDO> selectByTargets(Integer targetType, List<Long> targetIds) {
+        if (targetIds == null || targetIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return selectList(new LambdaQueryWrapperX<TrackingLinkDO>()
+                .eq(TrackingLinkDO::getTargetType, targetType)
+                .in(TrackingLinkDO::getTargetId, targetIds));
     }
 
     default PageResult<TrackingLinkDO> selectPage(TrackingLinkPageReqVO reqVO) {

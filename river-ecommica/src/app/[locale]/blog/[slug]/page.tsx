@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { fetchPosts, fetchPostBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { JsonLd, BASE_URL, generateBlogPostJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Calendar, Eye, User, Tag } from 'lucide-react';
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
@@ -74,14 +75,20 @@ export default async function BlogPostPage({ params }: Props) {
     return labels[type] || type;
   };
 
-  const breadcrumbJsonLdItems = [
-    { name: t('breadcrumbHome'), url: `${BASE_URL}/${locale}` },
-    { name: t('breadcrumbBlog'), url: `${BASE_URL}/${locale}/blog` },
-    { name: post.title, url: `${BASE_URL}/${locale}/blog/${post.slug}` },
+  const breadcrumbs = [
+    { label: t('breadcrumbHome'), href: '/' },
+    { label: t('breadcrumbBlog'), href: '/blog' },
+    { label: post.title, href: `/blog/${post.slug}` },
   ];
+
+  const breadcrumbJsonLdItems = breadcrumbs.map(item => ({
+    name: item.label,
+    url: `${BASE_URL}/${locale}${item.href}`
+  }));
 
   return (
     <>
+      <Breadcrumbs items={breadcrumbs} />
       <JsonLd data={generateBlogPostJsonLd(post)} />
       <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
       <main className="min-h-screen bg-dots-pattern pb-16">

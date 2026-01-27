@@ -253,7 +253,7 @@ const openForm = (type: string, id?: number) => {
 
 /** 复制链接 */
 const copyLink = async (row: TrackingLinkVO) => {
-  const link = `${window.location.origin}/click/${row.slug}`
+  const link = `${window.location.origin}/go/${row.slug}`
   try {
     await navigator.clipboard.writeText(link)
     message.success('链接已复制到剪贴板: ' + link)

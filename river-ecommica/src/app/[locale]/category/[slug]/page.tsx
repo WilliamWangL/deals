@@ -10,6 +10,7 @@ import DealCard from '@/components/deal/DealCard';
 import CouponCard from '@/components/coupon/CouponCard';
 import { EmptyState } from '@/components/ui/empty-state';
 import { JsonLd, BASE_URL, generateBreadcrumbJsonLd, generateItemListJsonLd } from '@/components/seo/JsonLd';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import {
   Laptop,
   Shirt,
@@ -22,7 +23,6 @@ import {
   Tag,
   Ticket,
   ArrowRight,
-  ChevronRight,
   type LucideIcon
 } from 'lucide-react';
 
@@ -153,14 +153,19 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const isSubcategory = parentCategory?.slug !== slug;
   const subcategories = isSubcategory ? [] : (parentCategory?.children || []);
 
-  const breadcrumbJsonLdItems = [
-    { name: t('breadcrumbHome'), url: `${BASE_URL}/${locale}` },
-    { name: t('breadcrumbCategories'), url: `${BASE_URL}/${locale}/category` },
+  const breadcrumbs = [
+    { label: t('breadcrumbHome'), href: '/' },
+    { label: t('breadcrumbCategories'), href: '/categories' },
     ...(parentCategory && parentCategory.slug !== slug
-      ? [{ name: parentCategory.name, url: `${BASE_URL}/${locale}/category/${parentCategory.slug}` }]
+      ? [{ label: parentCategory.name, href: `/category/${parentCategory.slug}` }]
       : []),
-    { name: category.name, url: `${BASE_URL}/${locale}/category/${category.slug}` },
+    { label: category.name, href: `/category/${category.slug}` },
   ];
+
+  const breadcrumbJsonLdItems = breadcrumbs.map(item => ({
+    name: item.label,
+    url: `${BASE_URL}/${locale}${item.href}`
+  }));
   const dealItemList = deals
     .filter(deal => deal.slug)
     .map(deal => ({
@@ -176,6 +181,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   return (
     <>
+      <Breadcrumbs items={breadcrumbs} />
       <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
       {dealItemList.length > 0 && (
         <JsonLd data={generateItemListJsonLd(dealItemList, `${category.name} Deals`)} />
@@ -193,21 +199,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         </div>
 
         <div className="container mx-auto px-4 relative">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-            <Link href={`/${locale}`} className="hover:text-primary transition-colors">{t('breadcrumbHome')}</Link>
-            <ChevronRight className="w-4 h-4" />
-            {isSubcategory && parentCategory && (
-              <>
-                <Link href={`/${locale}/category/${parentCategory.slug}`} className="hover:text-primary transition-colors">
-                  {parentCategory.name}
-                </Link>
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
-            <span className="text-foreground font-medium">{category.name}</span>
-          </nav>
-
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             {/* Title Section */}
             <div className="max-w-2xl">

@@ -469,6 +469,7 @@
       "notFound": "未找到优惠",
       "description": "在 {store} 享受 {percent}% 折扣"
     },
+    "breadcrumbHome": "首页",
     "breadcrumbDeals": "优惠",
     "badgeFeatured": "精选",
     "verified": "已验证",

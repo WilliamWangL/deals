@@ -2,6 +2,7 @@ package com.river.module.tracking.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.river.framework.common.pojo.PageResult;
+import com.river.framework.tenant.core.util.TenantUtils;
 import com.river.module.tracking.controller.admin.click.vo.ClickPageReqVO;
 import com.river.module.tracking.dal.dataobject.ClickDO;
 import com.river.module.tracking.dal.dataobject.TrackingLinkDO;
@@ -59,42 +60,46 @@ public class ClickServiceImpl implements ClickService {
     public String recordClickAndGetRedirectUrl(String trackingLinkId, String sub1, String sub2,
                                                String sub3, String sub4, String sub5,
                                                String ip, String userAgent, String referer) {
-        TrackingLinkDO trackingLink = findTrackingLink(trackingLinkId);
+        // 1. 忽略租户过滤查询 TrackingLink（因为请求没有租户上下文，但 TrackingLink 本身关联了租户）
+        TrackingLinkDO trackingLink = TenantUtils.executeIgnore(() -> findTrackingLink(trackingLinkId));
         if (trackingLink == null) {
             throw exception(TRACKING_LINK_NOT_EXISTS);
         }
 
-        String clickId = generateClickId();
+        // 2. 使用 TrackingLink 的租户 ID 执行后续操作（插入 Click 记录）
+        return TenantUtils.execute(trackingLink.getTenantId(), () -> {
+            String clickId = generateClickId();
 
-        String finalSub1 = StrUtil.firstNonBlank(sub1, trackingLink.getPresetSub1());
-        String finalSub2 = StrUtil.firstNonBlank(sub2, trackingLink.getPresetSub2());
-        String finalSub3 = StrUtil.firstNonBlank(sub3, trackingLink.getPresetSub3());
-        String finalSub4 = StrUtil.firstNonBlank(sub4, trackingLink.getPresetSub4());
-        String finalSub5 = StrUtil.firstNonBlank(sub5, trackingLink.getPresetSub5());
+            String finalSub1 = StrUtil.firstNonBlank(sub1, trackingLink.getPresetSub1());
+            String finalSub2 = StrUtil.firstNonBlank(sub2, trackingLink.getPresetSub2());
+            String finalSub3 = StrUtil.firstNonBlank(sub3, trackingLink.getPresetSub3());
+            String finalSub4 = StrUtil.firstNonBlank(sub4, trackingLink.getPresetSub4());
+            String finalSub5 = StrUtil.firstNonBlank(sub5, trackingLink.getPresetSub5());
 
-        // 构建 ClickDO，使用 trackingLink 的 targetType 和 targetId
-        ClickDO click = ClickDO.builder()
-                .clickId(clickId)
-                .targetType(trackingLink.getTargetType())
-                .targetId(trackingLink.getTargetId())
-                .sub1(finalSub1)
-                .sub2(finalSub2)
-                .sub3(finalSub3)
-                .sub4(finalSub4)
-                .sub5(finalSub5)
-                .ip(ip)
-                .userAgent(userAgent)
-                .referer(referer)
-                .clickTime(LocalDateTime.now())
-                .build();
+            // 构建 ClickDO，使用 trackingLink 的 targetType 和 targetId
+            ClickDO click = ClickDO.builder()
+                    .clickId(clickId)
+                    .targetType(trackingLink.getTargetType())
+                    .targetId(trackingLink.getTargetId())
+                    .sub1(finalSub1)
+                    .sub2(finalSub2)
+                    .sub3(finalSub3)
+                    .sub4(finalSub4)
+                    .sub5(finalSub5)
+                    .ip(ip)
+                    .userAgent(userAgent)
+                    .referer(referer)
+                    .clickTime(LocalDateTime.now())
+                    .build();
 
-        clickMapper.insert(click);
-        log.debug("Click recorded: clickId={}, targetType={}, targetId={}",
-                clickId, trackingLink.getTargetType(), trackingLink.getTargetId());
+            clickMapper.insert(click);
+            log.debug("Click recorded: clickId={}, targetType={}, targetId={}, tenantId={}",
+                    clickId, trackingLink.getTargetType(), trackingLink.getTargetId(), trackingLink.getTenantId());
 
-        // 构建最终跳转 URL，处理占位符替换或参数追加
-        return buildFinalUrl(trackingLink.getTrackingUrl(), clickId,
-                finalSub1, finalSub2, finalSub3, finalSub4, finalSub5);
+            // 构建最终跳转 URL，处理占位符替换或参数追加
+            return buildFinalUrl(trackingLink.getTrackingUrl(), clickId,
+                    finalSub1, finalSub2, finalSub3, finalSub4, finalSub5);
+        });
     }
 
     private TrackingLinkDO findTrackingLink(String trackingLinkId) {

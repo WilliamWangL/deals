@@ -6,24 +6,36 @@ import { Category } from '@/types';
 export const dynamic = 'force-dynamic';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://deals.ecommica.com';
+const LOCALES = ['en', 'zh'];
+const DEFAULT_LOCALE = 'en';
 
 // Helper function to build category pages from category tree
-function buildCategoryPages(categories: Category[]): MetadataRoute.Sitemap {
+function buildCategoryPages(categories: Category[], locale: string): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = [];
   for (const category of categories) {
     pages.push({
-      url: `${BASE_URL}/category/${category.slug}`,
+      url: `${BASE_URL}/${locale}/category/${category.slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+      alternates: {
+        languages: Object.fromEntries(
+          LOCALES.map(l => [l, `${BASE_URL}/${l}/category/${category.slug}`])
+        ),
+      },
     });
     if (category.children) {
       for (const child of category.children) {
         pages.push({
-          url: `${BASE_URL}/category/${child.slug}`,
+          url: `${BASE_URL}/${locale}/category/${child.slug}`,
           lastModified: new Date(),
           changeFrequency: 'weekly' as const,
           priority: 0.6,
+          alternates: {
+            languages: Object.fromEntries(
+              LOCALES.map(l => [l, `${BASE_URL}/${l}/category/${child.slug}`])
+            ),
+          },
         });
       }
     }
@@ -32,13 +44,62 @@ function buildCategoryPages(categories: Category[]): MetadataRoute.Sitemap {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // 静态页面（始终包含）
-  const staticPages = [
-    { url: BASE_URL, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 1 },
-    { url: `${BASE_URL}/stores`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.9 },
-    { url: `${BASE_URL}/deals`, lastModified: new Date(), changeFrequency: 'hourly' as const, priority: 0.9 },
-    { url: `${BASE_URL}/coupons`, lastModified: new Date(), changeFrequency: 'hourly' as const, priority: 0.9 },
-    { url: `${BASE_URL}/blog`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
+  // 静态页面（为默认语言生成，包含 alternates）
+  const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE_URL}/${DEFAULT_LOCALE}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 1,
+      alternates: {
+        languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}`])),
+      },
+    },
+    {
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/stores`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+      alternates: {
+        languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/stores`])),
+      },
+    },
+    {
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/deals`,
+      lastModified: new Date(),
+      changeFrequency: 'hourly' as const,
+      priority: 0.9,
+      alternates: {
+        languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/deals`])),
+      },
+    },
+    {
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/coupons`,
+      lastModified: new Date(),
+      changeFrequency: 'hourly' as const,
+      priority: 0.9,
+      alternates: {
+        languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/coupons`])),
+      },
+    },
+    {
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+      alternates: {
+        languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/blog`])),
+      },
+    },
+    {
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/categories`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+      alternates: {
+        languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/categories`])),
+      },
+    },
   ];
 
   try {
@@ -53,27 +114,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const deals = dealsResult.list;
     const posts = postsResult.list;
 
-    const categoryPages = buildCategoryPages(categories);
+    const categoryPages = buildCategoryPages(categories, DEFAULT_LOCALE);
 
-    const storePages = stores.map(store => ({
-      url: `${BASE_URL}/stores/${store.slug}`,
+    const storePages: MetadataRoute.Sitemap = stores.map(store => ({
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/stores/${store.slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+      alternates: {
+        languages: Object.fromEntries(
+          LOCALES.map(l => [l, `${BASE_URL}/${l}/stores/${store.slug}`])
+        ),
+      },
     }));
 
-    const dealPages = deals.map(deal => ({
-      url: `${BASE_URL}/deals/${deal.slug}`,
+    const dealPages: MetadataRoute.Sitemap = deals.map(deal => ({
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/deals/${deal.slug}`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          LOCALES.map(l => [l, `${BASE_URL}/${l}/deals/${deal.slug}`])
+        ),
+      },
     }));
 
-    const blogPages = posts.map(post => ({
-      url: `${BASE_URL}/blog/${post.slug}`,
+    const blogPages: MetadataRoute.Sitemap = posts.map(post => ({
+      url: `${BASE_URL}/${DEFAULT_LOCALE}/blog/${post.slug}`,
       lastModified: new Date(post.publishedAt),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
+      alternates: {
+        languages: Object.fromEntries(
+          LOCALES.map(l => [l, `${BASE_URL}/${l}/blog/${post.slug}`])
+        ),
+      },
     }));
 
     return [...staticPages, ...categoryPages, ...storePages, ...dealPages, ...blogPages];

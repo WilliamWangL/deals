@@ -11,6 +11,11 @@ import com.river.module.tracking.service.TrackingLinkService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * 追踪链接 API 实现类
  * 用于跨模块调用，避免循环依赖
@@ -53,6 +58,19 @@ public class TrackingLinkApiImpl implements TrackingLinkCommonApi {
             return null;
         }
         return BeanUtils.toBean(link, TrackingLinkRespDTO.class);
+    }
+
+    @Override
+    public Map<Long, TrackingLinkRespDTO> getTrackingLinks(Integer targetType, List<Long> targetIds) {
+        if (targetIds == null || targetIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<TrackingLinkDO> links = trackingLinkMapper.selectByTargets(targetType, targetIds);
+        return links.stream().collect(Collectors.toMap(
+                TrackingLinkDO::getTargetId,
+                link -> BeanUtils.toBean(link, TrackingLinkRespDTO.class),
+                (existing, replacement) -> existing // 如果有重复，保留第一个
+        ));
     }
 
 }

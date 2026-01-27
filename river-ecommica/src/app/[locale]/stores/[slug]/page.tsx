@@ -83,14 +83,14 @@ export default async function StoreDetailPage({ params }: Props) {
     : `https://${store.domain}`;
 
   const breadcrumbs = [
-    { label: t('breadcrumbHome'), href: `/${locale}` },
-    { label: t('breadcrumbStores'), href: `/${locale}/stores` },
-    { label: store.name, href: `/${locale}/stores/${store.slug}` }
+    { label: t('breadcrumbHome'), href: '/' },
+    { label: t('breadcrumbStores'), href: '/stores' },
+    { label: store.name, href: `/stores/${store.slug}` }
   ];
 
   const breadcrumbJsonLdItems = breadcrumbs.map(item => ({
     name: item.label,
-    url: `${BASE_URL}${item.href}`
+    url: `${BASE_URL}/${locale}${item.href}`
   }));
 
   return (

@@ -93,7 +93,7 @@
         class="mb-10px"
       />
       <el-alert
-        title="生成的链接格式: https://yourdomain.com/click/{slug}?sub1={sub1}&sub2={sub2}..."
+        title="生成的链接格式: https://yourdomain.com/go/{slug}?sub1={sub1}&sub2={sub2}..."
         type="info"
         :closable="false"
       />

@@ -71,13 +71,14 @@ export default async function DealDetailPage({ params }: Props) {
   const trackingUrl = getTrackingLink(deal.trackingLinkId, deal.gotoUrl);
 
   const breadcrumbs = [
-    { label: t('breadcrumbDeals'), href: `/${locale}/deals` },
-    { label: deal.title, href: `/${locale}/deals/${deal.slug}` }
+    { label: t('breadcrumbHome'), href: '/' },
+    { label: t('breadcrumbDeals'), href: '/deals' },
+    { label: deal.title, href: `/deals/${deal.slug}` }
   ];
 
   const breadcrumbJsonLdItems = breadcrumbs.map(item => ({
     name: item.label,
-    url: `${BASE_URL}${item.href}`
+    url: `${BASE_URL}/${locale}${item.href}`
   }));
 
   return (
@@ -95,11 +96,11 @@ export default async function DealDetailPage({ params }: Props) {
                 <div className="card-elevated overflow-hidden p-2 bg-white relative group">
                   <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-50">
                     {deal.imageUrl ? (
-                      <Image 
-                        src={deal.imageUrl} 
-                        alt={deal.title} 
-                        fill 
-                        className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                      <Image
+                        src={deal.imageUrl}
+                        alt={deal.title}
+                        fill
+                        className="object-contain transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-300">

@@ -3,6 +3,9 @@ package com.river.framework.common.biz.tracking;
 import com.river.framework.common.biz.tracking.dto.TrackingLinkCreateReqDTO;
 import com.river.framework.common.biz.tracking.dto.TrackingLinkRespDTO;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 追踪链接 API 接口
  * 用于跨模块调用，避免循环依赖
@@ -26,5 +29,14 @@ public interface TrackingLinkCommonApi {
      * @return 追踪链接响应，不存在则返回 null
      */
     TrackingLinkRespDTO getTrackingLink(Integer targetType, Long targetId);
+
+    /**
+     * 批量根据 target 类型和 ID 获取追踪链接
+     *
+     * @param targetType 目标类型
+     * @param targetIds  目标 ID 列表
+     * @return targetId -> 追踪链接响应 的映射
+     */
+    Map<Long, TrackingLinkRespDTO> getTrackingLinks(Integer targetType, List<Long> targetIds);
 
 }
