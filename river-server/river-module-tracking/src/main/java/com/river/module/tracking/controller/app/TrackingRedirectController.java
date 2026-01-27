@@ -1,5 +1,6 @@
 package com.river.module.tracking.controller.app;
 
+import com.river.framework.tenant.core.aop.TenantIgnore;
 import com.river.module.tracking.service.ClickService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,6 +36,7 @@ public class TrackingRedirectController {
             @Parameter(name = "sub5", description = "Sub ID 5")
     })
     @PermitAll
+    @TenantIgnore  // 追踪重定向不需要租户校验，TrackingLink 本身已关联租户
     public RedirectView redirect(
             @PathVariable("id") String id,
             @RequestParam(value = "sub1", required = false) String sub1,
