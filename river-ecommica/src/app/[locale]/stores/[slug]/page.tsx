@@ -9,6 +9,9 @@ import { JsonLd, BASE_URL, generateStoreJsonLd, generateBreadcrumbJsonLd } from 
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Star, ShoppingBag, Ticket, ShieldCheck, Store as StoreIcon } from 'lucide-react';
 
+// 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
+export const dynamicParams = true;
+
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
 };

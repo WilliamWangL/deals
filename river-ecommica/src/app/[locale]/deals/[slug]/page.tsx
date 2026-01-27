@@ -10,6 +10,9 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { CheckCircle, Clock, ShieldCheck, ExternalLink, Store, Tag } from 'lucide-react';
 import { getTrackingLink } from '@/lib/tracking';
 
+// 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
+export const dynamicParams = true;
+
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
 };

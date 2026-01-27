@@ -26,6 +26,9 @@ import {
   type LucideIcon
 } from 'lucide-react';
 
+// 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
+export const dynamicParams = true;
+
 const iconMap: Record<string, LucideIcon> = {
   Laptop,
   Shirt,

@@ -31,8 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
-!.env.production
+.env.local
 
 # vercel
 .vercel
@@ -41,5 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# MaxMind GeoLite2 database
-data/*.mmdb
+
