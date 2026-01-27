@@ -4,14 +4,13 @@ export function generateClickId(): string {
   return ulid()
 }
 
-export function getTrackingUrl(offerId: string): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:48080'
-  return `${apiBase}/api/go/${offerId}`
-}
-
-export function getTrackingLink(trackingLinkId?: string, gotoUrl: string = '#'): string {
+/**
+ * 获取追踪链接路径
+ * 直接走 nginx 代理到后端，不经过 Next.js 代理层
+ */
+export function getTrackingLink(trackingLinkId?: string, fallbackUrl: string = '#'): string {
   if (trackingLinkId) {
-    return `/api/go/${trackingLinkId}`
+    return `/go/${trackingLinkId}`
   }
-  return gotoUrl
+  return fallbackUrl
 }
