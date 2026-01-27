@@ -169,5 +169,8 @@ jobs:
             docker-compose -f docker-compose.prod.yml pull
             docker-compose -f docker-compose.prod.yml up -d
 
+            # 确保 nginx 重新加载静态文件（admin-dist 可能在容器运行时被更新）
+            docker restart river-nginx
+
             # 清理旧镜像
             docker image prune -f
