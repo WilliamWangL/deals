@@ -62,6 +62,9 @@ function extractTextContent(children: ReactNode): string {
 }
 
 export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
+  // 预处理内容：将字面量 \n 转换为真正的换行符
+  const processedContent = content.replace(/\\n/g, '\n');
+
   return (
     <div className={`markdown-renderer ${className}`}>
       <ReactMarkdown
@@ -154,7 +157,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           ),
         }}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );
