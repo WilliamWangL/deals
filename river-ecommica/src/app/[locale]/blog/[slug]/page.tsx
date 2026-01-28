@@ -6,7 +6,7 @@ import { fetchPosts, fetchPostBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { JsonLd, BASE_URL, generateBlogPostJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
-import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
+import { MarkdownRenderer } from '@/components/blog';
 import { Calendar, Eye, User, Tag } from 'lucide-react';
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）

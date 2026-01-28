@@ -109,6 +109,9 @@ const handleUploadImg = async (
       const data = await response.json()
       if (data.code === 0 && data.data) {
         results.push(data.data)
+      } else {
+        console.error('Upload API error:', data.msg || data.message)
+        message.error(`图片上传失败: ${data.msg || '未知错误'}`)
       }
     } catch (error) {
       console.error('Upload failed:', error)
