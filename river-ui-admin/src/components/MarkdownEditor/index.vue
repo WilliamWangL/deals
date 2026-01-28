@@ -7,8 +7,8 @@
       :preview="preview"
       :toolbars="toolbars"
       :style="{ height }"
-      @onUploadImg="handleUploadImg"
-      @onChange="handleChange"
+      @on-upload-img="handleUploadImg"
+      @on-change="handleChange"
     />
   </div>
 </template>
@@ -16,9 +16,11 @@
 <script setup lang="ts">
 import { MdEditor, ToolbarNames } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { getAccessToken } from '@/utils/auth'
+import { getAccessToken, getTenantId } from '@/utils/auth'
 
 defineOptions({ name: 'MarkdownEditor' })
+
+const message = useMessage() // 消息弹窗
 
 const props = defineProps({
   modelValue: {
@@ -97,7 +99,8 @@ const handleUploadImg = async (
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${getAccessToken()}`
+            Authorization: `Bearer ${getAccessToken()}`,
+            'tenant-id': String(getTenantId())
           },
           body: formData
         }
@@ -109,6 +112,7 @@ const handleUploadImg = async (
       }
     } catch (error) {
       console.error('Upload failed:', error)
+      message.error('图片上传失败，请重试')
     }
   }
 
