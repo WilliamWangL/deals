@@ -1,5 +1,6 @@
 'use client';
 
+import { Children, isValidElement, ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -45,6 +46,21 @@ function parseCallout(text: string): { type: 'tip' | 'warning' | 'info'; content
   return null;
 }
 
+// 递归提取 React children 中的文本内容
+function extractTextContent(children: ReactNode): string {
+  let text = '';
+  Children.forEach(children, (child) => {
+    if (typeof child === 'string') {
+      text += child;
+    } else if (typeof child === 'number') {
+      text += String(child);
+    } else if (isValidElement<{ children?: ReactNode }>(child) && child.props.children) {
+      text += extractTextContent(child.props.children);
+    }
+  });
+  return text;
+}
+
 export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
   return (
     <div className={`markdown-renderer ${className}`}>
@@ -59,6 +75,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             if (src.startsWith('http')) {
               return (
                 <span className="block my-6">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={src}
                     alt={alt || ''}
@@ -86,7 +103,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           // 自定义 blockquote 支持提示框语法
           blockquote: ({ children }) => {
             // 提取文本内容检查是否是 callout
-            const textContent = children?.toString() || '';
+            const textContent = extractTextContent(children);
             const callout = parseCallout(textContent);
             if (callout) {
               return <Callout type={callout.type}>{callout.content}</Callout>;
