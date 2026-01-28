@@ -6,6 +6,7 @@ import { fetchPosts, fetchPostBySlug } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { JsonLd, BASE_URL, generateBlogPostJsonLd, generateBreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 import { Calendar, Eye, User, Tag } from 'lucide-react';
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
@@ -161,13 +162,11 @@ export default async function BlogPostPage({ params }: Props) {
 
         <article className="container mx-auto px-4 max-w-4xl -mt-8 relative z-10">
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-border/50">
-            <div className="prose prose-lg prose-slate max-w-none prose-headings:font-display prose-a:text-primary prose-img:rounded-xl">
-              {post.content ? (
-                <div dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br/>') }} />
-              ) : (
-                <p className="text-xl text-gray-600 leading-relaxed">{post.excerpt}</p>
-              )}
-            </div>
+            {post.content ? (
+              <MarkdownRenderer content={post.content} className="prose prose-lg prose-slate max-w-none" />
+            ) : (
+              <p className="text-xl text-gray-600 leading-relaxed">{post.excerpt}</p>
+            )}
             
             <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
