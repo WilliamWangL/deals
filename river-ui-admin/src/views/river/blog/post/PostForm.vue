@@ -1,5 +1,5 @@
 <template>
-  <Dialog :title="dialogTitle" v-model="dialogVisible" width="900px">
+  <Dialog :title="dialogTitle" v-model="dialogVisible" width="1200px">
     <el-form
       ref="formRef"
       :model="formData"
@@ -82,11 +82,10 @@
         />
       </el-form-item>
       <el-form-item label="内容" prop="content">
-        <el-input
+        <MarkdownEditor
           v-model="formData.content"
-          type="textarea"
-          :rows="10"
-          placeholder="请输入文章内容（支持Markdown）"
+          height="400px"
+          :preview="true"
         />
       </el-form-item>
       <el-divider content-position="left">SEO设置</el-divider>
@@ -130,6 +129,7 @@
 
 <script setup lang="ts">
 import { PostApi, PostVO } from '@/api/river/blog'
+import { MarkdownEditor } from '@/components/MarkdownEditor'
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 
 /** 文章表单 */
