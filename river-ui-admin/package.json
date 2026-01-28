@@ -59,6 +59,7 @@
     "markmap-lib": "^0.16.1",
     "markmap-toolbar": "^0.17.0",
     "markmap-view": "^0.16.0",
+    "md-editor-v3": "^6.3.1",
     "min-dash": "^4.1.1",
     "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
