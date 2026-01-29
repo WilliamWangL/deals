@@ -29,7 +29,21 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: t('meta.description'),
       url: `${BASE_URL}/${locale}/deals`,
       type: 'website',
-    }
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('meta.title'),
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title'),
+      description: t('meta.description'),
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -167,7 +181,7 @@ export default async function DealsPage({
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
               {deals.map(deal => (
-                <DealCard key={deal.id} deal={deal} />
+                <DealCard key={deal.id} deal={deal} locale={locale} />
               ))}
             </div>
             <div className="mt-12">

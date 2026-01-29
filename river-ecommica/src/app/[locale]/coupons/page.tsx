@@ -29,7 +29,21 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: t('meta.description'),
       url: `${BASE_URL}/${locale}/coupons`,
       type: 'website',
-    }
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('meta.title'),
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title'),
+      description: t('meta.description'),
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -180,7 +194,7 @@ export default async function CouponsPage(props: {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6">
               {displayCoupons.map(coupon => (
-                <CouponCard key={coupon.id} coupon={coupon} />
+                <CouponCard key={coupon.id} coupon={coupon} locale={locale} />
               ))}
             </div>
             <div className="mt-12">

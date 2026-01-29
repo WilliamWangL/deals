@@ -47,6 +47,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: t('meta.notFound') };
   }
 
+  const ogImage = store.logoUrl || '/og-image.png';
+
   return {
     title: t('meta.title', { name: store.name }),
     description: store.description || t('meta.description', { name: store.name }),
@@ -55,7 +57,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: store.description || t('meta.description', { name: store.name }),
       url: `${BASE_URL}/${locale}/stores/${store.slug}`,
       type: 'website',
-    }
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: store.name,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title', { name: store.name }),
+      description: store.description || t('meta.description', { name: store.name }),
+      images: [ogImage],
+    },
   };
 }
 
@@ -185,7 +201,7 @@ export default async function StoreDetailPage({ params }: Props) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {deals.length > 0 ? deals.map(deal => (
-              <DealCard key={deal.id} deal={deal} />
+              <DealCard key={deal.id} deal={deal} locale={locale} />
             )) : (
               <div className="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

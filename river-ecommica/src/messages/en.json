@@ -12,6 +12,10 @@
     "copied": "Copied!"
   },
   "Home": {
+    "meta": {
+      "title": "Best Deals, Coupons & Discounts",
+      "description": "Discover the best online deals, coupon codes and discounts. Save money on your favorite brands with verified offers updated daily."
+    },
     "title": "Best Deals & Coupons",
     "heroTitle": "Save Money on Your Favorite Brands",
     "heroSubtitle": "Find the latest coupon codes and deals verified daily.",

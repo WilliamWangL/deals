@@ -1,13 +1,35 @@
+import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { PageHero } from '@/components/layout/PageHero';
+import { BASE_URL } from '@/components/seo/JsonLd';
 import { Eye, Award, Shield } from 'lucide-react';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'about' });
   return {
     title: t('meta.title'),
     description: t('meta.description'),
+    openGraph: {
+      title: t('meta.title'),
+      description: t('meta.description'),
+      url: `${BASE_URL}/${locale}/about`,
+      type: 'website',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('meta.title'),
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title'),
+      description: t('meta.description'),
+      images: ['/og-image.png'],
+    },
   };
 }
 

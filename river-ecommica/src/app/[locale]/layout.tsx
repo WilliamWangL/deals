@@ -7,6 +7,7 @@ import { getRegionData } from '@/components/providers/RegionProvider';
 import "@/app/globals.css";
 import { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
+import { BASE_URL } from '@/components/seo/JsonLd';
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -21,6 +22,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: {
     template: '%s | Ecommica',
     default: 'Ecommica - Best Deals & Coupons'
@@ -29,14 +31,27 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://deals.ecommica.com',
+    url: BASE_URL,
     siteName: 'Ecommica',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Ecommica - Best Deals & Coupons',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@ecommica',
+    images: ['/og-image.png'],
   },
   alternates: {
-    canonical: 'https://deals.ecommica.com',
+    canonical: BASE_URL,
     languages: {
-      'en': 'https://deals.ecommica.com',
-      'zh': 'https://deals.ecommica.com/zh',
+      'en': BASE_URL,
+      'zh': `${BASE_URL}/zh`,
     },
   },
 };

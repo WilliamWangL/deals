@@ -153,6 +153,37 @@ export function generateWebSiteJsonLd() {
   ];
 }
 
+export function generateFAQPageJsonLd(faqs: { question: string; answer: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+export function generateOrganizationJsonLd(contact: { email?: string; url: string }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Ecommica',
+    url: contact.url,
+    logo: `${BASE_URL}/logo.png`,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: contact.email,
+      contactType: 'customer service',
+      availableLanguage: ['English', 'Chinese'],
+    },
+  };
+}
+
 interface JsonLdProps {
   data: object;
 }

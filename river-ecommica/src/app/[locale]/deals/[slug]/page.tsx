@@ -47,6 +47,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const description = deal.description || t('meta.description', { percent: deal.discountPercent, store: deal.merchant.name });
+  const ogImage = deal.imageUrl || '/og-image.png';
+
   return {
     title: `${deal.title} - ${deal.merchant.name}`,
     description,
@@ -55,7 +57,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `${BASE_URL}/${locale}/deals/${deal.slug}`,
       type: 'article',
-    }
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: deal.title,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${deal.title} - ${deal.merchant.name}`,
+      description,
+      images: [ogImage],
+    },
   };
 }
 

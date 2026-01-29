@@ -110,7 +110,21 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       description: t('meta.description', { name: categoryNameLower }),
       url: `${BASE_URL}/${locale}/category/${category.slug}`,
       type: 'website',
-    }
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('meta.title', { name: category.name }),
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title', { name: category.name }),
+      description: t('meta.description', { name: categoryNameLower }),
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -283,7 +297,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         {deals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {deals.map(deal => (
-              <DealCard key={deal.id} deal={deal} />
+              <DealCard key={deal.id} deal={deal} locale={locale} />
             ))}
           </div>
         ) : (
@@ -323,7 +337,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         {coupons.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {coupons.map(coupon => (
-              <CouponCard key={coupon.id} coupon={coupon} />
+              <CouponCard key={coupon.id} coupon={coupon} locale={locale} />
             ))}
           </div>
         ) : (

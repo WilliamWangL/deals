@@ -53,7 +53,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.metaDescription || post.excerpt,
       url: `${BASE_URL}/${locale}/blog/${post.slug}`,
       type: 'article',
-    }
+      images: [
+        {
+          url: post.coverImage || '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.excerpt,
+      images: [post.coverImage || '/og-image.png'],
+    },
   };
 }
 

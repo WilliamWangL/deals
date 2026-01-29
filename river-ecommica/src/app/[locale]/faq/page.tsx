@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
@@ -8,14 +9,35 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { JsonLd, BASE_URL, generateFAQPageJsonLd } from '@/components/seo/JsonLd';
 import { Tag, Gift, Users, MessageCircle, ArrowRight } from 'lucide-react';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'faq' });
   return {
     title: t('meta.title'),
     description: t('meta.description'),
+    openGraph: {
+      title: t('meta.title'),
+      description: t('meta.description'),
+      url: `${BASE_URL}/${locale}/faq`,
+      type: 'website',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('meta.title'),
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title'),
+      description: t('meta.description'),
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -58,10 +80,20 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
     },
   ];
 
+  // Flatten all FAQ questions for JSON-LD
+  const allFaqs = faqCategories.flatMap(category =>
+    category.questions.map(q => ({
+      question: q.q,
+      answer: q.a,
+    }))
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <PageHero title={t('heroTitle')} subtitle={t('heroSubtitle')} variant="dark" size="default" />
+    <>
+      <JsonLd data={generateFAQPageJsonLd(allFaqs)} />
+      <div className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <PageHero title={t('heroTitle')} subtitle={t('heroSubtitle')} variant="dark" size="default" />
 
       {/* FAQ Categories Section */}
       <section className="py-16 lg:py-24">
@@ -144,6 +176,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

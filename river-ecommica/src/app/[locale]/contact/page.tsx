@@ -1,15 +1,37 @@
+import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
 import { Button } from '@/components/ui/button';
+import { JsonLd, BASE_URL, generateOrganizationJsonLd } from '@/components/seo/JsonLd';
 import { Mail, Share2, Briefcase, HelpCircle, ArrowRight, Twitter, Facebook, Instagram } from 'lucide-react';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'contact' });
   return {
     title: t('meta.title'),
     description: t('meta.description'),
+    openGraph: {
+      title: t('meta.title'),
+      description: t('meta.description'),
+      url: `${BASE_URL}/${locale}/contact`,
+      type: 'website',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('meta.title'),
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title'),
+      description: t('meta.description'),
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -52,9 +74,11 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <PageHero title={t('heroTitle')} subtitle={t('heroSubtitle')} variant="light" size="default" />
+    <>
+      <JsonLd data={generateOrganizationJsonLd({ email: 'support@ecommica.com', url: BASE_URL })} />
+      <div className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <PageHero title={t('heroTitle')} subtitle={t('heroSubtitle')} variant="light" size="default" />
 
       {/* Contact Cards Section */}
       <section className="py-16 lg:py-24">
@@ -150,6 +174,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

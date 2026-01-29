@@ -25,12 +25,36 @@ import {
   Star,
   Users
 } from 'lucide-react';
-import { JsonLd, generateWebSiteJsonLd } from '@/components/seo/JsonLd';
+import { JsonLd, generateWebSiteJsonLd, BASE_URL } from '@/components/seo/JsonLd';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({locale, namespace: 'Home'});
-  return { title: t('title') };
+
+  return {
+    title: t('meta.title'),
+    description: t('meta.description'),
+    openGraph: {
+      title: t('meta.title'),
+      description: t('meta.description'),
+      url: `${BASE_URL}/${locale}`,
+      type: 'website',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('meta.title'),
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('meta.title'),
+      description: t('meta.description'),
+      images: ['/og-image.png'],
+    },
+  };
 }
 
 export default async function HomePage({
@@ -216,7 +240,7 @@ export default async function HomePage({
                 className="animate-in fade-in slide-in-from-bottom-4"
                 style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
               >
-                <DealCard deal={deal} />
+                <DealCard deal={deal} locale={locale} />
               </div>
             )) : (
               <div className="col-span-full py-20 text-center card-elevated">
