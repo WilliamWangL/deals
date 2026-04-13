@@ -11,7 +11,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-river}
       - TZ=Asia/Shanghai
     ports:
-      - "127.0.0.1:5432:5432"  # 只允许本地访问，需通过 SSH 隧道连接
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
@@ -40,6 +40,8 @@ services:
     image: ghcr.io/${GITHUB_REPO:-river}/river-server:latest
     container_name: river-server
     restart: always
+    ports:
+      - "127.0.0.1:48080:48080"  # 暴露给宿主机 Nginx 调用
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - TZ=Asia/Shanghai
@@ -64,6 +66,8 @@ services:
     image: ghcr.io/${GITHUB_REPO:-river}/river-ecommica:latest
     container_name: river-ecommica
     restart: always
+    ports:
+      - "127.0.0.1:3000:3000"    # 假设前端容器内部端口是3000，暴露给宿主机
     environment:
       - NODE_ENV=production
       - INTERNAL_API_URL=http://river-server:48080/app-api
@@ -73,22 +77,7 @@ services:
     networks:
       - river-network
 
-  nginx:
-    image: nginx:alpine
-    container_name: river-nginx
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./admin-dist:/usr/share/nginx/admin:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - river-server
-      - river-ecommica
-    networks:
-      - river-network
+# 删除了原来的 nginx 服务块
 
 networks:
   river-network:
