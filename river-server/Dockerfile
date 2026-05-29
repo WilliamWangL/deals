@@ -47,6 +47,8 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=builder /build/river-server/target/river-server.jar app.jar
 
+RUN mkdir -p /app/logs
+
 ENV TZ=Asia/Shanghai
 ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
 ENV SPRING_PROFILES_ACTIVE=prod

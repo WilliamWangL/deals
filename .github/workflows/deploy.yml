@@ -151,7 +151,7 @@ jobs:
             cd /opt/river
 
             # 创建必要目录
-            mkdir -p data/postgres data/redis ssl nginx
+            mkdir -p data/postgres data/redis data/server-logs ssl nginx admin-dist
 
             # 如果没有 SSL 证书，创建自签名证书（用于首次部署测试）
             if [ ! -f ssl/deals.ecommica.com_bundle.pem ]; then

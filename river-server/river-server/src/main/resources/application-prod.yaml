@@ -142,6 +142,8 @@ river:
   access-log:
     enable: true
   demo: false
+  mediabuy:
+    click-log-file: /app/logs/mediabuy-click.log
   wxa-code:
     env-version: release # 小程序版本: 正式版为 "release"
   wxa-subscribe-message:

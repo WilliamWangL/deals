@@ -1,0 +1,36 @@
+-- 媒体投放：点击日志（单文件完整 DDL）
+
+CREATE SEQUENCE IF NOT EXISTS river_mediabuy_click_log_seq;
+
+CREATE TABLE IF NOT EXISTS river_mediabuy_click_log (
+    id int8 NOT NULL DEFAULT nextval('river_mediabuy_click_log_seq'),
+    offer_id int8 NOT NULL,
+    offer_name varchar(255) NOT NULL DEFAULT '',
+    track_link varchar(2048) NOT NULL DEFAULT '',
+    network_code varchar(64) NOT NULL DEFAULT '',
+    os_type varchar(16) NOT NULL DEFAULT 'PC',
+    country varchar(64) NOT NULL DEFAULT '',
+    publisher_click_id varchar(128) NOT NULL DEFAULT '',
+    click_id varchar(128) NOT NULL DEFAULT '',
+    subid1 varchar(255) NOT NULL DEFAULT '',
+    subid2 varchar(255) NOT NULL DEFAULT '',
+    ip varchar(64) NOT NULL DEFAULT '',
+    user_agent varchar(512) NOT NULL DEFAULT '',
+    referer varchar(512) NOT NULL DEFAULT '',
+    query_string varchar(1024) NOT NULL DEFAULT '',
+    creator varchar(64) DEFAULT '',
+    create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updater varchar(64) DEFAULT '',
+    update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted int2 NOT NULL DEFAULT 0,
+    tenant_id int8 NOT NULL DEFAULT 0,
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_river_mediabuy_click_log_offer_id ON river_mediabuy_click_log (offer_id);
+CREATE INDEX IF NOT EXISTS idx_river_mediabuy_click_log_create_time ON river_mediabuy_click_log (create_time);
+CREATE INDEX IF NOT EXISTS idx_river_mediabuy_click_log_click_id ON river_mediabuy_click_log (click_id);
+CREATE INDEX IF NOT EXISTS idx_river_mediabuy_click_log_publisher_click_id ON river_mediabuy_click_log (publisher_click_id);
+CREATE INDEX IF NOT EXISTS idx_river_mediabuy_click_log_network_code ON river_mediabuy_click_log (network_code);
+CREATE INDEX IF NOT EXISTS idx_river_mediabuy_click_log_os_type ON river_mediabuy_click_log (os_type);
+CREATE INDEX IF NOT EXISTS idx_river_mediabuy_click_log_country ON river_mediabuy_click_log (country);
