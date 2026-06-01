@@ -31,6 +31,12 @@
             <artifactId>river-spring-boot-starter-biz-tenant</artifactId>
         </dependency>
 
+        <!-- IP 地址解析：用于点击日志区域信息 -->
+        <dependency>
+            <groupId>com.river</groupId>
+            <artifactId>river-spring-boot-starter-biz-ip</artifactId>
+        </dependency>
+
         <!-- Web 相关 -->
         <dependency>
             <groupId>com.river</groupId>

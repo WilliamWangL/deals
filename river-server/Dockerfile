@@ -29,6 +29,7 @@ COPY river-module-coupon/pom.xml river-module-coupon/
 COPY river-module-blog/pom.xml river-module-blog/
 COPY river-module-campaign/pom.xml river-module-campaign/
 COPY river-module-stats/pom.xml river-module-stats/
+COPY river-module-mediabuy/pom.xml river-module-mediabuy/
 COPY river-server/pom.xml river-server/
 
 # 下载依赖（仅当 pom.xml 变化时重新执行）
