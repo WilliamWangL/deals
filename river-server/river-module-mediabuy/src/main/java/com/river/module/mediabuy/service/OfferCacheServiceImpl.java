@@ -8,6 +8,14 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+/**
+ * Offer 缓存服务实现：标准 cache-aside 模式
+ * <ol>
+ *     <li>先查 Redis 缓存，命中直接返回</li>
+ *     <li>未命中则查询数据库</li>
+ *     <li>查到则写入 Redis 后返回</li>
+ * </ol>
+ */
 @Service
 @Validated
 public class OfferCacheServiceImpl implements OfferCacheService {
@@ -19,21 +27,23 @@ public class OfferCacheServiceImpl implements OfferCacheService {
     private OfferRedisDAO offerRedisDAO;
 
     @Override
-    @TenantIgnore // offer is tenant-scoped; we cache by tenantId from DB record
+    @TenantIgnore // mediabuy 跳转链路不带租户上下文，offerId 为全局唯一主键
     public OfferDO getOffer(Long offerId) {
-        // 先查询 DB 获取 tenantId（用于按租户隔离的缓存 key）
+        // 1. 先查 Redis 缓存
+        OfferDO cached = offerRedisDAO.get(offerId);
+        if (cached != null) {
+            return cached;
+        }
+
+        // 2. 缓存未命中，查询数据库
         OfferDO offer = offerService.getOffer(offerId);
         if (offer == null) {
             return null;
         }
 
-        OfferDO cached = offerRedisDAO.get(offer.getTenantId(), offerId);
-        if (cached != null) {
-            return cached;
-        }
-        offerRedisDAO.set(offer.getTenantId(), offer);
+        // 3. 写入缓存后返回
+        offerRedisDAO.set(offer);
         return offer;
     }
 
 }
-

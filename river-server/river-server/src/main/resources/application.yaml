@@ -309,7 +309,7 @@ river:
     delete-batch-enable: true # 是否生成批量删除接口
     unit-test-enable: false # 是否生成单元测试
   mediabuy:
-    offer-cache-seconds: 300
+    offer-cache-seconds: 864000 # Offer 缓存 TTL：10 天（10*24*3600）
     # mediabuy 点击行日志文件路径（logback 独立 appender）；Docker 下建议 /app/logs/mediabuy-click.log
     click-log-file: logs/mediabuy-click.log
   tenant: # 多租户相关配置项
