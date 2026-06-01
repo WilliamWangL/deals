@@ -8,10 +8,10 @@ public interface RedisKeyConstants {
     /**
      * Offer 缓存
      * <p>
-     * KEY 格式：mediabuy:offer:{tenantId}:{offerId}
+     * KEY 格式：mediabuy:offer:{offerId}
      * VALUE：OfferDO JSON
      */
-    String OFFER = "mediabuy:offer:%s:%s";
+    String OFFER = "mediabuy:offer:%s";
 
 }
 

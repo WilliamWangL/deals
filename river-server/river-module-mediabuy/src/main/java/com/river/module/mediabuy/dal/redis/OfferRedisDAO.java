@@ -12,7 +12,10 @@ import java.util.concurrent.TimeUnit;
 import static com.river.module.mediabuy.dal.redis.RedisKeyConstants.OFFER;
 
 /**
- * {@link OfferDO} 的缓存 DAO（按租户隔离）
+ * {@link OfferDO} 的缓存 DAO
+ * <p>
+ * 缓存 key 仅使用 offerId（offerId 全局唯一），
+ * 便于在仅持有 offerId 的场景下直接命中缓存，避免回查 DB 取 tenantId。
  */
 @Repository
 public class OfferRedisDAO {
@@ -26,25 +29,24 @@ public class OfferRedisDAO {
     @Value("${river.mediabuy.offer-cache-seconds:300}")
     private long offerCacheSeconds;
 
-    public OfferDO get(Long tenantId, Long offerId) {
-        String redisKey = formatKey(tenantId, offerId);
+    public OfferDO get(Long offerId) {
+        String redisKey = formatKey(offerId);
         return JsonUtils.parseObject(stringRedisTemplate.opsForValue().get(redisKey), OfferDO.class);
     }
 
-    public void set(Long tenantId, OfferDO offer) {
-        String redisKey = formatKey(tenantId, offer.getId());
+    public void set(OfferDO offer) {
+        String redisKey = formatKey(offer.getId());
         // 清理多余字段，避免缓存
         offer.setUpdater(null).setUpdateTime(null).setCreateTime(null).setCreator(null).setDeleted(null);
         stringRedisTemplate.opsForValue().set(redisKey, JsonUtils.toJsonString(offer), offerCacheSeconds, TimeUnit.SECONDS);
     }
 
-    public void delete(Long tenantId, Long offerId) {
-        stringRedisTemplate.delete(formatKey(tenantId, offerId));
+    public void delete(Long offerId) {
+        stringRedisTemplate.delete(formatKey(offerId));
     }
 
-    private static String formatKey(Long tenantId, Long offerId) {
-        return String.format(OFFER, tenantId, offerId);
+    private static String formatKey(Long offerId) {
+        return String.format(OFFER, offerId);
     }
 
 }
-
