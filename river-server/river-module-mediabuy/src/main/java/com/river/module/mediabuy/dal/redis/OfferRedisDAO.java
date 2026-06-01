@@ -26,7 +26,7 @@ public class OfferRedisDAO {
     /**
      * Offer 缓存 TTL（秒）
      */
-    @Value("${river.mediabuy.offer-cache-seconds:300}")
+    @Value("${river.mediabuy.offer-cache-seconds:864000}")
     private long offerCacheSeconds;
 
     public OfferDO get(Long offerId) {
