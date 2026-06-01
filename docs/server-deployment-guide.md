@@ -83,6 +83,7 @@ chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 ```
 
+
 ### 1.3 创建部署目录
 
 ```bash
