@@ -119,13 +119,20 @@ public class MediabuyClickLogServiceImpl implements MediabuyClickLogService {
         if (url == null || url.isBlank()) {
             return url;
         }
-        return url
+        String replaced = url
                 .replace("{click_id}", safe(clickId))
                 .replace("{subid1}", safe(subid1))
                 .replace("{subid2}", safe(subid2))
                 .replace("${click_id}", safe(clickId))
                 .replace("${subid1}", safe(subid1))
                 .replace("${subid2}", safe(subid2));
+        // 如果原 URL 不含任何宏替换符（替换前后完全一致），则自动把 clickId 作为
+        // subid 查询参数追加到 URL，确保归因仍可由 clickId 串联回我们系统。
+        if (replaced.equals(url) && clickId != null && !clickId.isBlank()) {
+            String separator = url.contains("?") ? "&" : "?";
+            replaced = url + separator + "subid=" + clickId;
+        }
+        return replaced;
     }
 
     private String safe(String value) {
