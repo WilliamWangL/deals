@@ -27,7 +27,7 @@ public class MediabuyJumpController {
     @Resource
     private MediabuyJumpService jumpService;
 
-    @GetMapping(value = "/{offerId}", produces = "application/javascript;charset=UTF-8")
+    @GetMapping(value = "/{offerId}", produces = "text/html;charset=UTF-8")
     @Operation(summary = "JS 200 跳转", description = "路径格式：/track/{offerId}?publisher_click_id={publisher_click_id}&subid1={subid1}&subid2={subid2}")
     @Parameters({
             @Parameter(name = "offerId", description = "Offer ID", required = true),
@@ -42,10 +42,10 @@ public class MediabuyJumpController {
                                         @RequestParam(value = "subid1", required = false) String subid1,
                                         @RequestParam(value = "subid2", required = false) String subid2,
                                         HttpServletRequest request) {
-        String js = jumpService.buildJs200(offerId, publisherClickId, subid1, subid2, request);
+        String html = jumpService.buildJs200(offerId, publisherClickId, subid1, subid2, request);
         return ResponseEntity.ok()
-                .contentType(MediaType.valueOf("application/javascript;charset=UTF-8"))
-                .body(js);
+                .contentType(MediaType.valueOf("text/html;charset=UTF-8"))
+                .body(html);
     }
 
 }
