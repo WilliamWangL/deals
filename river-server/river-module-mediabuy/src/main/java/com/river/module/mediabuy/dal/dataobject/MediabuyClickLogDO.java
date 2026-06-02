@@ -30,6 +30,12 @@ public class MediabuyClickLogDO extends TenantBaseDO {
     /** Offer 名称 */
     private String offerName;
 
+    /** 商家 ID（affiliate.merchant） */
+    private Long merchantId;
+
+    /** 商家名称（冗余，便于报表查询） */
+    private String merchantName;
+
     /** 宏替换后的 trackLink（最终跳转链接） */
     private String trackLink;
 

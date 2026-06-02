@@ -7,8 +7,10 @@ import com.river.framework.ip.core.enums.AreaTypeEnum;
 import com.river.framework.ip.core.utils.AreaUtils;
 import com.river.framework.ip.core.utils.IPUtils;
 import com.river.module.affiliate.dal.dataobject.AffiliateNetworkDO;
+import com.river.module.affiliate.dal.dataobject.MerchantDO;
 import com.river.module.affiliate.dal.dataobject.OfferDO;
 import com.river.module.affiliate.service.AffiliateNetworkService;
+import com.river.module.affiliate.service.MerchantService;
 import com.river.module.mediabuy.dal.dataobject.MediabuyClickLogDO;
 import com.river.module.mediabuy.dal.mysql.MediabuyClickLogMapper;
 import jakarta.annotation.Resource;
@@ -37,6 +39,9 @@ public class MediabuyClickLogServiceImpl implements MediabuyClickLogService {
     @Resource
     private AffiliateNetworkService affiliateNetworkService;
 
+    @Resource
+    private MerchantService merchantService;
+
     @Override
     @TenantIgnore // public click log: tenantId comes from offer itself
     public String recordClick(OfferDO offer, String publisherClickId, String subid1, String subid2, HttpServletRequest request) {
@@ -44,11 +49,14 @@ public class MediabuyClickLogServiceImpl implements MediabuyClickLogService {
         String clickId = generateClickId();
         String trackLink = replaceMacros(offer.getGotoUrl(), clickId, subid1, subid2);
         AffiliateNetworkDO network = offer.getNetworkId() != null ? affiliateNetworkService.getNetwork(offer.getNetworkId()) : null;
+        MerchantDO merchant = offer.getMerchantId() != null ? merchantService.getMerchant(offer.getMerchantId()) : null;
         String ip = getClientIp(request);
 
         MediabuyClickLogDO log = MediabuyClickLogDO.builder()
                 .offerId(offer.getId())
                 .offerName(offer.getName())
+                .merchantId(offer.getMerchantId())
+                .merchantName(merchant != null ? merchant.getName() : null)
                 .trackLink(trackLink)
                 .networkCode(network != null ? network.getCode() : null)
                 .osType(detectOsType(request.getHeader("User-Agent")))
@@ -75,6 +83,8 @@ public class MediabuyClickLogServiceImpl implements MediabuyClickLogService {
         m.put("tenantId", log.getTenantId());
         m.put("offerId", log.getOfferId());
         m.put("offerName", log.getOfferName());
+        m.put("merchantId", log.getMerchantId());
+        m.put("merchantName", log.getMerchantName());
         m.put("clickId", log.getClickId());
         m.put("publisherClickId", log.getPublisherClickId());
         m.put("subid1", log.getSubid1());
