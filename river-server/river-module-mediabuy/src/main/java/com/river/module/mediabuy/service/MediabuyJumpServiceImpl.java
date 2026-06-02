@@ -35,7 +35,15 @@ public class MediabuyJumpServiceImpl implements MediabuyJumpService {
 
         // use JSON string as JS string literal (safe escaping)
         String urlLiteral = JsonUtils.toJsonString(trackLink);
+        // 返回完整 HTML 页面：浏览器顶级导航时才会执行 <script>。
+        // 同时附带 <noscript> meta refresh 兜底，覆盖禁用 JS 的客户端。
         return """
+                <!DOCTYPE html>
+                <html><head><meta charset="UTF-8">
+                <title>Redirecting...</title>
+                <noscript><meta http-equiv="refresh" content="0;url=%s"></noscript>
+                </head><body>
+                <script>
                 (function () {
                   try {
                     var url = %s;
@@ -46,7 +54,9 @@ public class MediabuyJumpServiceImpl implements MediabuyJumpService {
                     // ignore
                   }
                 })();
-                """.formatted(urlLiteral);
+                </script>
+                </body></html>
+                """.formatted(trackLink.replace("\"", "&quot;"), urlLiteral);
     }
 
 }
