@@ -28,17 +28,17 @@ public class MediabuyJumpController {
     private MediabuyJumpService jumpService;
 
     @GetMapping(value = "/{offerId}", produces = "text/html;charset=UTF-8")
-    @Operation(summary = "JS 200 跳转", description = "路径格式：/track/{offerId}?publisher_click_id={publisher_click_id}&subid1={subid1}&subid2={subid2}")
+    @Operation(summary = "JS 200 跳转", description = "路径格式：/track/{offerId}?pid={pid}&subid1={subid1}&subid2={subid2}")
     @Parameters({
             @Parameter(name = "offerId", description = "Offer ID", required = true),
-            @Parameter(name = "publisher_click_id", description = "媒体侧点击 ID（外部传入）"),
+            @Parameter(name = "pid", description = "媒体侧点击 ID（外部传入）"),
             @Parameter(name = "subid1", description = "Sub ID 1"),
             @Parameter(name = "subid2", description = "Sub ID 2")
     })
     @PermitAll
     @TenantIgnore
     public ResponseEntity<String> track(@PathVariable("offerId") Long offerId,
-                                        @RequestParam(value = "publisher_click_id", required = false) String publisherClickId,
+                                        @RequestParam(value = "pid", required = false) String publisherClickId,
                                         @RequestParam(value = "subid1", required = false) String subid1,
                                         @RequestParam(value = "subid2", required = false) String subid2,
                                         HttpServletRequest request) {
