@@ -151,7 +151,7 @@ jobs:
             cd /opt/river
 
             # 创建必要目录
-            mkdir -p data/postgres data/redis data/server-logs ssl nginx admin-dist
+            mkdir -p data/mysql data/redis data/server-logs ssl nginx admin-dist
 
             # 如果没有 SSL 证书，创建自签名证书（用于首次部署测试）
             if [ ! -f ssl/deals.ecommica.com_bundle.pem ]; then
@@ -163,7 +163,7 @@ jobs:
 
             # 创建环境变量文件
             echo "GITHUB_REPO=${{ github.repository }}" > .env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+            echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
 
             # 拉取最新镜像并重启服务
             docker-compose -f docker-compose.prod.yml pull
