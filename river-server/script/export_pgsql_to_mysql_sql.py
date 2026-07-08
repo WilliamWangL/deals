@@ -43,11 +43,12 @@ SKIP_PREFIXES = ("qrtz_",)
 
 
 def run_pg_csv(sql: str) -> str:
-    """在 river-postgres 容器中执行 psql --csv，返回 CSV 文本。"""
+    """在 river-postgres 容器中执行 COPY ... TO STDOUT (CSV, NULL='\\N')，返回 CSV 文本。"""
+    copy_sql = f"COPY ({sql}) TO STDOUT WITH (FORMAT csv, NULL '\\N', HEADER true)"
     cmd = [
         "docker", "exec", PG_CONTAINER,
-        "psql", "-U", PG_USER, "-d", PG_DB, "--csv",
-        "-c", sql,
+        "psql", "-U", PG_USER, "-d", PG_DB,
+        "-c", copy_sql,
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     if result.returncode != 0:
@@ -134,14 +135,19 @@ def pg_columns(table: str) -> list[str]:
 
 def mysql_escape(value) -> str:
     """将 Python 值转换为 MySQL INSERT 可用的字面量。"""
-    if value is None or value == "":
+    # psql --null '\\N' 明确标识 NULL；空字符串保持为空字符串
+    if value is None or value == "\\N":
         return "NULL"
+    if value == "":
+        return "''"
 
-    # PostgreSQL CSV 中布尔值会以 "true"/"false" 字符串出现
-    if isinstance(value, str) and value.lower() == "true":
-        return "1"
-    if isinstance(value, str) and value.lower() == "false":
-        return "0"
+    # PostgreSQL CSV 中布尔值会以多种字符串形式出现
+    if isinstance(value, str):
+        lowered = value.lower()
+        if lowered in ("true", "t", "yes", "y", "1"):
+            return "1"
+        if lowered in ("false", "f", "no", "n", "0"):
+            return "0"
 
     if isinstance(value, (int, float)):
         return str(value)
