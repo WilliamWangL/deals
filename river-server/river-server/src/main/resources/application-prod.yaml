@@ -46,16 +46,16 @@ spring:
       primary: master
       datasource:
         master:
-          driver-class-name: org.postgresql.Driver
-          url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:river}?prepareThreshold=0
-          username: ${POSTGRES_USER:postgres}
-          password: ${POSTGRES_PASSWORD}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://mysql:3306/${MYSQL_DB:river}?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false
+          username: ${MYSQL_USER:root}
+          password: ${MYSQL_PASSWORD}
         slave:
           lazy: true
-          driver-class-name: org.postgresql.Driver
-          url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:river}?prepareThreshold=0
-          username: ${POSTGRES_USER:postgres}
-          password: ${POSTGRES_PASSWORD}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://mysql:3306/${MYSQL_DB:river}?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false
+          username: ${MYSQL_USER:root}
+          password: ${MYSQL_PASSWORD}
 
   # Redis 配置
   data:

@@ -6,21 +6,21 @@ version: '3.8'
 #   RIVER_SERVER_BIND、RIVER_ECOMMICA_BIND、RIVER_HTTP_BIND、RIVER_HTTPS_BIND、RIVER_DB_BIND
 
 services:
-  postgres:
-    image: postgres:17
-    container_name: river-postgres
+  mysql:
+    image: mysql:8.0
+    container_name: river-mysql
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      - POSTGRES_DB=${POSTGRES_DB:-river}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+      - MYSQL_DATABASE=${MYSQL_DB:-river}
       - TZ=Asia/Shanghai
     ports:
-      - "${RIVER_DB_BIND:-0.0.0.0}:5432:5432"
+      - "${RIVER_DB_BIND:-0.0.0.0}:3306:3306"
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - ./data/mysql:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -52,11 +52,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - TZ=Asia/Shanghai
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB:-river}
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DB=${MYSQL_DB:-river}
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
