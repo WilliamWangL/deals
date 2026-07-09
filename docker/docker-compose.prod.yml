@@ -3,29 +3,10 @@ version: '3.8'
 # 生产编排：数据库、Redis、后端、站点、Nginx。
 # 日志：river-server 应用日志与 mediabuy 点击行日志挂载到宿主机 ./data/server-logs -> 容器 /app/logs
 # 端口：可通过环境变量绑定宿主机地址（默认 127.0.0.1 仅本机；设为 0.0.0.0 对外暴露）
-#   RIVER_SERVER_BIND、RIVER_ECOMMICA_BIND、RIVER_HTTP_BIND、RIVER_HTTPS_BIND、RIVER_DB_BIND
+#   RIVER_SERVER_BIND、RIVER_ECOMMICA_BIND、RIVER_HTTP_BIND、RIVER_HTTPS_BIND
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: river-mysql
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
-      - MYSQL_DATABASE=${MYSQL_DB:-river}
-      - TZ=Asia/Shanghai
-    ports:
-      - "${RIVER_DB_BIND:-0.0.0.0}:3306:3306"
-    volumes:
-      - ./data/mysql:/var/lib/mysql
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_PASSWORD}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - river-network
+  # MySQL 使用宿主机已有的实例（非容器），river-server 通过 host-gateway 连接
 
   redis:
     image: redis:7-alpine
@@ -52,12 +33,13 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - TZ=Asia/Shanghai
+      - MYSQL_HOST=host.docker.internal
       - MYSQL_USER=root
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DB=${MYSQL_DB:-river}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
-      mysql:
-        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
