@@ -63,11 +63,12 @@ export default async function DealsPage({
   const t = await getTranslations({ locale, namespace: 'deals' });
 
   const regionFilter = getRegionFilter(region);
+  const regionsArray = regionFilter ? [regionFilter] : undefined;
 
   const dealsResult = await fetchDeals({
     pageNo: currentPage,
     pageSize,
-    regions: regionFilter
+    regions: regionsArray
   });
   const allDeals = dealsResult.list || [];
   const total = dealsResult.total || 0;

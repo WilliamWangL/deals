@@ -88,5 +88,6 @@ export interface Category {
   icon: string;
   level?: number;
   parentId?: number;
+  region?: string;
   children?: Category[];
 }

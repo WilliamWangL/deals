@@ -63,12 +63,13 @@ export default async function CouponsPage(props: {
   const region = await getCurrentRegion({ region: typeof searchParams.region === 'string' ? searchParams.region : undefined });
 
   const regionFilter = getRegionFilter(region);
+  const regionsArray = regionFilter ? [regionFilter] : undefined;
 
   const { list: allCoupons, total } = await fetchCoupons({
     pageNo: currentPage,
     pageSize,
     verified: verifiedOnly ? true : undefined,
-    regions: regionFilter
+    regions: regionsArray
   });
 
   const displayCoupons = q
@@ -84,7 +85,7 @@ export default async function CouponsPage(props: {
   threeDaysFromNow.setDate(now.getDate() + 3);
 
   // Fetch all coupons for stats (without pagination)
-  const allCouponsResult = await fetchCoupons({ verified: verifiedOnly ? true : undefined, regions: regionFilter });
+  const allCouponsResult = await fetchCoupons({ verified: verifiedOnly ? true : undefined, regions: regionsArray });
   const allCouponsForStats = allCouponsResult.list;
   const totalCoupons = total;
   const verifiedCount = allCouponsForStats.filter(c => c.verified).length;

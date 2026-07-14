@@ -138,10 +138,10 @@ export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {
   return json.data ? mapPostType(json.data) : null
 }
 
-export async function fetchCategories(params?: { regions?: string[] }): Promise<Category[]> {
+export async function fetchCategories(params?: { region?: string }): Promise<Category[]> {
   const url = new URL(`${getApiBaseUrl()}/affiliate/category/tree`)
-  if (params?.regions?.length) {
-    params.regions.forEach(r => url.searchParams.append('regions', r))
+  if (params?.region) {
+    url.searchParams.set('region', params.region)
   }
   const res = await fetchWithTenant(url.toString(), { next: { revalidate: 3600 } })
   if (!res.ok) throw new Error('Fetch categories failed')

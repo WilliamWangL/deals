@@ -64,12 +64,13 @@ export default async function StoresPage({
   const t = await getTranslations({ locale, namespace: 'stores' });
 
   const regionFilter = getRegionFilter(region);
+  const regionsArray = regionFilter ? [regionFilter] : undefined;
 
   const storesResult = await fetchStores({
     pageNo: currentPage,
     pageSize,
     name: searchQuery || undefined,
-    regions: regionFilter
+    regions: regionsArray
   });
   const stores = storesResult.list || [];
   const total = storesResult.total || 0;

@@ -38,6 +38,9 @@ public class CategoryDO extends TenantBaseDO {
     /** 图标 */
     private String icon;
 
+    /** 地区代码，如 US、RU、00 表示默认 */
+    private String region;
+
     /** 状态：0-停用，1-启用 */
     private Integer status;
 }
