@@ -12,6 +12,7 @@ import com.river.module.affiliate.dal.mysql.MerchantMapper;
 import com.river.module.affiliate.dal.mysql.NetworkCredentialMapper;
 import com.river.module.affiliate.dal.mysql.OfferMapper;
 import com.river.module.affiliate.enums.PayoutModelEnum;
+import com.river.module.affiliate.service.CategoryService;
 import com.river.module.coupon.dal.dataobject.CouponDO;
 import com.river.module.coupon.dal.dataobject.DealDO;
 import com.river.module.coupon.dal.mysql.CouponMapper;
@@ -664,6 +665,10 @@ public class AdmitadSyncService {
     }
 
     private String mapCategories(Long networkId, List<AdmitadCampaign.Category> categories) {
+        return mapCategories(networkId, categories, CategoryService.DEFAULT_REGION);
+    }
+
+    private String mapCategories(Long networkId, List<AdmitadCampaign.Category> categories, String region) {
         List<Long> mappedCategoryIds = new ArrayList<>();
 
         for (AdmitadCampaign.Category category : categories) {
@@ -672,7 +677,7 @@ public class AdmitadSyncService {
             CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
 
             if (mapping == null) {
-                CategoryDO localCategory = createLocalCategory(category.getName());
+                CategoryDO localCategory = createLocalCategory(category.getName(), region);
                 categoryMapper.insert(localCategory);
 
                 mapping = new CategoryMappingDO();
@@ -682,13 +687,13 @@ public class AdmitadSyncService {
                 mapping.setCategoryId(localCategory.getId());
                 mapping.setAutoCreated(true);
                 categoryMappingMapper.insert(mapping);
-                log.info("Auto-created category: {} -> local id={}", category.getName(), localCategory.getId());
+                log.info("Auto-created category: {} -> local id={}, region={}", category.getName(), localCategory.getId(), region);
             } else if (mapping.getCategoryId() == null) {
-                CategoryDO localCategory = createLocalCategory(category.getName());
+                CategoryDO localCategory = createLocalCategory(category.getName(), region);
                 categoryMapper.insert(localCategory);
                 mapping.setCategoryId(localCategory.getId());
                 categoryMappingMapper.updateById(mapping);
-                log.info("Auto-bound category: {} -> local id={}", category.getName(), localCategory.getId());
+                log.info("Auto-bound category: {} -> local id={}, region={}", category.getName(), localCategory.getId(), region);
             }
 
             if (mapping.getCategoryId() != null) {
@@ -700,13 +705,14 @@ public class AdmitadSyncService {
             mappedCategoryIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
-    private CategoryDO createLocalCategory(String name) {
+    private CategoryDO createLocalCategory(String name, String region) {
         CategoryDO category = new CategoryDO();
         category.setParentId(0L);
         category.setName(name);
         category.setSlug(generateTrackingSlug("category", name, System.currentTimeMillis()));
         category.setLevel(1);
         category.setSort(0);
+        category.setRegion(region);
         category.setStatus(CommonStatusEnum.ENABLE.getStatus());
         return category;
     }
@@ -765,6 +771,10 @@ public class AdmitadSyncService {
     }
 
     private String mapCouponCategories(Long networkId, List<AdmitadCoupon.Category> categories) {
+        return mapCouponCategories(networkId, categories, CategoryService.DEFAULT_REGION);
+    }
+
+    private String mapCouponCategories(Long networkId, List<AdmitadCoupon.Category> categories, String region) {
         List<Long> mappedCategoryIds = new ArrayList<>();
 
         for (AdmitadCoupon.Category category : categories) {
@@ -773,7 +783,7 @@ public class AdmitadSyncService {
             CategoryMappingDO mapping = categoryMappingMapper.selectByNetworkAndExternalId(networkId, externalId);
 
             if (mapping == null) {
-                CategoryDO localCategory = createLocalCategory(category.getName());
+                CategoryDO localCategory = createLocalCategory(category.getName(), region);
                 categoryMapper.insert(localCategory);
 
                 mapping = new CategoryMappingDO();
@@ -783,13 +793,13 @@ public class AdmitadSyncService {
                 mapping.setCategoryId(localCategory.getId());
                 mapping.setAutoCreated(true);
                 categoryMappingMapper.insert(mapping);
-                log.info("Auto-created category: {} -> local id={}", category.getName(), localCategory.getId());
+                log.info("Auto-created coupon category: {} -> local id={}, region={}", category.getName(), localCategory.getId(), region);
             } else if (mapping.getCategoryId() == null) {
-                CategoryDO localCategory = createLocalCategory(category.getName());
+                CategoryDO localCategory = createLocalCategory(category.getName(), region);
                 categoryMapper.insert(localCategory);
                 mapping.setCategoryId(localCategory.getId());
                 categoryMappingMapper.updateById(mapping);
-                log.info("Auto-bound category: {} -> local id={}", category.getName(), localCategory.getId());
+                log.info("Auto-bound coupon category: {} -> local id={}, region={}", category.getName(), localCategory.getId(), region);
             }
 
             if (mapping.getCategoryId() != null) {

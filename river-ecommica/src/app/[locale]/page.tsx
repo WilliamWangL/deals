@@ -72,14 +72,15 @@ export default async function HomePage({
   const tCategories = await getTranslations({locale, namespace: 'categories'});
 
   const regionFilter = getRegionFilter(region);
+  const regionsArray = regionFilter ? [regionFilter] : undefined;
 
   const [dealsResult, storesResult, categories] = await Promise.all([
-    fetchDeals({ featured: true, regions: regionFilter }),
-    fetchStores({ pageNo: 1, pageSize: 6, regions: regionFilter }),
-    fetchCategories({ regions: regionFilter })
+    fetchDeals({ featured: true, regions: regionsArray }),
+    fetchStores({ pageNo: 1, pageSize: 6, regions: regionsArray }),
+    fetchCategories({ region: regionFilter })
   ]);
 
-  const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals({ regions: regionFilter })).list;
+  const featuredDealsRaw = dealsResult.list.length > 0 ? dealsResult.list : (await fetchDeals({ regions: regionsArray })).list;
   const featuredDeals = featuredDealsRaw.slice(0, 8);
   const popularStores = storesResult.list.slice(0, 6);
 

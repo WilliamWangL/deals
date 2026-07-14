@@ -135,9 +135,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const t = await getTranslations({ locale, namespace: 'CategoryDetail' });
 
   const regionFilter = getRegionFilter(region);
+  const regionsArray = regionFilter ? [regionFilter] : undefined;
 
   // First fetch categories to find the category by slug
-  const categories = await fetchCategories({ regions: regionFilter });
+  const categories = await fetchCategories({ region: regionFilter });
   const category = findCategoryBySlug(categories, slug);
 
   if (!category) {
@@ -148,12 +149,12 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const [dealsResult, couponsResult] = await Promise.all([
     fetchDeals({
       categoryId: category.id,
-      regions: regionFilter,
+      regions: regionsArray,
       pageSize: 8
     }),
     fetchCoupons({
       categoryId: category.id,
-      regions: regionFilter,
+      regions: regionsArray,
       pageSize: 6
     }),
   ]);

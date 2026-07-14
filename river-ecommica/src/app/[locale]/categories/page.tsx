@@ -54,7 +54,7 @@ export default async function CategoriesPage({
   const t = await getTranslations({ locale, namespace: 'categories' });
 
   const regionFilter = getRegionFilter(region);
-  const categories = await fetchCategories({ regions: regionFilter });
+  const categories = await fetchCategories({ region: regionFilter });
 
   const totalCategories = categories.length;
   const totalSubcategories = categories.reduce((acc, c) => acc + (c.children?.length || 0), 0);
