@@ -13,7 +13,9 @@ import { Star, ShoppingBag, Ticket, ShieldCheck, Store as StoreIcon, ArrowUpRigh
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
 export const dynamicParams = true;
-export const dynamic = 'force-dynamic';
+
+// 使用 ISR 代替 force-dynamic，每 5 分钟重新生成
+export const revalidate = 300;
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -52,6 +54,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('meta.title', { name: store.name }),
     description: store.description || t('meta.description', { name: store.name }),
+    alternates: {
+      canonical: `${BASE_URL}/${locale}/stores/${store.slug}`,
+      languages: {
+        'en': `${BASE_URL}/en/stores/${store.slug}`,
+        'zh': `${BASE_URL}/zh/stores/${store.slug}`,
+      },
+    },
     openGraph: {
       title: t('meta.title', { name: store.name }),
       description: store.description || t('meta.description', { name: store.name }),
