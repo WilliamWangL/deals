@@ -11,10 +11,9 @@ import { JsonLd, BASE_URL, generateStoreJsonLd, generateBreadcrumbJsonLd } from 
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Star, ShoppingBag, Ticket, ShieldCheck, Store as StoreIcon, ArrowUpRight, Gift } from 'lucide-react';
 
-// 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
-// 注意：不设页面级 revalidate，因 next-intl getTranslations 使用 headers()
+// next-intl getTranslations 内部使用 headers()，需要 force-dynamic
 // 数据级缓存在 API fetch 层通过 { next: { revalidate: 300 } } 实现
-export const dynamicParams = true;
+export const dynamic = 'force-dynamic';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
