@@ -9,11 +9,9 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { MarkdownRenderer } from '@/components/blog';
 import { Calendar, Eye, User, Tag } from 'lucide-react';
 
-// 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
-export const dynamicParams = true;
-
-// 使用 ISR 代替 force-dynamic，每 5 分钟重新生成
-export const revalidate = 300;
+// next-intl getTranslations 内部使用 headers()，需要 force-dynamic
+// 数据级缓存在 API fetch 层通过 { next: { revalidate: 300 } } 实现
+export const dynamic = 'force-dynamic';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
