@@ -27,10 +27,9 @@ import {
 } from 'lucide-react';
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
+// 注意：不设页面级 revalidate，因 next-intl getTranslations 使用 headers()
+// 数据级缓存在 API fetch 层通过 { next: { revalidate: 300 } } 实现
 export const dynamicParams = true;
-
-// 使用 ISR 代替 force-dynamic，每 5 分钟重新生成
-export const revalidate = 300;
 
 const iconMap: Record<string, LucideIcon> = {
   Laptop,
