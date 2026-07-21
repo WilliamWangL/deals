@@ -28,7 +28,9 @@ import {
 
 // 允许运行时动态参数（当 generateStaticParams 未返回该参数时）
 export const dynamicParams = true;
-export const dynamic = 'force-dynamic';
+
+// 使用 ISR 代替 force-dynamic，每 5 分钟重新生成
+export const revalidate = 300;
 
 const iconMap: Record<string, LucideIcon> = {
   Laptop,
@@ -105,6 +107,13 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   return {
     title: t('meta.title', { name: category.name }),
     description: t('meta.description', { name: categoryNameLower }),
+    alternates: {
+      canonical: `${BASE_URL}/${locale}/category/${category.slug}`,
+      languages: {
+        'en': `${BASE_URL}/en/category/${category.slug}`,
+        'zh': `${BASE_URL}/zh/category/${category.slug}`,
+      },
+    },
     openGraph: {
       title: t('meta.title', { name: category.name }),
       description: t('meta.description', { name: categoryNameLower }),

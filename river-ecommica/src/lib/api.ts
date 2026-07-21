@@ -80,7 +80,7 @@ export async function fetchStores(params?: { pageNo?: number; pageSize?: number;
     params.regions.forEach(r => url.searchParams.append('regions', r));
   }
 
-  const res = await fetchWithTenant(url.toString(), { cache: 'no-store' });
+  const res = await fetchWithTenant(url.toString(), { next: { revalidate: 300 } });
   if (!res.ok) throw new Error('Fetch stores failed');
   const json = await res.json();
   return json.data || { total: 0, list: [] };
