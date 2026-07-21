@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchCoupons } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
 import { getRegionFilter } from '@/lib/region-constants';
@@ -59,6 +59,7 @@ export default async function CouponsPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { locale } = await props.params;
+  setRequestLocale(locale);
   const searchParams = await props.searchParams;
 
   const t = await getTranslations({ locale, namespace: 'coupons' });

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchPosts } from '@/lib/api';
 import { PAGINATION } from '@/constants/pagination';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,6 +21,7 @@ import {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'blog' });
 
   return {
@@ -64,6 +65,7 @@ export default async function BlogPage({
   searchParams: Promise<{ page?: string }>
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const queryParams = await searchParams;
   const t = await getTranslations({ locale, namespace: 'blog' });
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);

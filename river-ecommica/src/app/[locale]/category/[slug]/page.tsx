@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
 import { getRegionFilter } from '@/lib/region-constants';
@@ -26,9 +26,9 @@ import {
   type LucideIcon
 } from 'lucide-react';
 
-// next-intl getTranslations 内部使用 headers()，需要 force-dynamic
-// 数据级缓存在 API fetch 层通过 { next: { revalidate: 300 } } 实现
-export const dynamic = 'force-dynamic';
+// 使用 ISR，每 5 分钟重新生成
+export const revalidate = 300;
+export const dynamicParams = true;
 
 const iconMap: Record<string, LucideIcon> = {
   Laptop,
@@ -93,6 +93,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'CategoryDetail' });
   const categories = await fetchCategories();
   const category = findCategoryBySlug(categories, slug);
@@ -137,6 +138,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const queryParams = await searchParams;
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({ locale, namespace: 'CategoryDetail' });

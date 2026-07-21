@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchStores, fetchStoreBySlug, fetchDeals, fetchOffersByMerchant } from '@/lib/api';
 import { getTrackingLink } from '@/lib/tracking';
 import DealCard from '@/components/deal/DealCard';
@@ -11,9 +11,9 @@ import { JsonLd, BASE_URL, generateStoreJsonLd, generateBreadcrumbJsonLd } from 
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Star, ShoppingBag, Ticket, ShieldCheck, Store as StoreIcon, ArrowUpRight, Gift } from 'lucide-react';
 
-// next-intl getTranslations 内部使用 headers()，需要 force-dynamic
-// 数据级缓存在 API fetch 层通过 { next: { revalidate: 300 } } 实现
-export const dynamic = 'force-dynamic';
+// 使用 ISR，每 5 分钟重新生成
+export const revalidate = 300;
+export const dynamicParams = true;
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -40,6 +40,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'StoreDetail' });
   const store = await fetchStoreBySlug(slug);
 
@@ -84,6 +85,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StoreDetailPage({ params }: Props) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'StoreDetail' });
   const store = await fetchStoreBySlug(slug);
 

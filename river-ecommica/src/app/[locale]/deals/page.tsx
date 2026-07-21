@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchDeals } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
 import { getRegionFilter } from '@/lib/region-constants';
@@ -62,6 +62,7 @@ export default async function DealsPage({
   searchParams: Promise<{ q?: string; page?: string; region?: string }>
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const queryParams = await searchParams;
   const searchQuery = queryParams.q?.trim() || '';
   const currentPage = parseInt(queryParams.page || String(PAGINATION.DEFAULT_PAGE), 10);

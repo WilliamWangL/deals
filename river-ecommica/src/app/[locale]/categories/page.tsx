@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchCategories } from '@/lib/api';
 import { getCurrentRegion } from '@/lib/region';
 import { getRegionFilter } from '@/lib/region-constants';
@@ -56,6 +56,7 @@ export default async function CategoriesPage({
   searchParams: Promise<{ region?: string }>
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const queryParams = await searchParams;
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({ locale, namespace: 'categories' });
