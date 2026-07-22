@@ -3,8 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchDeals, fetchCoupons, fetchCategories } from '@/lib/api';
-import { getCurrentRegion } from '@/lib/region';
-import { getRegionFilter } from '@/lib/region-constants';
+import { getRegionFilter, DEFAULT_REGION } from '@/lib/region-constants';
 import { Category } from '@/types';
 import DealCard from '@/components/deal/DealCard';
 import CouponCard from '@/components/coupon/CouponCard';
@@ -26,9 +25,8 @@ import {
   type LucideIcon
 } from 'lucide-react';
 
-// 使用 ISR，每 5 分钟重新生成
-export const revalidate = 300;
-export const dynamicParams = true;
+// 使用动态渲染，因为分类页面需要获取实时数据
+export const dynamic = 'force-dynamic';
 
 const iconMap: Record<string, LucideIcon> = {
   Laptop,
@@ -140,7 +138,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const queryParams = await searchParams;
-  const region = await getCurrentRegion(queryParams);
+  // 使用 searchParams 中的 region 或默认值，避免使用 headers()/cookies()（与 ISR 冲突）
+  const region = queryParams?.region || DEFAULT_REGION;
   const t = await getTranslations({ locale, namespace: 'CategoryDetail' });
 
   const regionFilter = getRegionFilter(region);
