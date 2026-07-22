@@ -132,9 +132,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const [storesResult, dealsResult, postsResult, categories] = await Promise.all([
-      fetchStores(),
-      fetchDeals(),
-      fetchPosts(),
+      fetchStores({ pageSize: 200 }),
+      fetchDeals({ pageSize: 200 }),
+      fetchPosts({ pageSize: 200 }),
       fetchCategories(),
     ]);
 
