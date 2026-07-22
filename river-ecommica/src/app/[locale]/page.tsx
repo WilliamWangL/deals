@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DealCard } from '@/components/deal/DealCard';
 import { StoreCard } from '@/components/store/StoreCard';
 import { AffiliateNetworks } from '@/components/home/AffiliateNetworks';
@@ -72,6 +72,7 @@ export default async function HomePage({
   searchParams: Promise<{ region?: string }>
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const queryParams = await searchParams;
   const region = await getCurrentRegion(queryParams);
   const t = await getTranslations({locale, namespace: 'Home'});
