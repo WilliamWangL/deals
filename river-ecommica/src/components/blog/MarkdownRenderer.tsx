@@ -15,7 +15,11 @@ interface MarkdownRendererProps {
 // 检测内容是否为 HTML（富文本编辑器生成）
 function isHtmlContent(content: string): boolean {
   const trimmed = content.trim();
-  return /^</.test(trimmed) && /<\/[a-z][\s\S]*?>/i.test(trimmed);
+  // 内容以 HTML 标签开头，或包含 HTML 块级标签
+  const startsWithTag = /^</.test(trimmed);
+  const hasBlockTags = /<(p|div|h[1-6]|table|tr|td|th|ul|ol|li|article|section|header|footer|br|img|a|span|strong|em|blockquote|pre|code|figure|figcaption|hr)\b[\s\S]*>/i.test(trimmed);
+  const hasClosingTag = /<\/[a-z][\s\S]*?>/i.test(trimmed);
+  return (startsWithTag || hasBlockTags) && hasClosingTag;
 }
 
 // 解码基础 HTML 实体
@@ -92,9 +96,11 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
   // 预处理：将字面量 \n 转换为真正的换行符
   const processedContent = content.replace(/\\n/g, '\n');
 
+  // 先解码 HTML 实体，再检测是否为 HTML（API 可能返回实体编码的 HTML）
+  const decodedContent = decodeHtmlEntities(processedContent);
+
   // 如果内容是 HTML（富文本编辑器生成），直接渲染为 HTML
-  if (isHtmlContent(processedContent)) {
-    const decodedContent = decodeHtmlEntities(processedContent);
+  if (isHtmlContent(decodedContent)) {
     return (
       <div
         className={`markdown-renderer ${className}`}
