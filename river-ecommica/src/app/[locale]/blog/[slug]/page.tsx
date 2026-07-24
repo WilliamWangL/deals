@@ -9,9 +9,9 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { MarkdownRenderer } from '@/components/blog';
 import { Calendar, Eye, User, Tag } from 'lucide-react';
 
-// 使用 ISR，每 5 分钟重新生成
-export const revalidate = 300;
-export const dynamicParams = true;
+// next-intl 的 getTranslations 会内部调用 headers()，与 ISR 冲突
+// 使用 force-dynamic 确保 SSR 正常，数据缓存通过 API 层 revalidate 实现
+export const dynamic = 'force-dynamic';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -113,7 +113,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <Breadcrumbs items={breadcrumbs} />
-      <JsonLd data={generateBlogPostJsonLd(post)} />
+      <JsonLd data={generateBlogPostJsonLd(post, locale)} />
       <JsonLd data={generateBreadcrumbJsonLd(breadcrumbJsonLdItems)} />
       <main className="min-h-screen bg-dots-pattern pb-16">
         <div className="relative h-[400px] w-full bg-gray-900 overflow-hidden">
