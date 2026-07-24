@@ -41,13 +41,13 @@ export function generateStoreJsonLd(store: Store) {
   };
 }
 
-export function generateBlogPostJsonLd(post: BlogPost) {
+export function generateBlogPostJsonLd(post: BlogPost, locale: string = 'en') {
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt,
-    url: `${BASE_URL}/blog/${post.slug}`,
+    url: `${BASE_URL}/${locale}/blog/${post.slug}`,
     image: post.coverImage || undefined,
     datePublished: post.publishedAt,
     author: {

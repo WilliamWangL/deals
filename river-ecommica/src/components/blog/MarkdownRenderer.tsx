@@ -1,5 +1,3 @@
-'use client';
-
 import { Children, isValidElement, ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,6 +10,33 @@ import './MarkdownRenderer.css';
 interface MarkdownRendererProps {
   content: string;
   className?: string;
+}
+
+// 检测内容是否为 HTML（富文本编辑器生成）
+function isHtmlContent(content: string): boolean {
+  const trimmed = content.trim();
+  return /^</.test(trimmed) && /<\/[a-z][\s\S]*?>/i.test(trimmed);
+}
+
+// 解码基础 HTML 实体
+function decodeHtmlEntities(content: string): string {
+  return content
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x27;/g, "'");
+}
+
+// 基础 HTML 清理：移除 script/style 标签、事件处理器、javascript: 伪协议
+function sanitizeHtml(content: string): string {
+  return content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/\s*on\w+="[^"]*"/gi, '')
+    .replace(/\s*on\w+='[^']*'/gi, '')
+    .replace(/javascript:/gi, '');
 }
 
 // 自定义提示框组件
@@ -62,8 +87,21 @@ function extractTextContent(children: ReactNode): string {
 }
 
 export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
-  // 预处理内容：将字面量 \n 转换为真正的换行符
+  if (!content) return null;
+
+  // 预处理：将字面量 \n 转换为真正的换行符
   const processedContent = content.replace(/\\n/g, '\n');
+
+  // 如果内容是 HTML（富文本编辑器生成），直接渲染为 HTML
+  if (isHtmlContent(processedContent)) {
+    const decodedContent = decodeHtmlEntities(processedContent);
+    return (
+      <div
+        className={`markdown-renderer ${className}`}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(decodedContent) }}
+      />
+    );
+  }
 
   return (
     <div className={`markdown-renderer ${className}`}>
