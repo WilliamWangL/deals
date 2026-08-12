@@ -65,6 +65,7 @@ export async function DealCard({ deal, locale }: DealCardProps) {
                   alt={deal.merchant.name}
                   width={40}
                   height={40}
+                  unoptimized
                   className="object-contain w-10 h-10"
                 />
               ) : (

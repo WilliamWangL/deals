@@ -27,6 +27,7 @@ export function StoreCard({ store, locale = 'en' }: { store: Store; locale?: str
                     alt={store.name}
                     width={48}
                     height={48}
+                    unoptimized
                     className="object-contain w-12 h-12"
                   />
                 ) : (
