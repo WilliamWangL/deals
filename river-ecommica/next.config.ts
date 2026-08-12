@@ -66,6 +66,11 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.admitad-connect.com',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'down-mx.img.susercontent.com',
+        pathname: '/**',
+      },
     ],
   },
 };
