@@ -68,7 +68,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.susercontent.com',
+        hostname: '**.susercontent.com',
       },
     ],
   },
