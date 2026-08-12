@@ -1,6 +1,5 @@
 import { Store } from "@/types"
 import Link from "next/link"
-import Image from "next/image"
 import { Star, ArrowUpRight, Tag, Ticket } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -22,12 +21,11 @@ export function StoreCard({ store, locale = 'en' }: { store: Store; locale?: str
                 "transition-all duration-300 group-hover:shadow-md group-hover:scale-105"
               )}>
                 {store.logoUrl ? (
-                  <Image
+                  <img
                     src={store.logoUrl}
                     alt={store.name}
                     width={48}
                     height={48}
-                    unoptimized
                     className="object-contain w-12 h-12"
                   />
                 ) : (
