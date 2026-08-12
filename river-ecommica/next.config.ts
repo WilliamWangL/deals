@@ -67,7 +67,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'http',
+        protocol: 'https',
         hostname: 'down-mx.img.susercontent.com',
         pathname: '/**',
       },
