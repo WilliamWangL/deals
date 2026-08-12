@@ -134,7 +134,8 @@ export default async function StoreDetailPage({ params }: Props) {
                     <Image 
                       src={store.logoUrl} 
                       alt={store.name} 
-                      fill 
+                      fill
+                      unoptimized
                       className="object-contain p-2 transition-transform duration-300 group-hover:scale-105" 
                     />
                   ) : (

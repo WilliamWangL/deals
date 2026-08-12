@@ -125,6 +125,7 @@ export default async function DealDetailPage({ params }: Props) {
                         src={deal.imageUrl}
                         alt={deal.title}
                         fill
+                        unoptimized
                         className="object-contain transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
