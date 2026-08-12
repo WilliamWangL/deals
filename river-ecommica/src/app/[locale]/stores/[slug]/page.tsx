@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchStores, fetchStoreBySlug, fetchDeals, fetchOffersByMerchant } from '@/lib/api';
 import { getTrackingLink } from '@/lib/tracking';
@@ -131,12 +130,10 @@ export default async function StoreDetailPage({ params }: Props) {
               <div className="card-elevated p-4 bg-white shrink-0 relative group">
                 <div className="w-32 h-32 relative flex items-center justify-center">
                   {store.logoUrl ? (
-                    <Image 
-                      src={store.logoUrl} 
-                      alt={store.name} 
-                      fill
-                      unoptimized
-                      className="object-contain p-2 transition-transform duration-300 group-hover:scale-105" 
+                    <img
+                      src={store.logoUrl}
+                      alt={store.name}
+                      className="absolute inset-0 w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
                     <StoreIcon size={48} className="text-gray-300" />

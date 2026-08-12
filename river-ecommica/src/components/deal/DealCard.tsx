@@ -1,5 +1,4 @@
 import { Deal } from '@/types';
-import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Sparkles, Crown, ArrowUpRight } from 'lucide-react';
@@ -60,12 +59,11 @@ export async function DealCard({ deal, locale }: DealCardProps) {
               )}
             >
               {deal.merchant.logoUrl ? (
-                <Image
+                <img
                   src={deal.merchant.logoUrl}
                   alt={deal.merchant.name}
                   width={40}
                   height={40}
-                  unoptimized
                   className="object-contain w-10 h-10"
                 />
               ) : (

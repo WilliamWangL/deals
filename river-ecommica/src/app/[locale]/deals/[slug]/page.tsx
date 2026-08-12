@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchDeals, fetchDealBySlug } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -121,12 +120,10 @@ export default async function DealDetailPage({ params }: Props) {
                 <div className="card-elevated overflow-hidden p-2 bg-white relative group">
                   <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-50">
                     {deal.imageUrl ? (
-                      <Image
+                      <img
                         src={deal.imageUrl}
                         alt={deal.title}
-                        fill
-                        unoptimized
-                        className="object-contain transition-transform duration-500 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-300">
