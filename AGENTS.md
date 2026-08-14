@@ -1,5 +1,4 @@
 # AGENTS.md
-
 > **Parent Document**: This is the root configuration. Subprojects inherit these universal conventions.
 
 
