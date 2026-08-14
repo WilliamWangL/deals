@@ -162,12 +162,13 @@ jobs:
             fi
 
             # 创建环境变量文件
-            echo "GITHUB_REPO=${{ github.repository }}" > .env
+            # Docker 镜像名必须全小写，因此将仓库名转换为小写
+            echo "GITHUB_REPO=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" > .env
             echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
 
             # 拉取最新镜像并重启服务
             docker-compose -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.prod.yml up -d
+            docker-compose -f docker-compose.prod.yml up -d --force-recreate
 
             # 确保 nginx 重新加载静态文件（admin-dist 可能在容器运行时被更新）
             docker restart river-nginx

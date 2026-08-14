@@ -1,5 +1,3 @@
-version: '3.8'
-
 # 生产编排：数据库、Redis、后端、站点、Nginx。
 # 日志：river-server 应用日志与 mediabuy 点击行日志挂载到宿主机 ./data/server-logs -> 容器 /app/logs
 # 端口：可通过环境变量绑定宿主机地址（默认 127.0.0.1 仅本机；设为 0.0.0.0 对外暴露）
